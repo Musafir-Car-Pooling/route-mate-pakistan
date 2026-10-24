@@ -91,7 +91,7 @@ export const validOfficialEmail = (e: string, role: Role) => {
   return !/^(gmail|yahoo|hotmail|outlook|live)\./.test(d);
 };
 export const validPlate = (p: string) => /^[A-Z]{2,4}[- ]?\d{1,4}$/.test(p.trim().toUpperCase());
-export const validOptionalVehicle = (vehicle: { car?: string; plate?: string; carPhoto?: string }) => !vehicle.plate?.trim() || validPlate(vehicle.plate);
+export const validOptionalVehicle = (vehicle: { car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined }) => !vehicle.plate?.trim() || validPlate(vehicle.plate);
 export const formatPKR = (n: number) => "PKR " + Math.round(n).toLocaleString("en-US");
 export const expiresAt = (p: Post, s: Settings) => p.createdAt + s.hours * 3600_000;
 export const isExpired = (p: Post, s: Settings, now = Date.now()) => s.autoCancel && now > expiresAt(p, s);

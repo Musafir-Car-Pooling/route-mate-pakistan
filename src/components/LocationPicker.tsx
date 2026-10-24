@@ -3,7 +3,7 @@ import { Check, ChevronDown, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-type Props = { label: string; value: string; locations: string[]; city?: string; onChange: (value: string) => void };
+type Props = { label: string; value: string; locations: string[]; city?: string | undefined; onChange: (value: string) => void };
 
 export function LocationPicker({ label, value, locations, city, onChange }: Props) {
   const [open, setOpen] = useState(false);

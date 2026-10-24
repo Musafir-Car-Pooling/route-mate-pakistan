@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { LogOut, Check, X, Upload, Trash2 } from "lucide-react";
 import { Logo } from "@/components/AppShell";
+import { AdminLocations } from "@/components/AdminLocations";
 import { useStore, setState, isAdminCreds, formatPKR, compressImage, uid, type Settings } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
@@ -12,12 +13,14 @@ export const Route = createFileRoute("/admin")({
       { property: "og:title", content: "Admin Panel — Travel Sync" },
       { property: "og:description", content: "Manage fees, payments, users and content." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Admin,
 });
 
-const TABS = ["Settings", "Payments", "CMS", "Users", "Rides", "Companies"] as const;
+const TABS = ["Settings", "Locations", "Payments", "CMS", "Users", "Rides", "Companies"] as const;
 
 function Admin() {
   const admin = useStore((s) => s.admin);
@@ -33,6 +36,7 @@ function Admin() {
       </div>
       <div className="mt-4">
         {tab === "Settings" && <SettingsTab />}
+        {tab === "Locations" && <AdminLocations />}
         {tab === "Payments" && <Payments />}
         {tab === "CMS" && <Cms />}
         {tab === "Users" && <Users />}

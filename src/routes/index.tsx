@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Home, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight } from "lucide-react";
+import { Home as HomeIcon, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight } from "lucide-react";
 import { AppShell, Logo } from "@/components/AppShell";
 import { useStore, setState, uid, isExpired, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
@@ -124,7 +124,7 @@ function Home() {
             {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
-        <LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} icon={<Home className="h-5 w-5" />} onChange={setFrom} />
+        <LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} icon={<HomeIcon className="h-5 w-5" />} onChange={setFrom} />
         <LocationPicker label="To — Workplace / University" value={selectedTo} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={setTo} />
         {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities or locations available yet.</p>}
         {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}

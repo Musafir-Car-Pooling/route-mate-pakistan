@@ -103,7 +103,7 @@ const cars = ["Suzuki Alto", "Honda City", "Toyota Corolla", "Suzuki Cultus", "T
 export function mockInterest(post: Post): Interest {
   const g: Gender = post.genderPref === "any" ? (Math.random() > 0.5 ? "male" : "female") : post.genderPref;
   const pool = names[g].filter((n) => !post.interests.some((i) => i.name === n));
-  const name = pool[Math.floor(Math.random() * pool.length)] ?? names[g][0];
+  const name = pool[Math.floor(Math.random() * pool.length)] ?? names[g][0] ?? "Ali Khan";
   return {
     id: uid(), name, gender: g, org: orgs[Math.floor(Math.random() * orgs.length)] ?? "Systems Ltd",
     rating: Math.round((3.8 + Math.random() * 1.2) * 10) / 10, reviews: 5 + Math.floor(Math.random() * 80),

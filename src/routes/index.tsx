@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { MapPin, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight } from "lucide-react";
+import { Home, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight } from "lucide-react";
 import { AppShell, Logo } from "@/components/AppShell";
 import { useStore, setState, uid, isExpired, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
@@ -31,7 +31,7 @@ const slides = [
 function Intro() {
   const [splash, setSplash] = useState(true);
   const [i, setI] = useState(0);
-  useEffect(() => { const t = setTimeout(() => setSplash(false), 3000); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setSplash(false), 4000); return () => clearTimeout(t); }, []);
   if (splash)
     return (
       <div className="grid min-h-screen place-items-center bg-hero text-center text-primary-foreground">

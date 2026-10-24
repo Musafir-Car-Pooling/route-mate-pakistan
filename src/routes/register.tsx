@@ -11,6 +11,8 @@ export const Route = createFileRoute("/register")({
       { name: "description", content: "Join Travel Sync with your official work or university email." },
       { property: "og:title", content: "Register — Travel Sync" },
       { property: "og:description", content: "Verified registration for Jobians and students." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Register,

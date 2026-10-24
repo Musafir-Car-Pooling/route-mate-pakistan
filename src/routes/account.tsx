@@ -11,6 +11,8 @@ export const Route = createFileRoute("/account")({
       { name: "description", content: "Profile, security and privacy settings." },
       { property: "og:title", content: "My Account — Travel Sync" },
       { property: "og:description", content: "Manage your Travel Sync profile." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Account,

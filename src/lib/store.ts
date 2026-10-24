@@ -14,6 +14,7 @@ export type Interest = {
 };
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;
+  city?: string;
   from: string; to: string; time: string; notes: string; genderPref: "any" | "male" | "female";
   seats?: number; daily?: number; weekly?: number; monthly?: number;
   createdAt: number; active: boolean; interests: Interest[];
@@ -23,7 +24,9 @@ export type Unlock = {
   txn: string; screenshot?: string | undefined; amount: number; status: "pending" | "unlocked" | "rejected"; at: number;
 };
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
+export type City = { id: string; name: string; locations: string[] };
 export type Settings = {
+  cities: City[];
   fee: number; autoCancel: boolean; hours: number; instantUnlock: boolean;
   bankTitle: string; bankIban: string; easypaisa: string; jazzcash: string;
   socials: { whatsapp: string; facebook: string; linkedin: string; instagram: string };
@@ -38,6 +41,7 @@ const defaults: State = {
   user: null, admin: false, seenIntro: false, users: [], posts: [], unlocks: [],
   companies: ["Systems Ltd", "Jazz", "Engro", "NetSol", "LUMS", "FAST NUCES", "HBL"].map((n, i) => ({ id: "c" + i, name: n, approved: true })),
   settings: {
+    cities: [],
     fee: 150, autoCancel: true, hours: 24, instantUnlock: false,
     bankTitle: "Travel Sync Pvt Ltd", bankIban: "PK36MEZN0001234567890123", easypaisa: "0300-1234567", jazzcash: "0301-7654321",
     socials: { whatsapp: "https://wa.me/923001234567", facebook: "https://facebook.com", linkedin: "https://linkedin.com", instagram: "https://instagram.com" },
@@ -89,6 +93,11 @@ export const validPlate = (p: string) => /^[A-Z]{2,4}[- ]?\d{1,4}$/.test(p.trim(
 export const formatPKR = (n: number) => "PKR " + Math.round(n).toLocaleString("en-US");
 export const expiresAt = (p: Post, s: Settings) => p.createdAt + s.hours * 3600_000;
 export const isExpired = (p: Post, s: Settings, now = Date.now()) => s.autoCancel && now > expiresAt(p, s);
+export const locationsForCity = (cities: City[], cityId: string) => cities.find((c) => c.id === cityId)?.locations ?? [];
+export const validRouteLocations = (cities: City[], cityId: string, from: string, to: string) => {
+  const locations = locationsForCity(cities, cityId);
+  return locations.includes(from) && locations.includes(to);
+};
 
 export function unlockFor(postId: string, interestId: string, s: State = state) {
   return s.unlocks.find((u) => u.postId === postId && u.interestId === interestId && u.status !== "rejected");

@@ -10,6 +10,8 @@ export const Route = createFileRoute("/login")({
       { name: "description", content: "Log in to your verified Travel Sync account." },
       { property: "og:title", content: "Login — Travel Sync" },
       { property: "og:description", content: "Log in to Travel Sync." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Login,

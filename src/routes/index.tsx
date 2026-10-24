@@ -4,6 +4,8 @@ import { MapPin, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, Chevr
 import { AppShell, Logo } from "@/components/AppShell";
 import { useStore, setState, uid, isExpired, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
+import { Button } from "@/components/ui/button";
+import { locationsForCity, validRouteLocations } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -12,6 +14,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Post a ride or a ride request and connect with verified coworkers and students on your route." },
       { property: "og:title", content: "Travel Sync — Verified Carpooling" },
       { property: "og:description", content: "Verified carpooling for Jobians and university students in Pakistan." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
@@ -70,14 +74,15 @@ function Index() {
 }
 
 function Home() {
-  const user = useStore((s) => s.user)!;
+  const user = useStore((s) => s.user);
   const posts = useStore((s) => s.posts);
   const settings = useStore((s) => s.settings);
   const companies = useStore((s) => s.companies);
   const nav = useNavigate();
   const [mode, setMode] = useState<"passenger" | "driver">("passenger");
-  const [from, setFrom] = useState(user.home);
-  const [to, setTo] = useState(user.work);
+  const [cityId, setCityId] = useState(() => settings.cities.find((c) => c.name === user?.city)?.id ?? "");
+  const [from, setFrom] = useState(user?.home ?? "");
+  const [to, setTo] = useState(user?.work ?? "");
   const [time, setTime] = useState("08:30");
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState<Post["genderPref"]>("any");
@@ -86,11 +91,17 @@ function Home() {
   const [slide, setSlide] = useState(0);
   useEffect(() => { if (!settings.slides.length) return; const t = setInterval(() => setSlide((x) => (x + 1) % settings.slides.length), 4000); return () => clearInterval(t); }, [settings.slides.length]);
 
+  const city = settings.cities.find((c) => c.id === cityId);
+  const locations = locationsForCity(settings.cities, cityId);
+  const selectedFrom = locations.includes(from) ? from : "";
+  const selectedTo = locations.includes(to) ? to : "";
+  const canSubmit = validRouteLocations(settings.cities, cityId, selectedFrom, selectedTo);
+  if (!user) return null;
   const mine = posts.filter((p) => p.ownerId === user.id).sort((a, b) => b.createdAt - a.createdAt);
   const submit = () => {
-    if (!from.trim() || !to.trim()) return;
+    if (!canSubmit || !city) return;
     const p: Post = {
-      id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name, from, to, time, notes, genderPref: gender,
+      id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name, city: city.name, from: selectedFrom, to: selectedTo, time, notes, genderPref: gender,
       ...(mode === "driver" ? { seats, ...fares } : {}), createdAt: Date.now(), active: true, interests: [],
     };
     setState((s) => ({ ...s, posts: [...s.posts, p] }));
@@ -107,8 +118,20 @@ function Home() {
       </div>
 
       <div className="mt-4 card-box space-y-3 p-4">
-        <label className="flex items-center gap-3"><MapPin className="h-6 w-6 shrink-0 text-success" /><input className="field" placeholder="From — Home address" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-        <label className="flex items-center gap-3"><Building2 className="h-6 w-6 shrink-0 text-primary" /><input className="field" placeholder="To — Workplace / University" value={to} onChange={(e) => setTo(e.target.value)} /></label>
+        <label className="block font-semibold">City
+          <select className="field mt-1" aria-label="City" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setFrom(""); setTo(""); }}>
+            <option value="">Select city</option>
+            {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-3"><MapPin className="h-6 w-6 shrink-0 text-success" /><select className="field min-w-0" aria-label="From — Home address" disabled={!locations.length} value={selectedFrom} onChange={(e) => setFrom(e.target.value)}>
+          <option value="">From — Home address</option>{locations.map((l) => <option key={l} value={l}>{l}</option>)}
+        </select></label>
+        <label className="flex items-center gap-3"><Building2 className="h-6 w-6 shrink-0 text-primary" /><select className="field min-w-0" aria-label="To — Workplace / University" disabled={!locations.length} value={selectedTo} onChange={(e) => setTo(e.target.value)}>
+          <option value="">To — Workplace / University</option>{locations.map((l) => <option key={l} value={l}>{l}</option>)}
+        </select></label>
+        {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities or locations available yet.</p>}
+        {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
         <div className="grid grid-cols-2 gap-3">
           <input type="time" className="field" value={time} onChange={(e) => setTime(e.target.value)} aria-label="Departure time" />
           <select className="field" value={gender} onChange={(e) => setGender(e.target.value as Post["genderPref"])} aria-label="Gender preference">
@@ -128,7 +151,7 @@ function Home() {
           </>
         )}
         <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <button onClick={submit} className="btn-big text-3xl">{mode === "driver" ? "Share Ride" : "Send Request"}</button>
+        <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
       </div>
 
       <h3 className="mb-2 mt-6 font-display text-2xl text-muted-foreground">Partner Companies</h3>

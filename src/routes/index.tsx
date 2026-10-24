@@ -124,8 +124,8 @@ function Home() {
             {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
-        <div className="flex items-center gap-3"><MapPin className="h-6 w-6 shrink-0 text-success" /><LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} onChange={setFrom} /></div>
-        <div className="flex items-center gap-3"><Building2 className="h-6 w-6 shrink-0 text-primary" /><LocationPicker label="To — Workplace / University" value={selectedTo} locations={locations} city={city?.name} onChange={setTo} /></div>
+        <LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} icon={<Home className="h-5 w-5" />} onChange={setFrom} />
+        <LocationPicker label="To — Workplace / University" value={selectedTo} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={setTo} />
         {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities or locations available yet.</p>}
         {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
         <div>

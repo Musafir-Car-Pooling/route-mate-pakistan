@@ -6,6 +6,7 @@ import { useStore, setState, uid, isExpired, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -79,11 +80,10 @@ function Home() {
   const settings = useStore((s) => s.settings);
   const companies = useStore((s) => s.companies);
   const nav = useNavigate();
-  const [mode, setMode] = useState<"passenger" | "driver">("passenger");
+  const [mode, setMode] = useState<"passenger" | "driver">(user?.travelMode ?? "passenger");
   const [cityId, setCityId] = useState(() => settings.cities.find((c) => c.name === user?.city)?.id ?? "");
   const [from, setFrom] = useState(user?.home ?? "");
   const [to, setTo] = useState(user?.work ?? "");
-  const [time, setTime] = useState("08:30");
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState<Post["genderPref"]>("any");
   const [seats, setSeats] = useState(3);
@@ -101,7 +101,7 @@ function Home() {
   const submit = () => {
     if (!canSubmit || !city) return;
     const p: Post = {
-      id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name, city: city.name, from: selectedFrom, to: selectedTo, time, notes, genderPref: gender,
+      id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name, city: city.name, from: selectedFrom, to: selectedTo, notes, genderPref: gender,
       ...(mode === "driver" ? { seats, ...fares } : {}), createdAt: Date.now(), active: true, interests: [],
     };
     setState((s) => ({ ...s, posts: [...s.posts, p] }));
@@ -124,16 +124,11 @@ function Home() {
             {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
-        <label className="flex items-center gap-3"><MapPin className="h-6 w-6 shrink-0 text-success" /><select className="field min-w-0" aria-label="From — Home address" disabled={!locations.length} value={selectedFrom} onChange={(e) => setFrom(e.target.value)}>
-          <option value="">From — Home address</option>{locations.map((l) => <option key={l} value={l}>{l}</option>)}
-        </select></label>
-        <label className="flex items-center gap-3"><Building2 className="h-6 w-6 shrink-0 text-primary" /><select className="field min-w-0" aria-label="To — Workplace / University" disabled={!locations.length} value={selectedTo} onChange={(e) => setTo(e.target.value)}>
-          <option value="">To — Workplace / University</option>{locations.map((l) => <option key={l} value={l}>{l}</option>)}
-        </select></label>
+        <div className="flex items-center gap-3"><MapPin className="h-6 w-6 shrink-0 text-success" /><LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} onChange={setFrom} /></div>
+        <div className="flex items-center gap-3"><Building2 className="h-6 w-6 shrink-0 text-primary" /><LocationPicker label="To — Workplace / University" value={selectedTo} locations={locations} city={city?.name} onChange={setTo} /></div>
         {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities or locations available yet.</p>}
         {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
-        <div className="grid grid-cols-2 gap-3">
-          <input type="time" className="field" value={time} onChange={(e) => setTime(e.target.value)} aria-label="Departure time" />
+        <div>
           <select className="field" value={gender} onChange={(e) => setGender(e.target.value as Post["genderPref"])} aria-label="Gender preference">
             <option value="any">Anyone</option><option value="female">Females Only</option><option value="male">Male Only</option>
           </select>

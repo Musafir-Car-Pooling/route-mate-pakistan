@@ -12,3 +12,5 @@
 - App data lives in the in-memory/localStorage store at src/lib/store.ts (prototype until a real backend and payment gateway are added); contact numbers must only render once an unlock has status "unlocked".
 - City catalogs are nested under settings in the prototype store, and home validates route choices against that catalog; this keeps admin entries and passenger/driver options consistent.
 - Admin city/location controls live in a dedicated AdminLocations component to keep catalog management separate from payment and CMS controls.
+- Reuse LocationPicker for admin-catalog location selection with searchable dialogs so search cannot create unapproved addresses.
+- Store travelMode separately from professional role and keep photo/vehicle fields optional so either registration path works without uploads.

@@ -1,8 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { isAdminCreds, validPassword, formatPKR, isExpired, validOfficialEmail, type Post, getState } from "./store";
 import { locationsForCity, validRouteLocations, type City } from "./store";
+import { validOptionalVehicle } from "./store";
 
 describe("travel sync rules", () => {
+  it("allows drivers to register without any vehicle details or vehicle photo", () => {
+    expect(validOptionalVehicle({})).toBe(true);
+    expect(validOptionalVehicle({ car: "", plate: "", carPhoto: undefined })).toBe(true);
+    expect(validOptionalVehicle({ plate: "invalid" })).toBe(false);
+    expect(validOptionalVehicle({ plate: "LEA-1234" })).toBe(true);
+  });
   const cities: City[] = [
     { id: "lahore", name: "Lahore", locations: ["Johar Town", "FAST Campus"] },
     { id: "karachi", name: "Karachi", locations: ["Gulshan"] },

@@ -1,3 +1,3 @@
-- [ ] Add admin-managed cities and locations to the prototype store.
-- [ ] Replace home From/To text fields with city-filtered dropdowns.
-- [ ] Test admin entry, selection, and posting end-to-end.
+- [x] Add admin-managed cities and locations to the prototype store.
+- [x] Replace home From/To text fields with city-filtered dropdowns.
+- [x] Test admin entry, selection, and posting end-to-end.

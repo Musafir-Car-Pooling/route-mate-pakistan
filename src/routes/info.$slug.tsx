@@ -11,6 +11,8 @@ export const Route = createFileRoute("/info/$slug")({
       { name: "description", content: `${titles[params.slug] ?? "Information"} for Travel Sync verified carpooling.` },
       { property: "og:title", content: `${titles[params.slug] ?? "Info"} — Travel Sync` },
       { property: "og:description", content: "Travel Sync information page." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Info,

@@ -13,6 +13,8 @@ export const Route = createFileRoute("/post/$id")({
       { name: "description", content: "See verified members interested in your ride or request." },
       { property: "og:title", content: "Interested Members — Travel Sync" },
       { property: "og:description", content: "Verified members on your route." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: PostPage,

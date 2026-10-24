@@ -50,7 +50,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
             )}
             <nav className="flex-1 space-y-1 overflow-y-auto">
               {items.map((i) => (
-                <Link key={i.label} to={i.to} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-lg font-semibold hover:bg-secondary">
+                <Link key={i.label} to={i.to as "/account"} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-lg font-semibold hover:bg-secondary">
                   <i.icon className="h-5 w-5 text-primary" /> {i.label}
                 </Link>
               ))}

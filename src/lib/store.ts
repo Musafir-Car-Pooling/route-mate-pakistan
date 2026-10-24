@@ -6,11 +6,11 @@ export type User = {
   id: string; name: string; email: string; password: string; phone: string;
   role: Role; org: string; dept: string; gender: Gender; city: string;
   home: string; work: string; prefs: string[]; verified: boolean; active: boolean;
-  phonePublic: boolean; car?: string; plate?: string; carPhoto?: string; rating: number;
+  phonePublic: boolean; car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined; rating: number;
 };
 export type Interest = {
   id: string; name: string; org: string; gender: Gender; rating: number; reviews: number;
-  verified: boolean; car?: string; phone: string; at: number;
+  verified: boolean; car?: string | undefined; phone: string; at: number;
 };
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;
@@ -20,7 +20,7 @@ export type Post = {
 };
 export type Unlock = {
   id: string; postId: string; interestId: string; userId: string; method: string;
-  txn: string; screenshot?: string; amount: number; status: "pending" | "unlocked" | "rejected"; at: number;
+  txn: string; screenshot?: string | undefined; amount: number; status: "pending" | "unlocked" | "rejected"; at: number;
 };
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
 export type Settings = {
@@ -81,7 +81,7 @@ export const validPassword = (p: string) => /^[a-zA-Z0-9]{6,}$/.test(p);
 export const validOfficialEmail = (e: string, role: Role) => {
   const m = e.trim().toLowerCase().match(/^[^@\s]+@([^@\s]+\.[a-z]{2,})$/);
   if (!m) return false;
-  const d = m[1];
+  const d = m[1] ?? "";
   if (role === "student") return d.endsWith(".edu.pk");
   return !/^(gmail|yahoo|hotmail|outlook|live)\./.test(d);
 };
@@ -105,9 +105,9 @@ export function mockInterest(post: Post): Interest {
   const pool = names[g].filter((n) => !post.interests.some((i) => i.name === n));
   const name = pool[Math.floor(Math.random() * pool.length)] ?? names[g][0];
   return {
-    id: uid(), name, gender: g, org: orgs[Math.floor(Math.random() * orgs.length)],
+    id: uid(), name, gender: g, org: orgs[Math.floor(Math.random() * orgs.length)] ?? "Systems Ltd",
     rating: Math.round((3.8 + Math.random() * 1.2) * 10) / 10, reviews: 5 + Math.floor(Math.random() * 80),
-    verified: true, car: post.kind === "request" ? cars[Math.floor(Math.random() * cars.length)] : undefined,
+    verified: true, car: post.kind === "request" ? cars[Math.floor(Math.random() * cars.length)] ?? "Honda City" : undefined,
     phone: "0300" + String(Math.floor(1000000 + Math.random() * 8999999)), at: Date.now(),
   };
 }

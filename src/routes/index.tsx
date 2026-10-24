@@ -37,7 +37,7 @@ function Intro() {
         </div>
       </div>
     );
-  const S = slides[i];
+  const S = slides[i] ?? slides[0]!;
   const done = () => setState((s) => ({ ...s, seenIntro: true }));
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col px-6 py-8">

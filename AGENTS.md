@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- App data lives in the in-memory/localStorage store at src/lib/store.ts (prototype until a real backend and payment gateway are added); contact numbers must only render once an unlock has status "unlocked".

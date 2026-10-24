@@ -44,8 +44,8 @@ function PostPage() {
     <AppShell back title={isRide ? "My Ride" : "My Request"}>
       <div className="card-box p-4">
         <p className="text-lg font-bold">{post.from} → {post.to}</p>
-        <p className="text-sm text-muted-foreground">Departs {post.time} · {post.genderPref === "female" ? "Females Only" : post.genderPref === "male" ? "Male Only" : "Anyone"}{isRide && ` · ${post.seats} seats`}</p>
-        {isRide && <p className="mt-1 text-sm font-semibold">{formatPKR(post.daily!)}/day · {formatPKR(post.weekly!)}/week · {formatPKR(post.monthly!)}/month</p>}
+        <p className="text-sm text-muted-foreground">{post.genderPref === "female" ? "Females Only" : post.genderPref === "male" ? "Male Only" : "Anyone"}{isRide && ` · ${post.seats} seats`}</p>
+        {isRide && <p className="mt-1 text-sm font-semibold">{formatPKR(post.daily ?? 0)}/day · {formatPKR(post.weekly ?? 0)}/week · {formatPKR(post.monthly ?? 0)}/month</p>}
         {post.notes && <p className="mt-2 rounded-xl bg-secondary p-3 text-sm">{post.notes}</p>}
       </div>
 

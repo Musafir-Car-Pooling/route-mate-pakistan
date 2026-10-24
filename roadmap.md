@@ -1,3 +1,6 @@
 - [x] Add admin-managed cities and locations to the prototype store.
 - [x] Replace home From/To text fields with city-filtered dropdowns.
 - [x] Test admin entry, selection, and posting end-to-end.
+- [x] Remove departure time while preserving expiry countdown.
+- [x] Add searchable location selection popups.
+- [x] Update registration choices and optional vehicle/profile photos; test both flows.

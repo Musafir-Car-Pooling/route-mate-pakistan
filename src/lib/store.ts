@@ -2,11 +2,12 @@ import { useSyncExternalStore } from "react";
 
 export type Role = "jobian" | "student";
 export type Gender = "male" | "female";
+export type TravelMode = "driver" | "passenger";
 export type User = {
   id: string; name: string; email: string; password: string; phone: string;
   role: Role; org: string; dept: string; gender: Gender; city: string;
   home: string; work: string; prefs: string[]; verified: boolean; active: boolean;
-  phonePublic: boolean; car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined; rating: number;
+  phonePublic: boolean; travelMode?: TravelMode; profilePhoto?: string | undefined; car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined; rating: number;
 };
 export type Interest = {
   id: string; name: string; org: string; gender: Gender; rating: number; reviews: number;
@@ -15,7 +16,7 @@ export type Interest = {
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;
   city?: string;
-  from: string; to: string; time: string; notes: string; genderPref: "any" | "male" | "female";
+  from: string; to: string; time?: string; notes: string; genderPref: "any" | "male" | "female";
   seats?: number; daily?: number; weekly?: number; monthly?: number;
   createdAt: number; active: boolean; interests: Interest[];
 };
@@ -90,6 +91,7 @@ export const validOfficialEmail = (e: string, role: Role) => {
   return !/^(gmail|yahoo|hotmail|outlook|live)\./.test(d);
 };
 export const validPlate = (p: string) => /^[A-Z]{2,4}[- ]?\d{1,4}$/.test(p.trim().toUpperCase());
+export const validOptionalVehicle = (vehicle: { car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined }) => !vehicle.plate?.trim() || validPlate(vehicle.plate);
 export const formatPKR = (n: number) => "PKR " + Math.round(n).toLocaleString("en-US");
 export const expiresAt = (p: Post, s: Settings) => p.createdAt + s.hours * 3600_000;
 export const isExpired = (p: Post, s: Settings, now = Date.now()) => s.autoCancel && now > expiresAt(p, s);
@@ -127,7 +129,9 @@ export async function compressImage(file: File, max = 800, q = 0.7): Promise<str
   const r = Math.min(1, max / Math.max(img.width, img.height));
   const c = document.createElement("canvas");
   c.width = img.width * r; c.height = img.height * r;
-  c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+  const context = c.getContext("2d");
+  if (!context) { URL.revokeObjectURL(url); throw new Error("Photo could not be processed"); }
+  context.drawImage(img, 0, 0, c.width, c.height);
   URL.revokeObjectURL(url);
   return c.toDataURL("image/jpeg", q);
 }

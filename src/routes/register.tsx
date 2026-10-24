@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Briefcase, GraduationCap, BadgeCheck, Upload } from "lucide-react";
+import { Briefcase, GraduationCap, BadgeCheck, Upload, Car, Users } from "lucide-react";
 import { Logo } from "@/components/AppShell";
-import { setState, getState, uid, validPassword, validOfficialEmail, validPlate, compressImage, type Role, type Gender } from "@/lib/store";
+import { setState, getState, uid, validPassword, validOfficialEmail, validOptionalVehicle, compressImage, type Role, type Gender, type TravelMode } from "@/lib/store";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -22,6 +23,7 @@ const PREFS = ["Smoking allowed", "No smoking", "AC", "Music", "Quiet ride"];
 
 function Register() {
   const nav = useNavigate();
+  const [travelMode, setTravelMode] = useState<TravelMode>();
   const [role, setRole] = useState<Role>("jobian");
   const [f, setF] = useState({ name: "", gender: "male" as Gender, city: "Lahore", org: "", dept: "", email: "", phone: "", home: "", work: "", password: "", car: "", plate: "" });
   const [prefs, setPrefs] = useState<string[]>(["No smoking", "AC"]);
@@ -29,6 +31,7 @@ function Register() {
   const [otp, setOtp] = useState("");
   const [verified, setVerified] = useState(false);
   const [carPhoto, setCarPhoto] = useState<string>();
+  const [profilePhoto, setProfilePhoto] = useState<string>();
   const [err, setErr] = useState("");
   const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
 
@@ -38,28 +41,46 @@ function Register() {
   };
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!travelMode) return setErr("Choose whether you have a car or need a ride");
     const req = ["name", "org", "email", "phone", "home", "work"] as const;
     if (req.some((k) => !f[k].trim())) return setErr("Please fill all required fields");
     if (!verified) return setErr("Verify your official email with OTP");
     if (!validPassword(f.password)) return setErr("Password: minimum 6 letters/numbers only");
-    if (f.plate && !validPlate(f.plate)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
+    if (travelMode === "driver" && !validOptionalVehicle(f)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
     const email = f.email.trim().toLowerCase();
     if (getState().users.some((u) => u.email === email)) return setErr("Email already registered");
-    const user = { id: uid(), ...f, email, role, prefs, verified: true, active: true, phonePublic: false, carPhoto, rating: 5 };
+    const user = { id: uid(), ...f, email, role, travelMode, prefs, verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
     setState((s) => ({ ...s, users: [...s.users, user], user, seenIntro: true }));
     nav({ to: "/" });
+  };
+  const uploadPhoto = async (file: File | undefined, setPhoto: (photo: string) => void) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setErr("Please choose an image");
+    try { setPhoto(await compressImage(file)); setErr(""); }
+    catch { setErr("Photo could not be uploaded. Please try another image."); }
   };
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-md space-y-3 px-5 py-8">
       <Logo size="text-5xl" />
       <h1 className="font-display text-3xl text-muted-foreground">Create Account</h1>
+      <div className="grid grid-cols-2 gap-2" role="group" aria-label="Travel choice">
+        {([["driver", "I've a car", Car], ["passenger", "Need a ride", Users]] as const).map(([k, label, Icon]) => (
+          <Button type="button" key={k} variant="secondary" aria-pressed={travelMode === k} onClick={() => setTravelMode(k)} className={`h-24 flex-col gap-2 whitespace-normal border-2 font-display text-2xl ${travelMode === k ? "border-primary bg-primary/15" : "border-border"}`}><Icon className="size-7" />{label}</Button>
+        ))}
+      </div>
+      {travelMode && <>
+      <h2 className="pt-2 font-display text-2xl">Jobian or Student?</h2>
       <div className="grid grid-cols-2 gap-2">
         {([["jobian", "Jobian", Briefcase], ["student", "Student", GraduationCap]] as const).map(([k, l, I]) => (
-          <button type="button" key={k} onClick={() => { setRole(k); setVerified(false); setOtpSent(undefined); }} className={`flex flex-col items-center gap-1 rounded-2xl border-2 p-4 font-display text-2xl ${role === k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}><I />{l}</button>
+          <Button type="button" key={k} variant="secondary" aria-pressed={role === k} onClick={() => { setRole(k); setVerified(false); setOtpSent(undefined); }} className={`h-auto flex-col gap-1 border-2 p-4 font-display text-2xl ${role === k ? "border-primary bg-primary/15" : "border-border"}`}><I />{l}</Button>
         ))}
       </div>
       <input className="field" placeholder="Full name (as on CNIC)" value={f.name} onChange={up("name")} />
+      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed p-4 text-muted-foreground">
+        {profilePhoto ? <img src={profilePhoto} alt="Profile preview" className="h-12 w-12 rounded-full object-cover" /> : <Upload className="shrink-0" />} Profile picture (optional)
+        <input type="file" aria-label="Profile picture (optional)" accept="image/*" hidden onChange={(e) => uploadPhoto(e.target.files?.[0], setProfilePhoto)} />
+      </label>
       <div className="grid grid-cols-2 gap-2">
         <select className="field" value={f.gender} onChange={up("gender")} aria-label="Gender"><option value="male">Male</option><option value="female">Female</option></select>
         <select className="field" value={f.city} onChange={up("city")} aria-label="City">{["Lahore", "Karachi", "Islamabad", "Rawalpindi", "Faisalabad", "Multan", "Peshawar"].map((c) => <option key={c}>{c}</option>)}</select>
@@ -68,13 +89,13 @@ function Register() {
       <input className="field" placeholder={role === "jobian" ? "Department" : "Student ID"} value={f.dept} onChange={up("dept")} />
       <div className="flex gap-2">
         <input className="field" type="email" placeholder={role === "jobian" ? "Work email @company.com" : "Student email @edu.pk"} value={f.email} onChange={(e) => { up("email")(e); setVerified(false); }} />
-        <button type="button" onClick={sendOtp} className="shrink-0 rounded-xl bg-secondary px-4 font-bold text-primary">OTP</button>
+        <Button type="button" variant="secondary" onClick={sendOtp} className="h-auto shrink-0 px-4 font-bold text-primary">OTP</Button>
       </div>
       {otpSent && !verified && (
         <div className="card-box space-y-2 p-3">
           <p className="text-sm text-muted-foreground">Demo OTP: <b className="text-foreground">{otpSent}</b></p>
           <div className="flex gap-2"><input className="field" placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} />
-            <button type="button" onClick={() => (otp === otpSent ? setVerified(true) : setErr("Wrong OTP"))} className="shrink-0 rounded-xl bg-primary px-4 font-bold text-primary-foreground">Verify</button></div>
+            <Button type="button" onClick={() => (otp === otpSent ? (setVerified(true), setErr("")) : setErr("Wrong OTP"))} className="h-auto shrink-0 px-4 font-bold">Verify</Button></div>
         </div>
       )}
       {verified && <p className="flex items-center gap-2 font-semibold text-success"><BadgeCheck />Verified Official Email</p>}
@@ -85,20 +106,24 @@ function Register() {
       <p className="pt-2 font-display text-xl text-muted-foreground">Ride Preferences</p>
       <div className="flex flex-wrap gap-2">
         {PREFS.map((p) => (
-          <button type="button" key={p} onClick={() => setPrefs(prefs.includes(p) ? prefs.filter((x) => x !== p) : [...prefs, p])} className={`rounded-full px-4 py-2 font-semibold ${prefs.includes(p) ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>{p}</button>
+          <Button type="button" key={p} variant={prefs.includes(p) ? "default" : "secondary"} aria-pressed={prefs.includes(p)} onClick={() => setPrefs(prefs.includes(p) ? prefs.filter((x) => x !== p) : [...prefs, p])} className="h-auto px-4 py-2 font-semibold">{p}</Button>
         ))}
       </div>
-      <p className="pt-2 font-display text-xl text-muted-foreground">Vehicle (drivers only)</p>
+      {travelMode === "driver" && <>
+      <p className="pt-2 font-display text-xl">Vehicle information (optional)</p>
+      <p className="text-sm text-muted-foreground">Car model, number plate and vehicle picture are all optional.</p>
       <div className="grid grid-cols-2 gap-2">
-        <input className="field" placeholder="Car model" value={f.car} onChange={up("car")} />
-        <input className="field uppercase" placeholder="Plate LEA-1234" value={f.plate} onChange={up("plate")} />
+        <label className="min-w-0 text-sm text-muted-foreground">Car model (optional)<input className="field mt-1" placeholder="Car model" value={f.car} onChange={up("car")} /></label>
+        <label className="min-w-0 text-sm text-muted-foreground">Number plate (optional)<input className="field mt-1 uppercase" placeholder="LEA-1234" value={f.plate} onChange={up("plate")} /></label>
       </div>
       <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed p-4 text-muted-foreground">
-        {carPhoto ? <img src={carPhoto} alt="Vehicle" className="h-12 w-16 rounded object-cover" /> : <Upload />} Vehicle photo (auto-compressed)
-        <input type="file" accept="image/*" hidden onChange={async (e) => { const x = e.target.files?.[0]; if (x) setCarPhoto(await compressImage(x)); }} />
+        {carPhoto ? <img src={carPhoto} alt="Vehicle" className="h-12 w-16 rounded object-cover" /> : <Upload className="shrink-0" />} Vehicle picture (optional)
+        <input type="file" aria-label="Vehicle picture (optional)" accept="image/*" hidden onChange={(e) => uploadPhoto(e.target.files?.[0], setCarPhoto)} />
       </label>
+      </>}
       {err && <p className="font-semibold text-destructive">{err}</p>}
-      <button className="btn-big">Register</button>
+      <Button type="submit" className="btn-big h-auto">Register</Button>
+      </>}
       <Link to="/login" className="block py-2 text-center font-bold text-primary">Already have an account? Login</Link>
     </form>
   );

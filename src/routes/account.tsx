@@ -23,13 +23,15 @@ function Account() {
   const [cur, setCur] = useState(""); const [np, setNp] = useState(""); const [msg, setMsg] = useState("");
   if (!user) return <AppShell back title="Account"><Link to="/login" className="btn-big mt-10">Login</Link></AppShell>;
   const update = (patch: Partial<typeof user>) => setState((s) => {
-    const u = { ...s.user!, ...patch };
+    if (!s.user) return s;
+    const u = { ...s.user, ...patch };
     return { ...s, user: u, users: s.users.map((x) => (x.id === u.id ? u : x)) };
   });
   return (
     <AppShell back title="Account">
       <section className="card-box p-5">
         <h2 className="font-display text-2xl text-primary">Profile</h2>
+        {user.profilePhoto && <img src={user.profilePhoto} alt="Profile" className="my-3 h-20 w-20 rounded-full object-cover" />}
         <p className="flex items-center gap-1 text-xl font-bold">{user.name}{user.verified && <BadgeCheck className="text-success" />}</p>
         <p className="text-muted-foreground">{user.org} · {user.dept} · {user.city}</p>
         <p className="mt-2 text-sm">{user.email}</p>

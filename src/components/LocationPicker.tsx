@@ -12,7 +12,7 @@ export function LocationPicker({ label, value, locations, city, icon, searchLabe
   return (
     <Dialog open={open} onOpenChange={(next) => { setOpen(next); setSearch(""); }}>
       <DialogTrigger asChild>
-        <Button type="button" variant="secondary" aria-label={label} disabled={!locations.length} className="field min-h-14 h-auto min-w-0 justify-between whitespace-normal text-left">
+        <Button type="button" variant="secondary" aria-label={label} disabled={!locations.length} className="field min-h-14 h-auto min-w-0 justify-between whitespace-normal text-left text-[1.05rem] font-semibold">
           <span className="flex min-w-0 flex-1 items-center gap-2">
             <span className="grid h-5 w-5 shrink-0 place-items-center text-muted-foreground">{icon}</span>
             <span className="min-w-0 break-words">{value || label}</span>

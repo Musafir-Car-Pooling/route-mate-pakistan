@@ -21,3 +21,5 @@
 - Member review details live on a separate reviews route keyed by post and interest; display stored review entries only and label simulated member feedback as sample data.
 - The shared side-tray mode switch updates the active member and saved profile through switchTravelMode; Home derives its module from that profile so mode changes survive navigation and reload.
 - Home feature slides live in FeatureSlider with reduced-motion support; shared Button sizes keep contact and pre-payment/review actions proportionate.
+- Admin media uploads use the shared MediaUpload and compressMedia pipeline with PNG logo and JPEG slide byte budgets; settings overrides feed payment icons and Home slides directly so uploaded media stays consistent across views.
+- PartnerMarquee uses a duplicated, reduced-motion-aware track; the member tray scrolls only its navigation and stops automatic movement upon user interaction to preserve control accessibility.

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isAdminCreds, validPassword, formatPKR, isExpired, validOfficialEmail, type Post, getState } from "./store";
 import { locationsForCity, validRouteLocations, type City } from "./store";
-import { validOptionalVehicle, validRegistrationCatalog, cancelOwnPost, canContactPost, switchTravelMode, type State } from "./store";
+import { validOptionalVehicle, validRegistrationCatalog, cancelOwnPost, canContactPost, switchTravelMode, deleteOwnPost, type State } from "./store";
 
 describe("travel sync rules", () => {
   const ownPost: Post = { id: "own", kind: "request", ownerId: "member", ownerName: "Member", from: "Home", to: "Office", notes: "", genderPref: "any", createdAt: 1000, active: true, interests: [] };
@@ -36,6 +36,18 @@ describe("travel sync rules", () => {
     expect(canContactPost(ownPost, ownerState.settings, "member", 2000)).toBe(true);
     expect(canContactPost({ ...ownPost, active: false, cancelledAt: 2000 }, ownerState.settings, "member", 3000)).toBe(false);
     expect(canContactPost(ownPost, ownerState.settings, "other", 2000)).toBe(false);
+  });
+  it("users can delete their own cancelled request along with its unlocks", () => {
+    const cancelled = cancelOwnPost(ownerState, "own", 2000);
+    const withUnlock = { ...cancelled, unlocks: [{ id: "u1", postId: "own", interestId: "i1", userId: "member", method: "easypaisa", txn: "t", amount: 150, status: "pending", at: 1 }] } as State;
+    const result = deleteOwnPost(withUnlock, "own");
+    expect(result.posts).toHaveLength(0);
+    expect(result.unlocks).toHaveLength(0);
+  });
+  it("users cannot delete an active offer or another member's offer", () => {
+    expect(deleteOwnPost(ownerState, "own")).toBe(ownerState);
+    const other = cancelOwnPost({ ...ownerState, posts: [{ ...ownPost, ownerId: "other" }] }, "own", 2000);
+    expect(deleteOwnPost({ ...other, posts: [{ ...ownPost, ownerId: "other", active: false, cancelledAt: 2000 }] }, "own").posts).toHaveLength(1);
   });
   it("allows drivers to register without any vehicle details or vehicle photo", () => {
     expect(validOptionalVehicle({})).toBe(true);

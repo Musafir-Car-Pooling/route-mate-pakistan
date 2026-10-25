@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Briefcase, GraduationCap, BadgeCheck, Upload, Car, Users } from "lucide-react";
+import { Briefcase, GraduationCap, BadgeCheck, Upload, Car, Users, Home, Building2 } from "lucide-react";
 import { Logo } from "@/components/AppShell";
-import { setState, getState, uid, validPassword, validOfficialEmail, validOptionalVehicle, compressImage, type Role, type Gender, type TravelMode } from "@/lib/store";
+import { setState, getState, useStore, locationsForCity, validRegistrationCatalog, uid, validPassword, validOfficialEmail, validOptionalVehicle, compressImage, type Role, type Gender, type TravelMode } from "@/lib/store";
 import { Button } from "@/components/ui/button";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -23,9 +24,12 @@ const PREFS = ["Smoking allowed", "No smoking", "AC", "Music", "Quiet ride"];
 
 function Register() {
   const nav = useNavigate();
+  const settings = useStore((s) => s.settings);
+  const companies = useStore((s) => s.companies);
+  const [cityId, setCityId] = useState("");
   const [travelMode, setTravelMode] = useState<TravelMode>();
   const [role, setRole] = useState<Role>("jobian");
-  const [f, setF] = useState({ name: "", gender: "male" as Gender, city: "Lahore", org: "", dept: "", email: "", phone: "", home: "", work: "", password: "", car: "", plate: "" });
+  const [f, setF] = useState({ name: "", gender: "male" as Gender, org: "", dept: "", email: "", phone: "", home: "", work: "", password: "", car: "", plate: "" });
   const [prefs, setPrefs] = useState<string[]>(["No smoking", "AC"]);
   const [otpSent, setOtpSent] = useState<string>();
   const [otp, setOtp] = useState("");
@@ -34,6 +38,13 @@ function Register() {
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [err, setErr] = useState("");
   const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
+  const city = settings.cities.find((c) => c.id === cityId);
+  const locations = locationsForCity(settings.cities, cityId);
+  const organizations = companies.filter((c) => c.approved);
+  const org = organizations.some((c) => c.name === f.org) ? f.org : "";
+  const dept = role === "student" || settings.departments.includes(f.dept) ? f.dept : "";
+  const home = locations.includes(f.home) ? f.home : "";
+  const work = locations.includes(f.work) ? f.work : "";
 
   const sendOtp = () => {
     if (!validOfficialEmail(f.email, role)) return setErr(role === "student" ? "Use your university @edu.pk email" : "Use your official company email (not Gmail/Yahoo)");
@@ -44,12 +55,13 @@ function Register() {
     if (!travelMode) return setErr("Choose whether you have a car or need a ride");
     const req = ["name", "org", "email", "phone", "home", "work"] as const;
     if (req.some((k) => !f[k].trim())) return setErr("Please fill all required fields");
+    if (!city || !validRegistrationCatalog(getState().settings, getState().companies, { cityId, org: f.org, dept: f.dept, role, home: f.home, work: f.work })) return setErr("Select a city, organization, department and addresses from the available lists.");
     if (!verified) return setErr("Verify your official email with OTP");
     if (!validPassword(f.password)) return setErr("Password: minimum 6 letters/numbers only");
     if (travelMode === "driver" && !validOptionalVehicle(f)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
     const email = f.email.trim().toLowerCase();
     if (getState().users.some((u) => u.email === email)) return setErr("Email already registered");
-    const user = { id: uid(), ...f, email, role, travelMode, prefs, verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
+    const user = { id: uid(), ...f, city: city.name, email, role, travelMode, prefs, verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
     setState((s) => ({ ...s, users: [...s.users, user], user, seenIntro: true }));
     nav({ to: "/" });
   };
@@ -73,7 +85,7 @@ function Register() {
       <h2 className="pt-2 font-display text-2xl">Jobian or Student?</h2>
       <div className="grid grid-cols-2 gap-2">
         {([["jobian", "Jobian", Briefcase], ["student", "Student", GraduationCap]] as const).map(([k, l, I]) => (
-          <Button type="button" key={k} variant="secondary" aria-pressed={role === k} onClick={() => { setRole(k); setVerified(false); setOtpSent(undefined); }} className={`h-auto flex-col gap-1 border-2 p-4 font-display text-2xl ${role === k ? "border-primary bg-primary/15" : "border-border"}`}><I />{l}</Button>
+          <Button type="button" key={k} variant="secondary" aria-pressed={role === k} onClick={() => { setRole(k); setF({ ...f, org: "", dept: "" }); setVerified(false); setOtpSent(undefined); }} className={`h-auto flex-col gap-1 border-2 p-4 font-display text-2xl ${role === k ? "border-primary bg-primary/15" : "border-border"}`}><I />{l}</Button>
         ))}
       </div>
       <input className="field" placeholder="Full name (as on CNIC)" value={f.name} onChange={up("name")} />
@@ -83,10 +95,16 @@ function Register() {
       </label>
       <div className="grid grid-cols-2 gap-2">
         <select className="field" value={f.gender} onChange={up("gender")} aria-label="Gender"><option value="male">Male</option><option value="female">Female</option></select>
-        <select className="field" value={f.city} onChange={up("city")} aria-label="City">{["Lahore", "Karachi", "Islamabad", "Rawalpindi", "Faisalabad", "Multan", "Peshawar"].map((c) => <option key={c}>{c}</option>)}</select>
+        <select className="field min-w-0" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setF({ ...f, home: "", work: "" }); }} aria-label="City"><option value="">Select city</option>{settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
       </div>
-      <input className="field" placeholder={role === "jobian" ? "Company name" : "Institute name"} value={f.org} onChange={up("org")} />
-      <input className="field" placeholder={role === "jobian" ? "Department" : "Student ID"} value={f.dept} onChange={up("dept")} />
+      <select className="field" aria-label={role === "jobian" ? "Company name" : "Institute name"} value={org} onChange={up("org")} disabled={!organizations.length}>
+        <option value="">{organizations.length ? (role === "jobian" ? "Select company" : "Select institute") : "No organizations available"}</option>
+        {organizations.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
+      </select>
+      {role === "jobian" ? <select className="field" aria-label="Department" value={dept} onChange={up("dept")} disabled={!settings.departments.length}>
+        <option value="">{settings.departments.length ? "Select department" : "No departments available"}</option>
+        {settings.departments.map((d) => <option key={d} value={d}>{d}</option>)}
+      </select> : <input className="field" placeholder="Student ID" value={f.dept} onChange={up("dept")} />}
       <div className="flex gap-2">
         <input className="field" type="email" placeholder={role === "jobian" ? "Work email @company.com" : "Student email @edu.pk"} value={f.email} onChange={(e) => { up("email")(e); setVerified(false); }} />
         <Button type="button" variant="secondary" onClick={sendOtp} className="h-auto shrink-0 px-4 font-bold text-primary">OTP</Button>
@@ -100,8 +118,10 @@ function Register() {
       )}
       {verified && <p className="flex items-center gap-2 font-semibold text-success"><BadgeCheck />Verified Official Email</p>}
       <input className="field" placeholder="Phone (03xx-xxxxxxx)" value={f.phone} onChange={up("phone")} />
-      <input className="field" placeholder="Home address" value={f.home} onChange={up("home")} />
-      <input className="field" placeholder={role === "jobian" ? "Workplace address" : "Campus address"} value={f.work} onChange={up("work")} />
+      <LocationPicker label="Home address" value={home} locations={locations} city={city?.name} icon={<Home className="h-5 w-5" />} onChange={(value) => setF({ ...f, home: value })} />
+      <LocationPicker label={role === "jobian" ? "Workplace address" : "Campus address"} value={work} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={(value) => setF({ ...f, work: value })} />
+      {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities available yet.</p>}
+      {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
       <input className="field" type="password" placeholder="Password (min 6 letters/numbers)" value={f.password} onChange={up("password")} />
       <p className="pt-2 font-display text-xl text-muted-foreground">Ride Preferences</p>
       <div className="flex flex-wrap gap-2">

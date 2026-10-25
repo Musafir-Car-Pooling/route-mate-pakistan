@@ -3,6 +3,8 @@ import { useState } from "react";
 import { LogOut, Check, X, Upload, Trash2 } from "lucide-react";
 import { Logo } from "@/components/AppShell";
 import { AdminLocations } from "@/components/AdminLocations";
+import { AdminDepartments } from "@/components/AdminDepartments";
+import { Button } from "@/components/ui/button";
 import { useStore, setState, isAdminCreds, formatPKR, compressImage, uid, type Settings } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-const TABS = ["Settings", "Locations", "Payments", "CMS", "Users", "Rides", "Companies"] as const;
+const TABS = ["Settings", "Locations", "Payments", "CMS", "Users", "Rides", "Companies", "Departments"] as const;
 
 function Admin() {
   const admin = useStore((s) => s.admin);
@@ -42,6 +44,7 @@ function Admin() {
         {tab === "Users" && <Users />}
         {tab === "Rides" && <Rides />}
         {tab === "Companies" && <Companies />}
+        {tab === "Departments" && <AdminDepartments />}
       </div>
     </div>
   );
@@ -184,8 +187,9 @@ function Companies() {
   const [name, setName] = useState("");
   return (
     <div className="space-y-2">
-      <div className="flex gap-2"><input className="field" placeholder="Company name" value={name} onChange={(e) => setName(e.target.value)} />
-        <button onClick={() => { if (name.trim()) { setState((s) => ({ ...s, companies: [...s.companies, { id: uid(), name, approved: false }] })); setName(""); } }} className="shrink-0 rounded-xl bg-primary px-4 font-bold text-primary-foreground">Add</button></div>
+      <h2 className="font-display text-3xl">Companies & Institutes</h2>
+      <div className="flex gap-2"><input className="field min-w-0" aria-label="New company or institute" placeholder="Company / institute name" value={name} onChange={(e) => setName(e.target.value)} />
+        <Button onClick={() => { const value = name.trim(); if (value && !companies.some((c) => c.name.toLowerCase() === value.toLowerCase())) { setState((s) => ({ ...s, companies: [...s.companies, { id: uid(), name: value, approved: false }] })); setName(""); } }} className="h-auto shrink-0">Add</Button></div>
       {companies.map((c) => (
         <div key={c.id} className="flex items-center gap-3 card-box p-3">
           <label className="grid h-12 w-16 cursor-pointer place-items-center rounded-lg bg-secondary">

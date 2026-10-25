@@ -34,6 +34,7 @@ export type Settings = {
   bankTitle: string; bankIban: string; easypaisa: string; jazzcash: string;
   socials: { whatsapp: string; facebook: string; linkedin: string; instagram: string };
   pages: Record<string, string>; slides: string[];
+  paymentIcons?: Partial<Record<"easypaisa" | "jazzcash" | "bank", string>>;
 };
 export type State = {
   user: User | null; admin: boolean; seenIntro: boolean; users: User[]; posts: Post[];

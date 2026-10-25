@@ -3,8 +3,8 @@ import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2, Copy, Check, Land
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, uid, formatPKR, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";
-import easypaisaLogo from "@/assets/easypaisa.png.asset.json";
-import jazzcashLogo from "@/assets/jazzcash.png.asset.json";
+import easypaisaLogo from "@/assets/easypaisa-compact.png.asset.json";
+import jazzcashLogo from "@/assets/jazzcash-compact.png.asset.json";
 
 export function ContactButton({ post, person }: { post: Post; person: Interest }) {
   const [step, setStep] = useState<0 | 1 | 2>(0);
@@ -43,9 +43,9 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
   };
 
   const methods = [
-    { k: "easypaisa", label: "Easypaisa", acc: settings.easypaisa, logo: easypaisaLogo.url },
-    { k: "jazzcash", label: "JazzCash", acc: settings.jazzcash, logo: jazzcashLogo.url },
-    { k: "bank", label: "Bank", acc: settings.bankIban, logo: null },
+    { k: "easypaisa", label: "Easypaisa", acc: settings.easypaisa, logo: settings.paymentIcons?.easypaisa || easypaisaLogo.url },
+    { k: "jazzcash", label: "JazzCash", acc: settings.jazzcash, logo: settings.paymentIcons?.jazzcash || jazzcashLogo.url },
+    { k: "bank", label: "Bank", acc: settings.bankIban, logo: settings.paymentIcons?.bank || null },
   ] as const;
   const account = methods.find((m) => m.k === method)?.acc ?? "";
   const copyAccount = async () => {
@@ -91,7 +91,7 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
                 <div className="grid grid-cols-3 gap-2">
                   {methods.map((m) => (
                     <Button variant="secondary" key={m.k} aria-label={m.label} aria-pressed={method === m.k} onClick={() => { setMethod(m.k); setCopied(false); setCopyError(false); }} className={`h-24 flex-col rounded-lg border-2 px-1 py-2 font-bold ${method === m.k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}>
-                      {m.logo ? <img src={m.logo} alt="" width={600} height={600} className="h-14 w-16 rounded bg-brand-surface object-contain" /> : <Landmark className="my-4 text-muted-foreground" />}
+                      {m.logo ? <span className="flex h-14 w-full items-center justify-center rounded bg-brand-surface p-1"><img src={m.logo} alt="" width={172} height={120} className="h-full w-full object-contain" /></span> : <Landmark className="my-4 text-muted-foreground" />}
                       <span className="text-xs">{m.label}</span>
                     </Button>
                   ))}
@@ -107,7 +107,7 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
                   {shot ? <CheckCircle2 className="text-success" /> : <Upload />} {shot ? "Screenshot attached" : "Upload payment screenshot"}
                   <input type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) setShot(await compressImage(f)); }} />
                 </label>
-                <Button disabled={!txn.trim()} onClick={pay} className="btn-big mt-5 h-auto">Confirm Payment</Button>
+                <Button size="connection" disabled={!txn.trim()} onClick={pay} className="mt-5">Submit Payment Proof</Button>
               </>
             )}
           </div>

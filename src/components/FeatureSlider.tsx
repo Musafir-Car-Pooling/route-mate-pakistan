@@ -17,7 +17,7 @@ export function FeatureSlider() {
   const [paused, setPaused] = useState(false);
   useEffect(() => {
     if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = setInterval(() => setIndex((i) => (i + 1) % features.length), 5000);
+    const timer = setInterval(() => setIndex((i) => i + 1), 5000);
     return () => clearInterval(timer);
   }, [paused]);
   const feature = features[index % features.length];

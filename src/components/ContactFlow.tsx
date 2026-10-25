@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2 } from "lucide-react";
-import { useStore, setState, uid, formatPKR, compressImage, unlockFor, type Interest, type Post } from "@/lib/store";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { useStore, setState, uid, formatPKR, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";
 
 export function ContactButton({ post, person }: { post: Post; person: Interest }) {
   const [step, setStep] = useState<0 | 1 | 2>(0);
@@ -10,6 +12,8 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
   const settings = useStore((s) => s.settings);
   const user = useStore((s) => s.user);
   const unlock = useStore((s) => unlockFor(post.id, person.id, s));
+  const currentPost = useStore((s) => s.posts.find((p) => p.id === post.id));
+  if (!currentPost || !canContactPost(currentPost, settings, user?.id)) return null;
 
   if (unlock?.status === "unlocked") {
     const wa = "92" + person.phone.replace(/^0/, "");
@@ -26,10 +30,11 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
 
   const pay = () => {
     if (!txn.trim()) return;
-    setState((s) => ({
-      ...s,
-      unlocks: [...s.unlocks, { id: uid(), postId: post.id, interestId: person.id, userId: user?.id ?? "", method, txn, screenshot: shot, amount: s.settings.fee, status: s.settings.instantUnlock ? "unlocked" : "pending", at: Date.now() }],
-    }));
+    setState((s) => {
+      const latest = s.posts.find((p) => p.id === post.id);
+      if (!latest || !s.user || !canContactPost(latest, s.settings, s.user.id) || unlockFor(post.id, person.id, s)) return s;
+      return { ...s, unlocks: [...s.unlocks, { id: uid(), postId: post.id, interestId: person.id, userId: s.user.id, method, txn, screenshot: shot, amount: s.settings.fee, status: s.settings.instantUnlock ? "unlocked" : "pending", at: Date.now() }] };
+    });
     setStep(0);
   };
 
@@ -41,13 +46,13 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
 
   return (
     <>
-      <button onClick={() => setStep(1)} className="btn-big mt-3 text-xl"><Phone className="h-5 w-5" />Contact</button>
+      <Button onClick={() => setStep(1)} className="btn-big mt-3 h-auto text-xl"><Phone className="h-5 w-5" />Contact</Button>
       {step > 0 && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/80">
           <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-popover p-5 animate-in slide-in-from-bottom">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-3xl">{step === 1 ? "Unlock Contact" : "Payment"}</h2>
-              <button aria-label="Close" onClick={() => setStep(0)}><X /></button>
+              <Button variant="ghost" size="icon" aria-label="Close" onClick={() => setStep(0)}><X /></Button>
             </div>
             {step === 1 ? (
               <>
@@ -66,26 +71,27 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
                     <p>یہ آفر {settings.hours} گھنٹے کے بعد خودبخود منسوخ ہو جائے گی۔</p>
                   </div>
                 </div>
-                <button onClick={() => setStep(2)} className="btn-big mt-5">Proceed to Payment</button>
+                <Button asChild variant="outline" className="mt-4 w-full"><Link to="/reviews/$postId/$interestId" params={{ postId: post.id, interestId: person.id }} onClick={() => setStep(0)}>View ratings & reviews</Link></Button>
+                <Button onClick={() => setStep(2)} className="btn-big mt-5 h-auto">Proceed to Payment</Button>
               </>
             ) : (
               <>
                 <div className="grid grid-cols-3 gap-2">
                   {methods.map((m) => (
-                    <button key={m.k} onClick={() => setMethod(m.k)} className={`rounded-xl border-2 py-3 font-bold ${method === m.k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}>{m.label}</button>
+                    <Button variant="secondary" key={m.k} aria-pressed={method === m.k} onClick={() => setMethod(m.k)} className={`h-auto rounded-lg border-2 px-1 py-3 font-bold ${method === m.k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}>{m.label}</Button>
                   ))}
                 </div>
                 <div className="mt-4 card-box space-y-1 p-4">
                   <p className="text-sm text-muted-foreground">Send {formatPKR(settings.fee)} to</p>
                   {method === "bank" && <p className="font-semibold">Account Title: {settings.bankTitle}</p>}
-                  <p className="font-display text-2xl">{methods.find((m) => m.k === method)!.acc}</p>
+                  <p className="break-all font-display text-2xl">{methods.find((m) => m.k === method)?.acc}</p>
                 </div>
                 <input className="field mt-4" placeholder="Transaction ID" value={txn} onChange={(e) => setTxn(e.target.value)} />
                 <label className="mt-3 flex cursor-pointer items-center gap-2 rounded-xl border border-dashed p-4 text-muted-foreground">
                   {shot ? <CheckCircle2 className="text-success" /> : <Upload />} {shot ? "Screenshot attached" : "Upload payment screenshot"}
                   <input type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) setShot(await compressImage(f)); }} />
                 </label>
-                <button disabled={!txn.trim()} onClick={pay} className="btn-big mt-5">Confirm Payment</button>
+                <Button disabled={!txn.trim()} onClick={pay} className="btn-big mt-5 h-auto">Confirm Payment</Button>
               </>
             )}
           </div>

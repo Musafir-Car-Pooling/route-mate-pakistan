@@ -1,9 +1,30 @@
 import { describe, it, expect } from "vitest";
 import { isAdminCreds, validPassword, formatPKR, isExpired, validOfficialEmail, type Post, getState } from "./store";
 import { locationsForCity, validRouteLocations, type City } from "./store";
-import { validOptionalVehicle, validRegistrationCatalog } from "./store";
+import { validOptionalVehicle, validRegistrationCatalog, cancelOwnPost, canContactPost, type State } from "./store";
 
 describe("travel sync rules", () => {
+  const ownPost: Post = { id: "own", kind: "request", ownerId: "member", ownerName: "Member", from: "Home", to: "Office", notes: "", genderPref: "any", createdAt: 1000, active: true, interests: [] };
+  const ownerState = { ...getState(), user: { id: "member" }, posts: [ownPost] } as State;
+  it("users can cancel their own request", () => {
+    const result = cancelOwnPost(ownerState, "own", 2000);
+    expect(result.posts[0]?.active).toBe(false);
+    expect(result.posts[0]?.cancelledAt).toBe(2000);
+  });
+  it("users can cancel their own ride", () => {
+    const result = cancelOwnPost({ ...ownerState, posts: [{ ...ownPost, kind: "ride" }] }, "own", 2000);
+    expect(result.posts[0]?.active).toBe(false);
+    expect(result.posts[0]?.kind).toBe("ride");
+  });
+  it("users cannot cancel another member's offer", () => {
+    const other = { ...ownerState, posts: [{ ...ownPost, ownerId: "other" }] };
+    expect(cancelOwnPost(other, "own", 2000)).toBe(other);
+  });
+  it("cancelled offers do not permit matching or new contact payments", () => {
+    expect(canContactPost(ownPost, ownerState.settings, "member", 2000)).toBe(true);
+    expect(canContactPost({ ...ownPost, active: false, cancelledAt: 2000 }, ownerState.settings, "member", 3000)).toBe(false);
+    expect(canContactPost(ownPost, ownerState.settings, "other", 2000)).toBe(false);
+  });
   it("allows drivers to register without any vehicle details or vehicle photo", () => {
     expect(validOptionalVehicle({})).toBe(true);
     expect(validOptionalVehicle({ car: "", plate: "", carPhoto: undefined })).toBe(true);

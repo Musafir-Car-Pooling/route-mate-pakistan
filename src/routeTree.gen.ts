@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as InfoSlugRouteImport } from './routes/info.$slug'
 import { Route as PostIdRouteImport } from './routes/post.$id'
+import { Route as ReviewsPostIdInterestIdRouteImport } from './routes/reviews.$postId.$interestId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const PostIdRoute = PostIdRouteImport.update({
   path: '/post/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsPostIdInterestIdRoute = ReviewsPostIdInterestIdRouteImport.update({
+  id: '/reviews/$postId/$interestId',
+  path: '/reviews/$postId/$interestId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
+  '/reviews/$postId/$interestId': typeof ReviewsPostIdInterestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
+  '/reviews/$postId/$interestId': typeof ReviewsPostIdInterestIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
+  '/reviews/$postId/$interestId': typeof ReviewsPostIdInterestIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/info/$slug'
     | '/post/$id'
+    | '/reviews/$postId/$interestId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/info/$slug'
     | '/post/$id'
+    | '/reviews/$postId/$interestId'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/info/$slug'
     | '/post/$id'
+    | '/reviews/$postId/$interestId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   InfoSlugRoute: typeof InfoSlugRoute
   PostIdRoute: typeof PostIdRoute
+  ReviewsPostIdInterestIdRoute: typeof ReviewsPostIdInterestIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reviews/$postId/$interestId': {
+      id: '/reviews/$postId/$interestId'
+      path: '/reviews/$postId/$interestId'
+      fullPath: '/reviews/$postId/$interestId'
+      preLoaderRoute: typeof ReviewsPostIdInterestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   InfoSlugRoute: InfoSlugRoute,
   PostIdRoute: PostIdRoute,
+  ReviewsPostIdInterestIdRoute: ReviewsPostIdInterestIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

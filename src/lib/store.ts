@@ -110,6 +110,11 @@ export function cancelOwnPost(s: State, postId: string, now = Date.now()): State
   if (!post || !s.user || !canContactPost(post, s.settings, s.user.id, now)) return s;
   return { ...s, posts: s.posts.map((p) => p.id === postId ? { ...p, active: false, cancelledAt: now } : p) };
 }
+export function deleteOwnPost(s: State, postId: string): State {
+  const post = s.posts.find((p) => p.id === postId);
+  if (!post || !s.user || post.ownerId !== s.user.id || !post.cancelledAt) return s;
+  return { ...s, posts: s.posts.filter((p) => p.id !== postId), unlocks: s.unlocks.filter((u) => u.postId !== postId) };
+}
 export const locationsForCity = (cities: City[], cityId: string) => cities.find((c) => c.id === cityId)?.locations ?? [];
 export const validRouteLocations = (cities: City[], cityId: string, from: string, to: string) => {
   const locations = locationsForCity(cities, cityId);

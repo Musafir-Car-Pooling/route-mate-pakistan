@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2, Copy, Check, Landmark, Star } from "lucide-react";
+import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2, Copy, Check, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, uid, formatPKR, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";

@@ -9,6 +9,7 @@ import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
 import { FeatureSlider } from "@/components/FeatureSlider";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
+import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,7 +39,7 @@ function Intro() {
     return (
       <div className="grid min-h-screen place-items-center bg-hero text-center text-primary-foreground">
         <div className="animate-in zoom-in duration-1000">
-          <div className="mx-auto grid h-28 w-28 place-items-center rounded-3xl bg-background/20 font-display text-6xl">TS</div>
+          <img src={logoAsset.url} alt="Travel Sync logo" width={112} height={112} className="mx-auto h-28 w-28 rounded-full" />
           <p className="mt-5 font-display text-5xl">TRAVEL SYNC</p>
           <p className="mt-1 font-semibold opacity-90">Your security is our concern</p>
         </div>

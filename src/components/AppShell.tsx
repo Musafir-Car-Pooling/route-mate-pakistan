@@ -20,7 +20,7 @@ export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl" }: { img
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       <img src={logoAsset.url} alt="Travel Sync logo" className={`${imgSize} rounded-full`} />
-      <span className={`font-display ${textSize} leading-none`}>
+      <span className={`whitespace-nowrap font-display ${textSize} leading-none`}>
         TRAVEL <span className="text-brand-orange">SYNC</span>
       </span>
     </div>

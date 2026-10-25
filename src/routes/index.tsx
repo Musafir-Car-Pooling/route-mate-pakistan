@@ -68,7 +68,7 @@ function Index() {
   if (!user)
     return (
       <div className="mx-auto flex min-h-screen max-w-md flex-col bg-hero px-6 pb-10 text-primary-foreground">
-        <div className="grid flex-1 place-items-center px-6"><AuthLogo /></div>
+        <div className="grid flex-1 place-items-center px-6"><AuthLogo imgSize="h-28 w-28" textSize="text-6xl" /></div>
         <p className="mb-10 mt-2 text-lg font-semibold">Verified carpooling for Jobians & students.</p>
         <Link to="/register" className="btn-big bg-background text-foreground">Create Account</Link>
         <Link to="/login" className="mt-3 py-3 text-center text-lg font-bold">I already have an account</Link>

@@ -87,7 +87,7 @@ function PostPage() {
                 <p className="flex items-center gap-1 text-sm"><Star className="h-4 w-4 fill-warning text-warning" />{p.rating} ({p.reviews} reviews){p.car && <><Car className="ml-2 h-4 w-4" />{p.car}</>}</p>
               </div>
             </div>
-            <Button asChild variant="outline" className="mt-3 w-full"><Link to="/reviews/$postId/$interestId" params={{ postId: post.id, interestId: p.id }}><Star className="size-4 text-warning" />View ratings & reviews</Link></Button>
+            <Button asChild variant="outline" size="connection" className="mt-3"><Link to="/reviews/$postId/$interestId" params={{ postId: post.id, interestId: p.id }}><Star className="size-4 text-warning" />View ratings & reviews</Link></Button>
             {available && <ContactButton post={post} person={p} />}
           </div>
         ))}

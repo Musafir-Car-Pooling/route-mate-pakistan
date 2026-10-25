@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft } from "lucide-react";
-import { useStore, setState } from "@/lib/store";
+import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users } from "lucide-react";
+import { useStore, setState, switchTravelMode } from "@/lib/store";
+import { Button } from "@/components/ui/button";
 
 export function Logo({ size = "text-3xl" }: { size?: string }) {
   return (
@@ -40,7 +41,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
 
       {open && (
         <div className="fixed inset-0 z-50 flex">
-          <div className="flex w-80 max-w-[85%] flex-col bg-popover p-5 animate-in slide-in-from-left">
+          <div className="flex w-80 max-w-[85%] flex-col overflow-y-auto bg-popover p-5 animate-in slide-in-from-left">
             <div className="mb-6 flex items-center justify-between"><Logo /><button aria-label="Close" onClick={() => setOpen(false)}><X /></button></div>
             {user && (
               <div className="mb-4 card-box p-4">
@@ -60,6 +61,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
                 </button>
               )}
             </nav>
+            {user && <Button variant="secondary" className="my-4 min-h-14 w-full shrink-0 gap-2 whitespace-normal border border-primary/30 text-base font-bold" onClick={() => { setState(switchTravelMode); setOpen(false); nav({ to: "/" }); }}>{user.travelMode === "driver" ? <Users /> : <Car />}Switch to {user.travelMode === "driver" ? "passenger" : "driver"}<ArrowLeftRight className="ml-auto" /></Button>}
             <div className="flex justify-center gap-4 border-t pt-4">
               {[[socials.whatsapp, MessageCircle], [socials.facebook, Facebook], [socials.linkedin, Linkedin], [socials.instagram, Instagram]].map(([href, Icon], i) => {
                 const I = Icon as typeof MessageCircle;

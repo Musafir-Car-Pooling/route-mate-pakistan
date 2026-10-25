@@ -22,6 +22,8 @@ const buttonVariants = cva(
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8",
         icon: "h-9 w-9",
+        contact: "h-[60px] w-full px-4 py-0 text-xl font-display",
+        connection: "h-[90px] w-full px-4 py-0 text-xl whitespace-normal text-center font-display",
       },
     },
     defaultVariants: {

@@ -77,6 +77,11 @@ export function setState(fn: (s: State) => State) {
   emit();
 }
 export function getState() { return state; }
+export function switchTravelMode(s: State): State {
+  if (!s.user) return s;
+  const user: User = { ...s.user, travelMode: s.user.travelMode === "driver" ? "passenger" : "driver" };
+  return { ...s, user, users: s.users.map((member) => member.id === user.id ? user : member) };
+}
 export function useStore<T>(sel: (s: State) => T): T {
   return useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => sel(state), () => sel(defaults));
 }

@@ -3,11 +3,15 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users } from "lucide-react";
 import { useStore, setState, switchTravelMode } from "@/lib/store";
 import { Button } from "@/components/ui/button";
+import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 
 export function Logo({ size = "text-3xl" }: { size?: string }) {
   return (
-    <span className={`font-display ${size} leading-none`}>
-      TRAVEL <span className="text-primary">SYNC</span>
+    <span className="flex items-center gap-2">
+      <img src={logoAsset.url} alt="Travel Sync logo" width={36} height={36} className="h-9 w-9 rounded-full" />
+      <span className={`font-display ${size} leading-none`}>
+        TRAVEL <span className="text-primary">SYNC</span>
+      </span>
     </span>
   );
 }
@@ -54,6 +58,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
           <Button variant="secondary" size="icon" aria-label="Menu" onClick={() => { setScrollPaused(false); setOpen(true); }} className="h-11 w-11 rounded-full"><Menu /></Button>
         )}
         <div className="flex-1">{title ? <h1 className="font-display text-3xl">{title}</h1> : <Logo />}</div>
+        <img src={logoAsset.url} alt="Travel Sync" width={40} height={40} className="h-10 w-10 rounded-full" />
       </header>
       <main className="px-4">{children}</main>
 

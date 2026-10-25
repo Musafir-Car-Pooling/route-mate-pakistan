@@ -9,16 +9,17 @@ export type User = {
   home: string; work: string; prefs: string[]; verified: boolean; active: boolean;
   phonePublic: boolean; travelMode?: TravelMode; profilePhoto?: string | undefined; car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined; rating: number;
 };
+export type MemberReview = { id: string; author: string; rating: number; text: string; at: number };
 export type Interest = {
   id: string; name: string; org: string; gender: Gender; rating: number; reviews: number;
-  verified: boolean; car?: string | undefined; phone: string; at: number;
+  verified: boolean; car?: string | undefined; phone: string; at: number; reviewEntries?: MemberReview[]; demo?: boolean;
 };
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;
   city?: string;
   from: string; to: string; time?: string; notes: string; genderPref: "any" | "male" | "female";
   seats?: number; daily?: number; weekly?: number; monthly?: number;
-  createdAt: number; active: boolean; interests: Interest[];
+  createdAt: number; active: boolean; cancelledAt?: number; interests: Interest[];
 };
 export type Unlock = {
   id: string; postId: string; interestId: string; userId: string; method: string;
@@ -97,6 +98,12 @@ export const validOptionalVehicle = (vehicle: { car?: string | undefined; plate?
 export const formatPKR = (n: number) => "PKR " + Math.round(n).toLocaleString("en-US");
 export const expiresAt = (p: Post, s: Settings) => p.createdAt + s.hours * 3600_000;
 export const isExpired = (p: Post, s: Settings, now = Date.now()) => s.autoCancel && now > expiresAt(p, s);
+export const canContactPost = (p: Post, s: Settings, userId: string | undefined, now = Date.now()) => p.active && !p.cancelledAt && p.ownerId === userId && !isExpired(p, s, now);
+export function cancelOwnPost(s: State, postId: string, now = Date.now()): State {
+  const post = s.posts.find((p) => p.id === postId);
+  if (!post || !s.user || !canContactPost(post, s.settings, s.user.id, now)) return s;
+  return { ...s, posts: s.posts.map((p) => p.id === postId ? { ...p, active: false, cancelledAt: now } : p) };
+}
 export const locationsForCity = (cities: City[], cityId: string) => cities.find((c) => c.id === cityId)?.locations ?? [];
 export const validRouteLocations = (cities: City[], cityId: string, from: string, to: string) => {
   const locations = locationsForCity(cities, cityId);
@@ -123,7 +130,12 @@ export function mockInterest(post: Post): Interest {
   const name = pool[Math.floor(Math.random() * pool.length)] ?? names[g][0] ?? "Ali Khan";
   return {
     id: uid(), name, gender: g, org: orgs[Math.floor(Math.random() * orgs.length)] ?? "Systems Ltd",
-    rating: Math.round((3.8 + Math.random() * 1.2) * 10) / 10, reviews: 5 + Math.floor(Math.random() * 80),
+    rating: 4.7, reviews: 3, demo: true,
+    reviewEntries: [
+      { id: uid(), author: "Sample member A", rating: 5, text: "Arrived on time and communicated clearly about the pickup point.", at: Date.now() - 3 * 86400_000 },
+      { id: uid(), author: "Sample member B", rating: 5, text: "Polite, respectful and a comfortable daily commute.", at: Date.now() - 8 * 86400_000 },
+      { id: uid(), author: "Sample member C", rating: 4, text: "A good experience overall. Pickup was a few minutes late.", at: Date.now() - 15 * 86400_000 },
+    ],
     verified: true, car: post.kind === "request" ? cars[Math.floor(Math.random() * cars.length)] ?? "Honda City" : undefined,
     phone: "0300" + String(Math.floor(1000000 + Math.random() * 8999999)), at: Date.now(),
   };

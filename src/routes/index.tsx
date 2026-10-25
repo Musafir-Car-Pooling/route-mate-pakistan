@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
 import { FeatureSlider } from "@/components/FeatureSlider";
+import { PartnerMarquee } from "@/components/PartnerMarquee";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -79,7 +80,6 @@ function Home() {
   const user = useStore((s) => s.user);
   const posts = useStore((s) => s.posts);
   const settings = useStore((s) => s.settings);
-  const companies = useStore((s) => s.companies);
   const nav = useNavigate();
   const mode = user?.travelMode ?? "passenger";
   const [cityId, setCityId] = useState(() => settings.cities.find((c) => c.name === user?.city)?.id ?? "");
@@ -111,9 +111,9 @@ function Home() {
     <AppShell>
       <FeatureSlider />
 
-      <div className="mt-4 card-box space-y-3 p-4">
+      <div className="mt-4 space-y-3">
         <label className="block font-semibold">City
-          <select className="field mt-1" aria-label="City" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setFrom(""); setTo(""); }}>
+          <select className="field mt-1 min-h-14" aria-label="City" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setFrom(""); setTo(""); }}>
             <option value="">Select city</option>
             {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
@@ -143,14 +143,7 @@ function Home() {
         <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
       </div>
 
-      <h3 className="mb-2 mt-6 font-display text-2xl text-muted-foreground">Partner Companies</h3>
-      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
-        {companies.filter((c) => c.approved).map((c) => (
-          <div key={c.id} className="grid h-16 min-w-28 place-items-center card-box px-3 text-sm font-bold">
-            {c.logo ? <img src={c.logo} alt={c.name} className="h-10 object-contain" /> : c.name}
-          </div>
-        ))}
-      </div>
+      <PartnerMarquee />
 
       {mine.length > 0 && (
         <>

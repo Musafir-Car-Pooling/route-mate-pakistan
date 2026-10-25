@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Check, ChevronDown, MapPin, Search } from "lucide-react";
+import { Check, ArrowRight, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -12,12 +12,12 @@ export function LocationPicker({ label, value, locations, city, icon, searchLabe
   return (
     <Dialog open={open} onOpenChange={(next) => { setOpen(next); setSearch(""); }}>
       <DialogTrigger asChild>
-        <Button type="button" variant="secondary" aria-label={label} disabled={!locations.length} className="field h-auto min-w-0 justify-between whitespace-normal text-left">
+        <Button type="button" variant="secondary" aria-label={label} disabled={!locations.length} className="field min-h-14 h-auto min-w-0 justify-between whitespace-normal text-left">
           <span className="flex min-w-0 flex-1 items-center gap-2">
             <span className="grid h-5 w-5 shrink-0 place-items-center text-muted-foreground">{icon}</span>
             <span className="min-w-0 break-words">{value || label}</span>
           </span>
-          <ChevronDown />
+          <ArrowRight strokeWidth={3} className="size-6! shrink-0 text-muted-foreground" />
         </Button>
       </DialogTrigger>
       <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="top-14 translate-y-0 w-[calc(100%-2rem)] max-w-md gap-3 rounded-lg p-4" aria-describedby={undefined}>

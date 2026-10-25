@@ -109,5 +109,8 @@
 .rating-meter::-webkit-meter-optimum-value { background: var(--color-warning); border-radius: 4px; }
 .rating-meter::-moz-meter-bar { background: var(--color-warning); border-radius: 4px; }
 .feature-enter { animation: feature-enter 450ms ease-out both; }
+.partner-track { animation: partners-scroll 40s linear infinite; }
+.partner-window:hover .partner-track, .partner-window:active .partner-track, .partner-window:focus-within .partner-track { animation-play-state: paused; }
+@keyframes partners-scroll { to { transform: translateX(-50%); } }
 @keyframes feature-enter { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: translateX(0); } }
-@media (prefers-reduced-motion: reduce) { .feature-enter { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .feature-enter, .partner-track { animation: none; } }

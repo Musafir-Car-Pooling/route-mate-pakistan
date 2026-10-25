@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users } from "lucide-react";
 import { useStore, setState, switchTravelMode } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,24 @@ export function Logo({ size = "text-3xl" }: { size?: string }) {
 
 export function AppShell({ children, title, back }: { children: ReactNode; title?: string; back?: boolean }) {
   const [open, setOpen] = useState(false);
+  const menu = useRef<HTMLElement>(null);
+  const [scrollPaused, setScrollPaused] = useState(false);
+  useEffect(() => {
+    if (!open || scrollPaused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let frame = 0; let previous = 0; let offset = 0; let restartAt = 0;
+    const scroll = (time: number) => {
+      const node = menu.current;
+      if (node && previous && time >= restartAt) {
+        const maximum = node.scrollHeight - node.clientHeight;
+        offset += Math.min(time - previous, 100) * 0.009;
+        if (offset >= maximum && maximum > 0) { offset = 0; restartAt = time + 1800; }
+        node.scrollTop = offset;
+      }
+      previous = time; frame = requestAnimationFrame(scroll);
+    };
+    frame = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(frame);
+  }, [open, scrollPaused]);
   const user = useStore((s) => s.user);
   const socials = useStore((s) => s.settings.socials);
   const nav = useNavigate();
@@ -33,7 +51,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
         {back ? (
           <button aria-label="Back" onClick={() => history.back()} className="grid h-11 w-11 place-items-center rounded-full bg-secondary"><ArrowLeft /></button>
         ) : (
-          <button aria-label="Menu" onClick={() => setOpen(true)} className="grid h-11 w-11 place-items-center rounded-full bg-secondary"><Menu /></button>
+          <Button variant="secondary" size="icon" aria-label="Menu" onClick={() => { setScrollPaused(false); setOpen(true); }} className="h-11 w-11 rounded-full"><Menu /></Button>
         )}
         <div className="flex-1">{title ? <h1 className="font-display text-3xl">{title}</h1> : <Logo />}</div>
       </header>
@@ -41,7 +59,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
 
       {open && (
         <div className="fixed inset-0 z-50 flex">
-          <div className="flex w-80 max-w-[85%] flex-col overflow-y-auto bg-popover p-5 animate-in slide-in-from-left">
+          <div className="flex h-dvh w-80 max-w-[85%] flex-col overflow-hidden bg-popover p-5 animate-in slide-in-from-left" onPointerDown={() => setScrollPaused(true)} onWheel={() => setScrollPaused(true)} onFocusCapture={() => setScrollPaused(true)}>
             <div className="mb-6 flex items-center justify-between"><Logo /><button aria-label="Close" onClick={() => setOpen(false)}><X /></button></div>
             {user && (
               <div className="mb-4 card-box p-4">
@@ -49,7 +67,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
                 <p className="text-sm text-muted-foreground">{user.org}</p>
               </div>
             )}
-            <nav className="flex-1 space-y-1 overflow-y-auto">
+            <nav ref={menu} aria-label="Member menu" className="min-h-0 flex-1 space-y-1 overflow-y-auto">
               {items.map((i) => (
                 <Link key={i.label} to={i.to as "/account"} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-lg font-semibold hover:bg-secondary">
                   <i.icon className="h-5 w-5 text-primary" /> {i.label}

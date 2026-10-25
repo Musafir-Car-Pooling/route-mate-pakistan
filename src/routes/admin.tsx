@@ -5,6 +5,9 @@ import { Logo } from "@/components/AppShell";
 import { AdminLocations } from "@/components/AdminLocations";
 import { AdminDepartments } from "@/components/AdminDepartments";
 import { Button } from "@/components/ui/button";
+import { MediaUpload } from "@/components/MediaUpload";
+import easypaisaIcon from "@/assets/easypaisa-compact.png.asset.json";
+import jazzcashIcon from "@/assets/jazzcash-compact.png.asset.json";
 import { useStore, setState, isAdminCreds, formatPKR, compressImage, uid, type Settings } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
@@ -87,6 +90,16 @@ function SettingsTab() {
         <input className="field" placeholder="Bank account title" value={s.bankTitle} onChange={(e) => setSettings({ bankTitle: e.target.value })} />
         <input className="field" placeholder="IBAN / Account #" value={s.bankIban} onChange={(e) => setSettings({ bankIban: e.target.value })} />
       </div>
+      <section className="space-y-3 py-4">
+        <h2 className="font-display text-2xl">Payment method icons</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {(["easypaisa", "jazzcash", "bank"] as const).map((method) => <div key={method} className="space-y-2">
+            {(s.paymentIcons?.[method] || method !== "bank") && <div className="flex h-16 items-center justify-center rounded-lg bg-brand-surface p-2"><img src={s.paymentIcons?.[method] || (method === "easypaisa" ? easypaisaIcon.url : jazzcashIcon.url)} alt={method} className="h-full w-full object-contain" /></div>}
+            <MediaUpload label={`Upload ${method} icon`} kind="logo" onUpload={(image) => setState((state) => ({ ...state, settings: { ...state.settings, paymentIcons: { ...state.settings.paymentIcons, [method]: image } } }))} />
+            {s.paymentIcons?.[method] && <Button variant="ghost" className="w-full" onClick={() => setSettings({ paymentIcons: { ...s.paymentIcons, [method]: "" } })}>Reset</Button>}
+          </div>)}
+        </div>
+      </section>
     </div>
   );
 }
@@ -136,11 +149,10 @@ function Cms() {
         <div className="grid grid-cols-3 gap-2">
           {s.slides.map((src, i) => (
             <div key={i} className="relative"><img src={src} alt={`Slide ${i + 1}`} className="h-20 w-full rounded-lg object-cover" />
-              <button aria-label="Remove slide" onClick={() => setSettings({ slides: s.slides.filter((_, k) => k !== i) })} className="absolute right-1 top-1 rounded-full bg-destructive p-1"><Trash2 className="h-4 w-4" /></button></div>
+              <Button size="icon" variant="destructive" aria-label="Remove slide" onClick={() => setSettings({ slides: s.slides.filter((_, k) => k !== i) })} className="absolute right-1 top-1 h-7 w-7 rounded-full"><Trash2 className="h-4 w-4" /></Button></div>
           ))}
-          <label className="grid h-20 cursor-pointer place-items-center rounded-lg border border-dashed"><Upload />
-            <input type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const d = await compressImage(f, 1200); setSettings({ slides: [...s.slides, d] }); } }} /></label>
         </div>
+        <div className="mt-3"><MediaUpload label="Upload slider image" kind="slide" onUpload={(image) => setState((state) => ({ ...state, settings: { ...state.settings, slides: [...state.settings.slides, image] } }))} /></div>
       </div>
       {Object.keys(s.pages).map((k) => (
         <label key={k} className="block card-box p-4"><span className="font-display text-2xl capitalize">{k.replace("-", " ")}</span>
@@ -192,11 +204,11 @@ function Companies() {
         <Button onClick={() => { const value = name.trim(); if (value && !companies.some((c) => c.name.toLowerCase() === value.toLowerCase())) { setState((s) => ({ ...s, companies: [...s.companies, { id: uid(), name: value, approved: false }] })); setName(""); } }} className="h-auto shrink-0">Add</Button></div>
       {companies.map((c) => (
         <div key={c.id} className="flex items-center gap-3 card-box p-3">
-          <label className="grid h-12 w-16 cursor-pointer place-items-center rounded-lg bg-secondary">
-            {c.logo ? <img src={c.logo} alt={c.name} className="h-10 object-contain" /> : <Upload className="h-5 w-5" />}
-            <input type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const logo = await compressImage(f, 200); setState((s) => ({ ...s, companies: s.companies.map((x) => (x.id === c.id ? { ...x, logo } : x)) })); } }} />
-          </label>
-          <p className="flex-1 font-bold">{c.name}</p>
+          <div className="w-28 shrink-0 space-y-2">
+            {c.logo && <img src={c.logo} alt={c.name} className="h-10 w-full object-contain" />}
+            <MediaUpload label={`Upload ${c.name} logo`} kind="logo" onUpload={(logo) => setState((s) => ({ ...s, companies: s.companies.map((x) => x.id === c.id ? { ...x, logo } : x) }))} />
+          </div>
+          <p className="min-w-0 flex-1 break-words font-bold">{c.name}</p>
           <button onClick={() => setState((s) => ({ ...s, companies: s.companies.map((x) => (x.id === c.id ? { ...x, approved: !x.approved } : x)) }))} className={`rounded-full px-4 py-2 font-bold ${c.approved ? "bg-success text-accent-foreground" : "bg-secondary"}`}>{c.approved ? "Approved" : "Approve"}</button>
         </div>
       ))}

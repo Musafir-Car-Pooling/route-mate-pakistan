@@ -35,11 +35,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-feature-shade: var(--feature-shade);
+  --color-brand-surface: var(--brand-surface);
 }
 
 :root {
   --radius: 1rem;
   --feature-shade: oklch(0.12 0.02 255 / 66%);
+  --brand-surface: oklch(1 0 0);
   --background: oklch(0.17 0.03 255);
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.21 0.035 255);

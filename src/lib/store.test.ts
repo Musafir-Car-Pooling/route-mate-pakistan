@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isAdminCreds, validPassword, formatPKR, isExpired, validOfficialEmail, type Post, getState } from "./store";
 import { locationsForCity, validRouteLocations, type City } from "./store";
-import { validOptionalVehicle } from "./store";
+import { validOptionalVehicle, validRegistrationCatalog } from "./store";
 
 describe("travel sync rules", () => {
   it("allows drivers to register without any vehicle details or vehicle photo", () => {
@@ -25,6 +25,26 @@ describe("travel sync rules", () => {
     expect(validRouteLocations(cities, "lahore", "Johar Town", "Gulshan")).toBe(false);
     expect(validRouteLocations(cities, "lahore", "Johar Town", "")).toBe(false);
     expect(validRouteLocations([], "lahore", "Johar Town", "FAST Campus")).toBe(false);
+  });
+  const catalog = { ...getState().settings, cities, departments: ["IT"] };
+  const organizations = [{ id: "company", name: "Systems Ltd", approved: true }, { id: "institute", name: "FAST NUCES", approved: true }, { id: "pending", name: "Pending Company", approved: false }];
+  const selection = { cityId: "lahore", org: "Systems Ltd", dept: "IT", role: "jobian" as const, home: "Johar Town", work: "FAST Campus" };
+  it("registration accepts only admin-approved companies and institutes", () => {
+    expect(validRegistrationCatalog(catalog, organizations, selection)).toBe(true);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, org: "Typed Company" })).toBe(false);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, org: "Pending Company" })).toBe(false);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, role: "student", org: "FAST NUCES", dept: "student-123" })).toBe(true);
+  });
+  it("registration jobian department must come from the admin list", () => {
+    expect(validRegistrationCatalog(catalog, organizations, selection)).toBe(true);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, dept: "Typed department" })).toBe(false);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, dept: "" })).toBe(false);
+  });
+  it("registration addresses must belong to the selected admin city", () => {
+    expect(validRegistrationCatalog(catalog, organizations, selection)).toBe(true);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, home: "Typed address" })).toBe(false);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, work: "Gulshan" })).toBe(false);
+    expect(validRegistrationCatalog(catalog, organizations, { ...selection, cityId: "unknown" })).toBe(false);
   });
   it("admin creds", () => { expect(isAdminCreds("pp@gmail.com", "ppllmm")).toBe(true); expect(isAdminCreds("pp@gmail.com", "x")).toBe(false); });
   it("password min 6 alphanumeric", () => { expect(validPassword("abc12")).toBe(false); expect(validPassword("abc123")).toBe(true); });

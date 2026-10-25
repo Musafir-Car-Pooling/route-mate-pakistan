@@ -14,3 +14,5 @@
 - Admin city/location controls live in a dedicated AdminLocations component to keep catalog management separate from payment and CMS controls.
 - Reuse LocationPicker for admin-catalog location selection with searchable dialogs so search cannot create unapproved addresses.
 - Store travelMode separately from professional role and keep photo/vehicle fields optional so either registration path works without uploads.
+- Registration uses approved entries from the shared company/institute catalog, departments from settings, and city-scoped location pickers; validate against current catalogs on submit to prevent stale selections. Student IDs remain personal inputs rather than catalog entries.
+- Department catalog controls live in AdminDepartments to keep registration catalog management isolated from other admin tools.

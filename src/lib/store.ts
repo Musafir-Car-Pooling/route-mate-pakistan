@@ -28,6 +28,7 @@ export type Company = { id: string; name: string; logo?: string; approved: boole
 export type City = { id: string; name: string; locations: string[] };
 export type Settings = {
   cities: City[];
+  departments: string[];
   fee: number; autoCancel: boolean; hours: number; instantUnlock: boolean;
   bankTitle: string; bankIban: string; easypaisa: string; jazzcash: string;
   socials: { whatsapp: string; facebook: string; linkedin: string; instagram: string };
@@ -43,6 +44,7 @@ const defaults: State = {
   companies: ["Systems Ltd", "Jazz", "Engro", "NetSol", "LUMS", "FAST NUCES", "HBL"].map((n, i) => ({ id: "c" + i, name: n, approved: true })),
   settings: {
     cities: [],
+    departments: [],
     fee: 150, autoCancel: true, hours: 24, instantUnlock: false,
     bankTitle: "Travel Sync Pvt Ltd", bankIban: "PK36MEZN0001234567890123", easypaisa: "0300-1234567", jazzcash: "0301-7654321",
     socials: { whatsapp: "https://wa.me/923001234567", facebook: "https://facebook.com", linkedin: "https://linkedin.com", instagram: "https://instagram.com" },
@@ -100,6 +102,10 @@ export const validRouteLocations = (cities: City[], cityId: string, from: string
   const locations = locationsForCity(cities, cityId);
   return locations.includes(from) && locations.includes(to);
 };
+export const validRegistrationCatalog = (settings: Settings, companies: Company[], selection: { cityId: string; org: string; dept: string; role: Role; home: string; work: string }) =>
+  validRouteLocations(settings.cities, selection.cityId, selection.home, selection.work)
+  && companies.some((company) => company.approved && company.name === selection.org)
+  && (selection.role === "student" || settings.departments.includes(selection.dept));
 
 export function unlockFor(postId: string, interestId: string, s: State = state) {
   return s.unlocks.find((u) => u.postId === postId && u.interestId === interestId && u.status !== "rejected");

@@ -19,3 +19,5 @@
 - ProfileSelections reuses LocationPicker and validates all edits against current catalogs before saving, keeping registration and profile choices consistent.
 - Offer cancellation and contact eligibility share store helpers; both matching and payment submission must check the latest offer state to prevent stale actions.
 - Member review details live on a separate reviews route keyed by post and interest; display stored review entries only and label simulated member feedback as sample data.
+- The shared side-tray mode switch updates the active member and saved profile through switchTravelMode; Home derives its module from that profile so mode changes survive navigation and reload.
+- Home feature slides live in FeatureSlider with reduced-motion support; shared Button sizes keep contact and pre-payment/review actions proportionate.

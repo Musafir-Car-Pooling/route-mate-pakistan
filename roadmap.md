@@ -8,3 +8,6 @@
 - [x] Add searchable profile/catalog popups and save profile selections.
 - [x] Add owner cancellation for requests and rides; stop new contacts and matching.
 - [x] Add a pre-contact ratings/reviews screen and verify all flows.
+- [x] Increase payment/review button heights and add official payment logos with account copying.
+- [x] Replace Home mode buttons with animated features slider; add side-tray mode switching.
+- [x] Verify payment and both travel-mode flows.

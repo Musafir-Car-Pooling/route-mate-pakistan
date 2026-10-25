@@ -1,14 +1,18 @@
 import { useState } from "react";
-import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2 } from "lucide-react";
+import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2, Copy, Check, Landmark, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, uid, formatPKR, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";
+import easypaisaLogo from "@/assets/easypaisa.png.asset.json";
+import jazzcashLogo from "@/assets/jazzcash.png.asset.json";
 
 export function ContactButton({ post, person }: { post: Post; person: Interest }) {
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [method, setMethod] = useState<"easypaisa" | "jazzcash" | "bank">("easypaisa");
   const [txn, setTxn] = useState("");
   const [shot, setShot] = useState<string>();
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
   const settings = useStore((s) => s.settings);
   const user = useStore((s) => s.user);
   const unlock = useStore((s) => unlockFor(post.id, person.id, s));
@@ -39,14 +43,22 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
   };
 
   const methods = [
-    { k: "easypaisa", label: "Easypaisa", acc: settings.easypaisa },
-    { k: "jazzcash", label: "JazzCash", acc: settings.jazzcash },
-    { k: "bank", label: "Bank", acc: settings.bankIban },
+    { k: "easypaisa", label: "Easypaisa", acc: settings.easypaisa, logo: easypaisaLogo.url },
+    { k: "jazzcash", label: "JazzCash", acc: settings.jazzcash, logo: jazzcashLogo.url },
+    { k: "bank", label: "Bank", acc: settings.bankIban, logo: null },
   ] as const;
+  const account = methods.find((m) => m.k === method)?.acc ?? "";
+  const copyAccount = async () => {
+    setCopyError(false);
+    try {
+      await navigator.clipboard.writeText(account);
+      setCopied(true);
+    } catch { setCopyError(true); }
+  };
 
   return (
     <>
-      <Button onClick={() => setStep(1)} className="btn-big mt-3 h-auto text-xl"><Phone className="h-5 w-5" />Contact</Button>
+      <Button size="contact" onClick={() => setStep(1)} className="mt-3"><Phone className="h-5 w-5" />Contact</Button>
       {step > 0 && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/80">
           <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-popover p-5 animate-in slide-in-from-bottom">
@@ -71,20 +83,24 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
                     <p>یہ آفر {settings.hours} گھنٹے کے بعد خودبخود منسوخ ہو جائے گی۔</p>
                   </div>
                 </div>
-                <Button asChild variant="outline" className="mt-4 w-full"><Link to="/reviews/$postId/$interestId" params={{ postId: post.id, interestId: person.id }} onClick={() => setStep(0)}>View ratings & reviews</Link></Button>
-                <Button onClick={() => setStep(2)} className="btn-big mt-5 h-auto">Proceed to Payment</Button>
+                <Button asChild variant="outline" size="connection" className="mt-4"><Link to="/reviews/$postId/$interestId" params={{ postId: post.id, interestId: person.id }} onClick={() => setStep(0)}><Star className="text-warning" />View ratings & reviews</Link></Button>
+                <Button size="connection" onClick={() => setStep(2)} className="mt-5">Proceed to Payment</Button>
               </>
             ) : (
               <>
                 <div className="grid grid-cols-3 gap-2">
                   {methods.map((m) => (
-                    <Button variant="secondary" key={m.k} aria-pressed={method === m.k} onClick={() => setMethod(m.k)} className={`h-auto rounded-lg border-2 px-1 py-3 font-bold ${method === m.k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}>{m.label}</Button>
+                    <Button variant="secondary" key={m.k} aria-label={m.label} aria-pressed={method === m.k} onClick={() => { setMethod(m.k); setCopied(false); setCopyError(false); }} className={`h-24 flex-col rounded-lg border-2 px-1 py-2 font-bold ${method === m.k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}>
+                      {m.logo ? <img src={m.logo} alt="" width={600} height={600} className="h-14 w-16 rounded bg-brand-surface object-contain" /> : <Landmark className="my-4 text-muted-foreground" />}
+                      <span className="text-xs">{m.label}</span>
+                    </Button>
                   ))}
                 </div>
                 <div className="mt-4 card-box space-y-1 p-4">
                   <p className="text-sm text-muted-foreground">Send {formatPKR(settings.fee)} to</p>
                   {method === "bank" && <p className="font-semibold">Account Title: {settings.bankTitle}</p>}
-                  <p className="break-all font-display text-2xl">{methods.find((m) => m.k === method)?.acc}</p>
+                  <div className="flex items-center gap-2"><p className="min-w-0 flex-1 break-all font-display text-2xl">{account}</p><Button variant="ghost" size="icon" disabled={!account} aria-label={copied ? "Account number copied" : "Copy account number"} title={copied ? "Copied" : "Copy account number"} onClick={copyAccount} className="shrink-0 text-primary">{copied ? <Check /> : <Copy />}</Button></div>
+                  <p role="status" className="min-h-5 text-xs text-muted-foreground">{copyError ? "Couldn't copy. Please select and copy the number." : copied ? "Account number copied" : ""}</p>
                 </div>
                 <input className="field mt-4" placeholder="Transaction ID" value={txn} onChange={(e) => setTxn(e.target.value)} />
                 <label className="mt-3 flex cursor-pointer items-center gap-2 rounded-xl border border-dashed p-4 text-muted-foreground">

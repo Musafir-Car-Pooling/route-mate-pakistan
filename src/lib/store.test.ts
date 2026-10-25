@@ -1,11 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { isAdminCreds, validPassword, formatPKR, isExpired, validOfficialEmail, type Post, getState } from "./store";
 import { locationsForCity, validRouteLocations, type City } from "./store";
-import { validOptionalVehicle, validRegistrationCatalog, cancelOwnPost, canContactPost, type State } from "./store";
+import { validOptionalVehicle, validRegistrationCatalog, cancelOwnPost, canContactPost, switchTravelMode, type State } from "./store";
 
 describe("travel sync rules", () => {
   const ownPost: Post = { id: "own", kind: "request", ownerId: "member", ownerName: "Member", from: "Home", to: "Office", notes: "", genderPref: "any", createdAt: 1000, active: true, interests: [] };
   const ownerState = { ...getState(), user: { id: "member" }, posts: [ownPost] } as State;
+  it("switches a registered passenger to driver and updates their saved profile", () => {
+    const user = { ...ownerState.user, travelMode: "passenger" } as State["users"][number];
+    const result = switchTravelMode({ ...ownerState, user, users: [user] });
+    expect(result.user?.travelMode).toBe("driver");
+    expect(result.users[0]?.travelMode).toBe("driver");
+  });
+  it("switches a registered driver to passenger without changing professional role", () => {
+    const user = { ...ownerState.user, travelMode: "driver", role: "jobian" } as State["users"][number];
+    const result = switchTravelMode({ ...ownerState, user });
+    expect(result.user?.travelMode).toBe("passenger");
+    expect(result.user?.role).toBe("jobian");
+  });
   it("users can cancel their own request", () => {
     const result = cancelOwnPost(ownerState, "own", 2000);
     expect(result.posts[0]?.active).toBe(false);

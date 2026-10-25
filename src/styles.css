@@ -34,10 +34,14 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-feature-shade: var(--feature-shade);
+  --color-brand-surface: var(--brand-surface);
 }
 
 :root {
   --radius: 1rem;
+  --feature-shade: oklch(0.12 0.02 255 / 66%);
+  --brand-surface: oklch(1 0 0);
   --background: oklch(0.17 0.03 255);
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.21 0.035 255);
@@ -104,3 +108,6 @@
 .rating-meter::-webkit-meter-bar { background: var(--color-secondary); border: none; border-radius: 4px; }
 .rating-meter::-webkit-meter-optimum-value { background: var(--color-warning); border-radius: 4px; }
 .rating-meter::-moz-meter-bar { background: var(--color-warning); border-radius: 4px; }
+.feature-enter { animation: feature-enter 450ms ease-out both; }
+@keyframes feature-enter { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .feature-enter { animation: none; } }

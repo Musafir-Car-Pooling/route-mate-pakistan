@@ -7,6 +7,7 @@ import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
+import { FeatureSlider } from "@/components/FeatureSlider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -80,7 +81,7 @@ function Home() {
   const settings = useStore((s) => s.settings);
   const companies = useStore((s) => s.companies);
   const nav = useNavigate();
-  const [mode, setMode] = useState<"passenger" | "driver">(user?.travelMode ?? "passenger");
+  const mode = user?.travelMode ?? "passenger";
   const [cityId, setCityId] = useState(() => settings.cities.find((c) => c.name === user?.city)?.id ?? "");
   const [from, setFrom] = useState(user?.home ?? "");
   const [to, setTo] = useState(user?.work ?? "");
@@ -88,8 +89,6 @@ function Home() {
   const [gender, setGender] = useState<Post["genderPref"]>("any");
   const [seats, setSeats] = useState(3);
   const [fares, setFares] = useState({ daily: 450, weekly: 2500, monthly: 8500 });
-  const [slide, setSlide] = useState(0);
-  useEffect(() => { if (!settings.slides.length) return; const t = setInterval(() => setSlide((x) => (x + 1) % settings.slides.length), 4000); return () => clearInterval(t); }, [settings.slides.length]);
 
   const city = settings.cities.find((c) => c.id === cityId);
   const locations = locationsForCity(settings.cities, cityId);
@@ -110,12 +109,7 @@ function Home() {
 
   return (
     <AppShell>
-      {settings.slides.length > 0 && <img src={settings.slides[slide]} alt="Travel Sync promotion" className="mb-4 h-36 w-full rounded-2xl object-cover" />}
-      <div className="grid grid-cols-2 gap-1 rounded-2xl bg-secondary p-1">
-        {(["passenger", "driver"] as const).map((m) => (
-          <button key={m} onClick={() => setMode(m)} className={`rounded-xl py-3 font-display text-2xl ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{m === "passenger" ? "Passenger" : "Driver"}</button>
-        ))}
-      </div>
+      <FeatureSlider />
 
       <div className="mt-4 card-box space-y-3 p-4">
         <label className="block font-semibold">City

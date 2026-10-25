@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Home as HomeIcon, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight, Trash2 } from "lucide-react";
-import { AppShell, Logo } from "@/components/AppShell";
+import { AppShell, AuthLogo } from "@/components/AppShell";
 import { useStore, setState, uid, isExpired, deleteOwnPost, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";

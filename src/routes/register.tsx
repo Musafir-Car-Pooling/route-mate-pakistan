@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Briefcase, GraduationCap, BadgeCheck, Upload, Car, Users, Home, Building2 } from "lucide-react";
-import { Logo } from "@/components/AppShell";
+import { AuthLogo } from "@/components/AppShell";
 import { setState, getState, useStore, locationsForCity, validRegistrationCatalog, uid, validPassword, validOfficialEmail, validOptionalVehicle, compressImage, type Role, type Gender, type TravelMode } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { LocationPicker } from "@/components/LocationPicker";

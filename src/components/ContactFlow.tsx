@@ -90,9 +90,9 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
               <>
                 <div className="grid grid-cols-3 gap-2">
                   {methods.map((m) => (
-                    <Button variant="secondary" key={m.k} aria-label={m.label} aria-pressed={method === m.k} onClick={() => { setMethod(m.k); setCopied(false); setCopyError(false); }} className={`h-24 flex-col rounded-lg border-2 px-1 py-2 font-bold ${method === m.k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}>
-                      {m.logo ? <span className="flex h-14 w-full items-center justify-center rounded bg-brand-surface p-1"><img src={m.logo} alt="" width={172} height={120} className="h-full w-full object-contain" /></span> : <Landmark className="my-4 text-muted-foreground" />}
-                      <span className="text-xs">{m.label}</span>
+                    <Button variant="secondary" key={m.k} aria-label={m.label} aria-pressed={method === m.k} onClick={() => { setMethod(m.k); setCopied(false); setCopyError(false); }} className={`relative h-24 overflow-hidden rounded-lg border-2 p-0 font-bold ${method === m.k ? "border-primary bg-primary/15" : "border-border bg-secondary"}`}>
+                      {m.logo ? <img src={m.logo} alt="" className="absolute inset-0 h-full w-full bg-brand-surface object-contain" /> : <span className="grid h-full w-full place-items-center"><Landmark className="text-muted-foreground" /></span>}
+                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 rounded bg-background/85 px-2 py-0.5 text-xs">{m.label}</span>
                     </Button>
                   ))}
                 </div>

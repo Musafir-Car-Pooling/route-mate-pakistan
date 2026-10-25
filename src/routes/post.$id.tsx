@@ -1,12 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Star, BadgeCheck, Car, Clock, AlertTriangle, Loader2, XCircle } from "lucide-react";
+import { Star, BadgeCheck, Car, Clock, AlertTriangle, Loader2, XCircle, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Countdown } from "@/components/Countdown";
 import { ContactButton } from "@/components/ContactFlow";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useStore, setState, getState, isExpired, mockInterest, formatPKR, cancelOwnPost, canContactPost } from "@/lib/store";
+import { useStore, setState, getState, isExpired, mockInterest, formatPKR, cancelOwnPost, canContactPost, deleteOwnPost } from "@/lib/store";
 
 export const Route = createFileRoute("/post/$id")({
   head: () => ({
@@ -28,6 +28,7 @@ function PostPage() {
   const settings = useStore((s) => s.settings);
   const user = useStore((s) => s.user);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const nav = useNavigate();
   const expired = post ? isExpired(post, settings) : false;
 
   // Prototype: simulate matched members on the same route showing interest.
@@ -63,6 +64,7 @@ function PostPage() {
         </div>
       </div>
       {available && <Button variant="outline" className="mt-3 w-full text-destructive" onClick={() => setConfirmCancel(true)}><XCircle className="size-4" />Cancel {isRide ? "ride" : "request"}</Button>}
+      {post.cancelledAt && <Button variant="outline" className="mt-3 w-full text-destructive" onClick={() => { setState((s) => deleteOwnPost(s, post.id)); nav({ to: "/" }); }}><Trash2 className="size-4" />Delete {isRide ? "ride" : "request"}</Button>}
       <Dialog open={confirmCancel} onOpenChange={setConfirmCancel}><DialogContent className="max-w-sm rounded-lg"><DialogTitle>Cancel this {isRide ? "ride" : "request"}?</DialogTitle><DialogDescription>Matching will stop and no new contact payments can be made for this offer.</DialogDescription><Button variant="destructive" onClick={() => { setState((s) => cancelOwnPost(s, post.id)); setConfirmCancel(false); }}>Yes, cancel {isRide ? "ride" : "request"}</Button><Button variant="outline" onClick={() => setConfirmCancel(false)}>Keep {isRide ? "ride" : "request"}</Button></DialogContent></Dialog>
 
       <div className="mt-6 flex items-end justify-between">

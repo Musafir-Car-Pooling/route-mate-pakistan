@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Home as HomeIcon, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight } from "lucide-react";
+import { Home as HomeIcon, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight, Trash2 } from "lucide-react";
 import { AppShell, Logo } from "@/components/AppShell";
-import { useStore, setState, uid, isExpired, type Post } from "@/lib/store";
+import { useStore, setState, uid, isExpired, deleteOwnPost, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";
@@ -34,7 +34,7 @@ const slides = [
 function Intro() {
   const [splash, setSplash] = useState(true);
   const [i, setI] = useState(0);
-  useEffect(() => { const t = setTimeout(() => setSplash(false), 4000); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setSplash(false), 3000); return () => clearTimeout(t); }, []);
   if (splash)
     return (
       <div className="grid min-h-screen place-items-center bg-hero text-center text-primary-foreground">
@@ -113,12 +113,11 @@ function Home() {
       <FeatureSlider />
 
       <div className="mt-4 space-y-3">
-        <label className="block font-semibold">City
-          <select className="field mt-1 min-h-14" aria-label="City" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setFrom(""); setTo(""); }}>
-            <option value="">Select city</option>
-            {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </label>
+        <h2 className="font-display text-3xl">Select your daily traveling route</h2>
+        <select className="field min-h-14" aria-label="City" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setFrom(""); setTo(""); }}>
+          <option value="">Select city</option>
+          {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
         <LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} icon={<HomeIcon className="h-5 w-5" />} onChange={setFrom} />
         <LocationPicker label="To — Workplace / University" value={selectedTo} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={setTo} />
         {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities or locations available yet.</p>}
@@ -153,14 +152,21 @@ function Home() {
             {mine.map((p) => {
               const exp = isExpired(p, settings);
               return (
-                <Link key={p.id} to="/post/$id" params={{ id: p.id }} className="flex items-center gap-3 card-box p-4">
-                  <div className="flex-1">
-                    <p className="text-xs font-bold uppercase text-primary">{p.kind === "ride" ? "Shared Ride" : "Ride Request"}</p>
-                    <p className="font-bold">{p.from} → {p.to}</p>
-                    <p className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="h-4 w-4" />{p.cancelledAt ? "Cancelled" : !p.active ? "Inactive" : exp ? "Expired" : <Countdown post={p} />} · {p.interests.length} interested</p>
-                  </div>
-                  <ChevronRight />
-                </Link>
+                <div key={p.id} className="flex items-center gap-2 card-box p-4">
+                  <Link to="/post/$id" params={{ id: p.id }} className="flex flex-1 items-center gap-3">
+                    <div className="flex-1">
+                      <p className="text-xs font-bold uppercase text-primary">{p.kind === "ride" ? "Shared Ride" : "Ride Request"}</p>
+                      <p className="font-bold">{p.from} → {p.to}</p>
+                      <p className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="h-4 w-4" />{p.cancelledAt ? "Cancelled" : !p.active ? "Inactive" : exp ? "Expired" : <Countdown post={p} />} · {p.interests.length} interested</p>
+                    </div>
+                    <ChevronRight />
+                  </Link>
+                  {p.cancelledAt && (
+                    <Button variant="ghost" size="icon" aria-label={`Delete cancelled ${p.kind}`} onClick={() => setState((s) => deleteOwnPost(s, p.id))}>
+                      <Trash2 className="text-destructive" />
+                    </Button>
+                  )}
+                </div>
               );
             })}
           </div>

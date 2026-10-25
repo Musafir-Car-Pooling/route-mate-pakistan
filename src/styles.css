@@ -100,3 +100,7 @@
 @utility card-box {
   background: var(--color-card); border: 1px solid var(--color-border); border-radius: calc(var(--radius) + 4px);
 }
+.rating-meter { appearance: none; background: var(--color-secondary); border-radius: 4px; }
+.rating-meter::-webkit-meter-bar { background: var(--color-secondary); border: none; border-radius: 4px; }
+.rating-meter::-webkit-meter-optimum-value { background: var(--color-warning); border-radius: 4px; }
+.rating-meter::-moz-meter-bar { background: var(--color-warning); border-radius: 4px; }

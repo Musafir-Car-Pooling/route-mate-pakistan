@@ -5,3 +5,6 @@
 - [x] Add searchable location selection popups.
 - [x] Update registration choices and optional vehicle/profile photos; test both flows.
 - [x] Make registration organization, department and address selections admin-controlled; verify admin-to-registration flow.
+- [x] Add searchable profile/catalog popups and save profile selections.
+- [x] Add owner cancellation for requests and rides; stop new contacts and matching.
+- [x] Add a pre-contact ratings/reviews screen and verify all flows.

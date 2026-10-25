@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { BadgeCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { ProfileSelections } from "@/components/ProfileSelections";
 import { useStore, setState, validPassword } from "@/lib/store";
 
 export const Route = createFileRoute("/account")({
@@ -38,6 +39,7 @@ function Account() {
         <p className="text-sm">{user.home} → {user.work}</p>
         {user.car && <p className="text-sm">{user.car} · {user.plate}</p>}
       </section>
+      <ProfileSelections key={user.id} user={user} />
       <section className="mt-4 card-box space-y-3 p-5">
         <h2 className="font-display text-2xl text-primary">Security</h2>
         <input className="field" type="password" placeholder="Current password" value={cur} onChange={(e) => setCur(e.target.value)} />

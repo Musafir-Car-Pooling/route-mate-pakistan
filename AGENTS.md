@@ -16,3 +16,6 @@
 - Store travelMode separately from professional role and keep photo/vehicle fields optional so either registration path works without uploads.
 - Registration uses approved entries from the shared company/institute catalog, departments from settings, and city-scoped location pickers; validate against current catalogs on submit to prevent stale selections. Student IDs remain personal inputs rather than catalog entries.
 - Department catalog controls live in AdminDepartments to keep registration catalog management isolated from other admin tools.
+- ProfileSelections reuses LocationPicker and validates all edits against current catalogs before saving, keeping registration and profile choices consistent.
+- Offer cancellation and contact eligibility share store helpers; both matching and payment submission must check the latest offer state to prevent stale actions.
+- Member review details live on a separate reviews route keyed by post and interest; display stored review entries only and label simulated member feedback as sample data.

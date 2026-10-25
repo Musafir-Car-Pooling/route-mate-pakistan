@@ -97,14 +97,8 @@ function Register() {
         <select className="field" value={f.gender} onChange={up("gender")} aria-label="Gender"><option value="male">Male</option><option value="female">Female</option></select>
         <select className="field min-w-0" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setF({ ...f, home: "", work: "" }); }} aria-label="City"><option value="">Select city</option>{settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
       </div>
-      <select className="field" aria-label={role === "jobian" ? "Company name" : "Institute name"} value={org} onChange={up("org")} disabled={!organizations.length}>
-        <option value="">{organizations.length ? (role === "jobian" ? "Select company" : "Select institute") : "No organizations available"}</option>
-        {organizations.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
-      </select>
-      {role === "jobian" ? <select className="field" aria-label="Department" value={dept} onChange={up("dept")} disabled={!settings.departments.length}>
-        <option value="">{settings.departments.length ? "Select department" : "No departments available"}</option>
-        {settings.departments.map((d) => <option key={d} value={d}>{d}</option>)}
-      </select> : <input className="field" placeholder="Student ID" value={f.dept} onChange={up("dept")} />}
+      <LocationPicker label={role === "jobian" ? "Company name" : "Institute name"} value={org} locations={organizations.map((c) => c.name)} icon={<Building2 className="size-5" />} searchLabel="Search organizations" onChange={(value) => setF({ ...f, org: value })} />
+      {role === "jobian" ? <LocationPicker label="Department" value={dept} locations={settings.departments} icon={<Briefcase className="size-5" />} searchLabel="Search departments" onChange={(value) => setF({ ...f, dept: value })} /> : <input className="field" placeholder="Student ID" value={f.dept} onChange={up("dept")} />}
       <div className="flex gap-2">
         <input className="field" type="email" placeholder={role === "jobian" ? "Work email @company.com" : "Student email @edu.pk"} value={f.email} onChange={(e) => { up("email")(e); setVerified(false); }} />
         <Button type="button" variant="secondary" onClick={sendOtp} className="h-auto shrink-0 px-4 font-bold text-primary">OTP</Button>

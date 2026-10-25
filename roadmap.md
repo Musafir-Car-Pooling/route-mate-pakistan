@@ -11,6 +11,6 @@
 - [x] Increase payment/review button heights and add official payment logos with account copying.
 - [x] Replace Home mode buttons with animated features slider; add side-tray mode switching.
 - [x] Verify payment and both travel-mode flows.
-- [ ] Simplify Home fields and replace compact slider photos.
-- [ ] Optimize payment logos and add compressed admin media uploads.
-- [ ] Add touch-paused menu scrolling and partner animation; verify flows.
+- [x] Simplify Home fields and replace compact slider photos.
+- [x] Optimize payment logos and add compressed admin media uploads.
+- [x] Add touch-paused menu scrolling and partner animation; verify flows.

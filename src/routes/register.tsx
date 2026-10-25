@@ -74,7 +74,7 @@ function Register() {
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-md space-y-3 px-5 py-8">
-      <Logo size="text-5xl" />
+      <AuthLogo imgSize="h-20 w-20" textSize="text-5xl" />
       <h1 className="font-display text-3xl text-muted-foreground">Create Account</h1>
       <div className="grid grid-cols-2 gap-2" role="group" aria-label="Travel choice">
         {([["driver", "I've a car", Car], ["passenger", "Need a ride", Users]] as const).map(([k, label, Icon]) => (
@@ -136,7 +136,7 @@ function Register() {
       </label>
       </>}
       {err && <p className="font-semibold text-destructive">{err}</p>}
-      <Button type="submit" className="btn-big h-auto">Register</Button>
+      <Button type="submit" size="connection">Register</Button>
       </>}
       <Link to="/login" className="block py-2 text-center font-bold text-primary">Already have an account? Login</Link>
     </form>

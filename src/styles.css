@@ -35,6 +35,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-feature-shade: var(--feature-shade);
+  --color-brand-orange: var(--brand-orange);
   --color-brand-surface: var(--brand-surface);
 }
 
@@ -64,6 +65,7 @@
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.6 0.2 258);
+  --brand-orange: oklch(0.72 0.16 55);
   --gradient-hero: linear-gradient(160deg, oklch(0.6 0.2 258), oklch(0.42 0.18 262));
 }
 

@@ -16,6 +16,17 @@ export function Logo({ size = "text-3xl" }: { size?: string }) {
   );
 }
 
+export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl" }: { imgSize?: string; textSize?: string }) {
+  return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      <img src={logoAsset.url} alt="Travel Sync logo" className={`${imgSize} rounded-full`} />
+      <span className={`font-display ${textSize} leading-none`}>
+        TRAVEL <span className="text-brand-orange">SYNC</span>
+      </span>
+    </div>
+  );
+}
+
 export function AppShell({ children, title, back }: { children: ReactNode; title?: string; back?: boolean }) {
   const [open, setOpen] = useState(false);
   const menu = useRef<HTMLElement>(null);

@@ -43,9 +43,9 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
   };
 
   const methods = [
-    { k: "easypaisa", label: "Easypaisa", acc: settings.easypaisa, logo: settings.paymentIcons?.easypaisa || easypaisaLogo.url },
-    { k: "jazzcash", label: "JazzCash", acc: settings.jazzcash, logo: settings.paymentIcons?.jazzcash || jazzcashLogo.url },
-    { k: "bank", label: "Bank", acc: settings.bankIban, logo: settings.paymentIcons?.bank || null },
+    { k: "easypaisa", label: "Easypaisa", acc: settings.easypaisa },
+    { k: "jazzcash", label: "JazzCash", acc: settings.jazzcash },
+    { k: "bank", label: "Bank", acc: settings.bankIban },
   ] as const;
   const account = methods.find((m) => m.k === method)?.acc ?? "";
   const copyAccount = async () => {

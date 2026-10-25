@@ -58,7 +58,6 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
           <Button variant="secondary" size="icon" aria-label="Menu" onClick={() => { setScrollPaused(false); setOpen(true); }} className="h-11 w-11 rounded-full"><Menu /></Button>
         )}
         <div className="flex-1">{title ? <h1 className="font-display text-3xl">{title}</h1> : <Logo />}</div>
-        <img src={logoAsset.url} alt="Travel Sync" width={40} height={40} className="h-10 w-10 rounded-full" />
       </header>
       <main className="px-4">{children}</main>
 

@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { hydrateStore } from "../lib/store";
+import { initFirebase } from "../lib/firebase";
 
 function NotFoundComponent() {
   return (
@@ -36,6 +37,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#141c2e" },
       { title: "Travel Sync — Verified Carpooling Pakistan" },
       { name: "description", content: "Your security is our concern. Verified carpooling for Jobians and students in Pakistan." },
       { property: "og:type", content: "website" },
@@ -47,6 +49,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -66,7 +70,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => { hydrateStore(); }, []);
+  useEffect(() => { hydrateStore(); void initFirebase().catch(() => {}); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />

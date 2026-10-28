@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Check, ArrowRight, MapPin, Search } from "lucide-react";
+import { Check, ChevronRight as ArrowRight, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -17,7 +17,7 @@ export function LocationPicker({ label, value, locations, city, icon, searchLabe
             <span className="grid h-5 w-5 shrink-0 place-items-center text-muted-foreground">{icon}</span>
             <span className="min-w-0 break-words">{value || label}</span>
           </span>
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary-foreground"><ArrowRight strokeWidth={3} className="size-5 text-background" /></span>
+          <ArrowRight strokeWidth={2.5} className="size-7 shrink-0 text-muted-foreground" />
         </Button>
       </DialogTrigger>
       <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="top-14 translate-y-0 w-[calc(100%-2rem)] max-w-md gap-3 rounded-lg p-4" aria-describedby={undefined}>

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthLogo } from "@/components/AppShell";
-import { setState, getState, isAdminCreds } from "@/lib/store";
+import { getState, isAdminCreds } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -22,14 +22,19 @@ function Login() {
   const [pass, setPass] = useState("");
   const [err, setErr] = useState("");
   const nav = useNavigate();
-  const go = (e: React.FormEvent) => {
+  const [busy, setBusy] = useState(false);
+  const go = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isAdminCreds(email, pass)) { setState((s) => ({ ...s, admin: true })); nav({ to: "/admin" }); return; }
-    const u = getState().users.find((x) => x.email === email.trim().toLowerCase() && x.password === pass);
-    if (!u) return setErr("Wrong email or password");
-    if (!u.active) return setErr("Account deactivated by admin");
-    setState((s) => ({ ...s, user: u, seenIntro: true }));
-    nav({ to: "/" });
+    setErr(""); setBusy(true);
+    try {
+      const { signIn } = await import("@/lib/cloud");
+      await signIn(email, pass);
+      const s = getState();
+      if (s.admin) { nav({ to: "/admin" }); return; }
+      if (!s.user) { setErr("Account not found or deactivated by admin"); return; }
+      nav({ to: "/" });
+    } catch { setErr(isAdminCreds(email, pass) ? "Admin sign-in failed. Check Firebase Email/Password sign-in is enabled." : "Wrong email or password"); }
+    finally { setBusy(false); }
   };
   return (
     <form onSubmit={go} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
@@ -38,7 +43,7 @@ function Login() {
       <input className="field" type="email" placeholder="Official email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input className="field" type="password" placeholder="Password" value={pass} onChange={(e) => setPass(e.target.value)} />
       {err && <p className="font-semibold text-destructive">{err}</p>}
-      <button className="btn-big">Login</button>
+      <button className="btn-big" disabled={busy}>{busy ? "Logging in…" : "Login"}</button>
       <Link to="/register" className="py-2 text-center font-bold text-primary">Create new account</Link>
     </form>
   );

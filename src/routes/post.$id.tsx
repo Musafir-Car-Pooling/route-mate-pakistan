@@ -1,12 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Star, BadgeCheck, Car, Clock, AlertTriangle, Loader2, XCircle, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Countdown } from "@/components/Countdown";
 import { ContactButton } from "@/components/ContactFlow";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useStore, setState, getState, isExpired, mockInterest, formatPKR, cancelOwnPost, canContactPost, deleteOwnPost } from "@/lib/store";
+import { useStore, setState, isExpired, formatPKR, matchingPosts, type Interest, cancelOwnPost, canContactPost, deleteOwnPost } from "@/lib/store";
 
 export const Route = createFileRoute("/post/$id")({
   head: () => ({
@@ -31,16 +31,8 @@ function PostPage() {
   const nav = useNavigate();
   const expired = post ? isExpired(post, settings) : false;
 
-  // Prototype: simulate matched members on the same route showing interest.
-  useEffect(() => {
-    if (!post || expired || !post.active || post.cancelledAt || post.ownerId !== user?.id) return;
-    const t = setInterval(() => {
-      const p = getState().posts.find((x) => x.id === id);
-      if (!p || !canContactPost(p, getState().settings, getState().user?.id) || p.interests.length >= 5) return;
-      setState((s) => ({ ...s, posts: s.posts.map((x) => (x.id === id ? { ...x, interests: [...x.interests, mockInterest(x)] } : x)) }));
-    }, 5000);
-    return () => clearInterval(t);
-  }, [id, !!post, expired, post?.active, post?.cancelledAt, user?.id]);
+  const allPosts = useStore((s) => s.posts);
+  const [sent, setSent] = useState<string[]>([]);
 
   if (!post) return <AppShell back title="Not found"><Link to="/" className="btn-big mt-10">Go home</Link></AppShell>;
   if (!user || post.ownerId !== user.id) return <AppShell back title="Offer unavailable"><p className="py-8">This offer is not available.</p></AppShell>;
@@ -78,6 +70,12 @@ function PostPage() {
         </div>
       )}
 
+      {available && <MatchingOffers post={post} posts={allPosts} sent={sent} onInterest={(target) => {
+        const me: Interest = { id: user.id, name: user.name, org: user.org, gender: user.gender, rating: user.rating, reviews: 0, verified: user.verified, car: user.car || undefined, at: Date.now() };
+        setState((s) => ({ ...s, posts: s.posts.map((x) => x.id === target.id && !x.interests.some((i) => i.id === me.id) ? { ...x, interests: [...x.interests, me] } : x) }));
+        setSent((v) => [...v, target.id]);
+      }} />}
+
       <div className="mt-3 space-y-3">
         {post.interests.map((p) => (
           <div key={p.id} className="card-box p-4 animate-in fade-in slide-in-from-bottom-2">
@@ -95,5 +93,29 @@ function PostPage() {
         ))}
       </div>
     </AppShell>
+  );
+}
+
+function MatchingOffers({ post, posts, sent, onInterest }: { post: Post; posts: Post[]; sent: string[]; onInterest: (p: Post) => void }) {
+  const settings = useStore((s) => s.settings);
+  const list = matchingPosts(post, posts, settings);
+  return (
+    <section className="mt-6">
+      <h2 className="font-display text-3xl">{post.kind === "ride" ? "Passengers on your route" : "Rides on your route"}</h2>
+      {list.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">No matching {post.kind === "ride" ? "requests" : "rides"} yet. Members who post the same route will appear here.</p> : (
+        <div className="mt-3 space-y-3">
+          {list.map((m) => {
+            const done = sent.includes(m.id) || m.interests.some((i) => i.id === post.ownerId);
+            return (
+              <div key={m.id} className="card-box p-4">
+                <p className="text-lg font-bold">{m.ownerName}</p>
+                <p className="text-sm text-muted-foreground">{m.from} → {m.to}{m.kind === "ride" && m.daily ? ` · ${formatPKR(m.daily)}/day` : ""}</p>
+                <Button className="mt-3 w-full" disabled={done} onClick={() => onInterest(m)}>{done ? "Interest sent" : "I'm interested"}</Button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }

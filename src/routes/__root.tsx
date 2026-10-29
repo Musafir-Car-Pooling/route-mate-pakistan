@@ -4,7 +4,6 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { hydrateStore } from "../lib/store";
-import { initFirebase } from "../lib/firebase";
 
 function NotFoundComponent() {
   return (
@@ -70,7 +69,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => { hydrateStore(); void initFirebase().catch(() => {}); }, []);
+  useEffect(() => { hydrateStore(); void import("../lib/cloud").then((m) => m.startSync()).catch(() => {}); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />

@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.email == 'pp@gmail.com'; }
+    function post(pid) { return get(/databases/$(db)/documents/posts/$(pid)).data; }
+
+    // Public catalogs: needed before sign-up. Only admin edits.
+    match /settings/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /companies/{id} { allow read: if true; allow write: if isAdmin(); }
+
+    // Profiles (no phone numbers here).
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth.uid == uid && request.resource.data.active == true;
+      allow update: if isAdmin() || (request.auth.uid == uid
+        && request.resource.data.active == resource.data.active
+        && request.resource.data.verified == resource.data.verified);
+      allow delete: if isAdmin();
+    }
+
+    // Phone numbers: owner, admin, or someone whose payment for this member is unlocked.
+    match /private/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin()
+        || get(/databases/$(db)/documents/unlocks/$(request.auth.uid + '_' + uid)).data.status == 'unlocked');
+      allow write: if request.auth.uid == uid || isAdmin();
+    }
+
+    match /posts/{pid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == request.auth.uid) || (signedIn() && resource.data.ownerId == request.auth.uid && request.method == 'delete');
+
+      match /interests/{uid} {
+        allow read: if signedIn() && (request.auth.uid == uid || isAdmin() || post(pid).ownerId == request.auth.uid);
+        allow create, update: if signedIn() && request.auth.uid == uid && post(pid).active == true;
+        allow delete: if signedIn() && (request.auth.uid == uid || isAdmin() || post(pid).ownerId == request.auth.uid);
+      }
+    }
+
+    // Payment proofs. Id is "<payerUid>_<memberUid>".
+    match /unlocks/{id} {
+      allow read: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && id == request.auth.uid + '_' + request.resource.data.interestId
+        && post(request.resource.data.postId).ownerId == request.auth.uid
+        && exists(/databases/$(db)/documents/posts/$(request.resource.data.postId)/interests/$(request.resource.data.interestId))
+        && (request.resource.data.status == 'pending'
+          || (request.resource.data.status == 'unlocked'
+            && get(/databases/$(db)/documents/settings/app).data.instantUnlock == true));
+      allow update, delete: if isAdmin();
+    }
+  }
+}

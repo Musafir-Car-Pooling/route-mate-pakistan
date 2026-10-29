@@ -158,9 +158,9 @@ async function writeDiff(prev: State, next: State) {
   if (next.admin && prev.settings !== next.settings) run(fs.setDoc(fs.doc(db, "settings", "app"), next.settings));
 
   if (next.admin && prev.companies !== next.companies) {
-    const before = byId(prev.companies);
     const after = byId(next.companies);
-    for (const c of next.companies) if (before.get(c.id) !== c || prev.companies === getDefaultsCompanies()) { const { id, ...rest } = c; run(fs.setDoc(fs.doc(db, "companies", id), rest)); }
+    // Small list: write all so built-in defaults are saved on the first edit.
+    for (const c of next.companies) { const { id, ...rest } = c; run(fs.setDoc(fs.doc(db, "companies", id), rest)); }
     for (const c of prev.companies) if (!after.has(c.id)) run(fs.deleteDoc(fs.doc(db, "companies", c.id)));
   }
 
@@ -200,6 +200,3 @@ async function writeDiff(prev: State, next: State) {
   await Promise.all(ops);
 }
 
-let defaultCompanies: Company[] | null = null;
-function getDefaultsCompanies() { return defaultCompanies; }
-export function rememberDefaultCompanies(c: Company[]) { defaultCompanies = c; }

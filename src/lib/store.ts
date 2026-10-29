@@ -12,7 +12,7 @@ export type User = {
 export type MemberReview = { id: string; author: string; rating: number; text: string; at: number };
 export type Interest = {
   id: string; name: string; org: string; gender: Gender; rating: number; reviews: number;
-  verified: boolean; car?: string | undefined; phone: string; at: number; reviewEntries?: MemberReview[]; demo?: boolean;
+  verified: boolean; car?: string | undefined; phone?: string; at: number; reviewEntries?: MemberReview[]; demo?: boolean;
 };
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;
@@ -39,10 +39,11 @@ export type Settings = {
 export type State = {
   user: User | null; admin: boolean; seenIntro: boolean; users: User[]; posts: Post[];
   unlocks: Unlock[]; companies: Company[]; settings: Settings;
+  phones: Record<string, string>; authReady: boolean;
 };
 
 const defaults: State = {
-  user: null, admin: false, seenIntro: false, users: [], posts: [], unlocks: [],
+  user: null, admin: false, seenIntro: false, users: [], posts: [], unlocks: [], phones: {}, authReady: false,
   companies: ["Systems Ltd", "Jazz", "Engro", "NetSol", "LUMS", "FAST NUCES", "HBL"].map((n, i) => ({ id: "c" + i, name: n, approved: true })),
   settings: {
     cities: [],
@@ -65,18 +66,26 @@ const KEY = "travelsync-v1";
 let state: State = defaults;
 const listeners = new Set<() => void>();
 
+type WriteHook = (prev: State, next: State) => void;
+let writeHook: WriteHook | null = null;
+export function setWriteHook(h: WriteHook | null) { writeHook = h; }
 export function hydrateStore() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) { const p = JSON.parse(raw); state = { ...defaults, ...p, settings: { ...defaults.settings, ...p.settings } }; emit(); }
+    if (raw) { const p = JSON.parse(raw); if (p.seenIntro) { state = { ...state, seenIntro: true }; emit(); } }
   } catch { /* ignore */ }
 }
 function emit() { listeners.forEach((l) => l()); }
+// Local change made by the user: synced to Firebase by the write hook.
 export function setState(fn: (s: State) => State) {
+  const prev = state;
   state = fn(state);
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* quota */ }
+  try { localStorage.setItem(KEY, JSON.stringify({ seenIntro: state.seenIntro })); } catch { /* quota */ }
+  if (writeHook && prev !== state) writeHook(prev, state);
   emit();
 }
+// Change that came from Firebase: never written back.
+export function setRemote(fn: (s: State) => State) { state = fn(state); emit(); }
 export function getState() { return state; }
 export function switchTravelMode(s: State): State {
   if (!s.user) return s;

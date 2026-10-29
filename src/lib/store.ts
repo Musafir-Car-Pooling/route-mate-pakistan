@@ -134,6 +134,11 @@ export const validRegistrationCatalog = (settings: Settings, companies: Company[
   && companies.some((company) => company.approved && company.name === selection.org)
   && (selection.role === "student" || settings.departments.includes(selection.dept));
 
+// Offers of the opposite kind on the same route that this post's owner can join.
+export const matchingPosts = (post: Post, posts: Post[], s: Settings, now = Date.now()) => posts.filter((p) =>
+  p.id !== post.id && p.ownerId !== post.ownerId && p.kind !== post.kind && p.active && !p.cancelledAt && !isExpired(p, s, now)
+  && p.city === post.city && p.from === post.from && p.to === post.to);
+
 export function unlockFor(postId: string, interestId: string, s: State = state) {
   return s.unlocks.find((u) => u.postId === postId && u.interestId === interestId && u.status !== "rejected");
 }

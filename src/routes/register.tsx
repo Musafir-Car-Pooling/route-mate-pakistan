@@ -50,7 +50,8 @@ function Register() {
     if (!validOfficialEmail(f.email, role)) return setErr(role === "student" ? "Use your university @edu.pk email" : "Use your official company email (not Gmail/Yahoo)");
     setErr(""); setOtpSent(String(Math.floor(100000 + Math.random() * 900000)));
   };
-  const submit = (e: React.FormEvent) => {
+  const [busy, setBusy] = useState(false);
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!travelMode) return setErr("Choose whether you have a car or need a ride");
     const req = ["name", "org", "email", "phone", "home", "work"] as const;
@@ -60,10 +61,16 @@ function Register() {
     if (!validPassword(f.password)) return setErr("Password: minimum 6 letters/numbers only");
     if (travelMode === "driver" && !validOptionalVehicle(f)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
     const email = f.email.trim().toLowerCase();
-    if (getState().users.some((u) => u.email === email)) return setErr("Email already registered");
-    const user = { id: uid(), ...f, city: city.name, email, role, travelMode, prefs, verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
-    setState((s) => ({ ...s, users: [...s.users, user], user, seenIntro: true }));
-    nav({ to: "/" });
+    const user = { ...f, city: city.name, email, role, travelMode, prefs, verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
+    setBusy(true); setErr("");
+    try {
+      const { registerAccount } = await import("@/lib/cloud");
+      await registerAccount(user);
+      nav({ to: "/" });
+    } catch (x) {
+      const code = (x as { code?: string }).code;
+      setErr(code === "auth/email-already-in-use" ? "Email already registered" : "Could not create account. Please try again.");
+    } finally { setBusy(false); }
   };
   const uploadPhoto = async (file: File | undefined, setPhoto: (photo: string) => void) => {
     if (!file) return;
@@ -136,7 +143,7 @@ function Register() {
       </label>
       </>}
       {err && <p className="font-semibold text-destructive">{err}</p>}
-      <Button type="submit" size="connection">Register</Button>
+      <Button type="submit" size="connection" disabled={busy}>{busy ? "Creating account…" : "Register"}</Button>
       </>}
       <Link to="/login" className="block py-2 text-center font-bold text-primary">Already have an account? Login</Link>
     </form>

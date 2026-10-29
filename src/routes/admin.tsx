@@ -56,7 +56,7 @@ function Admin() {
 function AdminLogin() {
   const [e, setE] = useState(""); const [p, setP] = useState(""); const [err, setErr] = useState("");
   return (
-    <form onSubmit={(ev) => { ev.preventDefault(); if (isAdminCreds(e, p)) setState((s) => ({ ...s, admin: true })); else setErr("Invalid admin credentials"); }} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
+    <form onSubmit={async (ev) => { ev.preventDefault(); if (!isAdminCreds(e, p)) return setErr("Invalid admin credentials"); try { const { signIn } = await import("@/lib/cloud"); await signIn(e, p); } catch { setErr("Could not sign in. Check that Email/Password sign-in is enabled in Firebase."); } }} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
       <Logo size="text-5xl" /><p className="font-display text-2xl text-muted-foreground">Admin Login</p>
       <input className="field" placeholder="Email" value={e} onChange={(x) => setE(x.target.value)} />
       <input className="field" type="password" placeholder="Password" value={p} onChange={(x) => setP(x.target.value)} />

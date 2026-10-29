@@ -44,10 +44,10 @@ function Account() {
         <h2 className="font-display text-2xl text-primary">Security</h2>
         <input className="field" type="password" placeholder="Current password" value={cur} onChange={(e) => setCur(e.target.value)} />
         <input className="field" type="password" placeholder="New password (min 6)" value={np} onChange={(e) => setNp(e.target.value)} />
-        <button className="btn-big text-xl" onClick={() => {
-          if (cur !== user.password) return setMsg("Current password is wrong");
+        <button className="btn-big text-xl" onClick={async () => {
           if (!validPassword(np)) return setMsg("Minimum 6 letters/numbers");
-          update({ password: np }); setMsg("Password updated"); setCur(""); setNp("");
+          try { const { changePassword } = await import("@/lib/cloud"); await changePassword(cur, np); setMsg("Password updated"); setCur(""); setNp(""); }
+          catch { setMsg("Current password is wrong"); }
         }}>Change Password</button>
         {msg && <p className="font-semibold">{msg}</p>}
       </section>

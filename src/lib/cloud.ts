@@ -105,7 +105,7 @@ export async function startSync() {
       subs.push(fs.onSnapshot(fs.doc(db, "users", uid), async (snap) => {
         if (!snap.exists()) return;
         const priv = await fs.getDoc(fs.doc(db, "private", uid)).catch(() => null);
-        const u: User = { ...(snap.data() as User), id: uid, password: "", phone: (priv?.data()?.phone as string) ?? "" };
+        const u: User = { ...(snap.data() as User), id: uid, password: "", phone: (priv?.data()?.["phone"] as string) ?? "" };
         if (!u.active) { await fa.signOut(auth); return; }
         setRemote((s) => ({ ...s, user: u, users: [u], seenIntro: true, authReady: true }));
       }, log));
@@ -114,7 +114,7 @@ export async function startSync() {
         setRemote((s) => ({ ...s, unlocks }));
         unlocks.filter((u) => u.status === "unlocked" && !getState().phones[u.interestId]).forEach((u) => {
           fs.getDoc(fs.doc(db, "private", u.interestId)).then((d) => {
-            const phone = d.data()?.phone as string | undefined;
+            const phone = d.data()?.["phone"] as string | undefined;
             if (phone) setRemote((s) => ({ ...s, phones: { ...s.phones, [u.interestId]: phone } }));
           }).catch(log);
         });

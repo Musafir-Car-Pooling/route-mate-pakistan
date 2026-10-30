@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- App data lives in the in-memory/localStorage store at src/lib/store.ts (prototype until a real backend and payment gateway are added); contact numbers must only render once an unlock has status "unlocked".
+- Firestore is the source of truth; src/lib/store.ts is the in-memory view and src/lib/cloud.ts mirrors setState diffs to Firestore and applies snapshots via setRemote. Phone numbers live only in private/{uid}, readable via firestore.rules once unlocks/{payer}_{member} is "unlocked"; keep firestore.rules in sync with any data change.
 - City catalogs are nested under settings in the prototype store, and home validates route choices against that catalog; this keeps admin entries and passenger/driver options consistent.
 - Admin city/location controls live in a dedicated AdminLocations component to keep catalog management separate from payment and CMS controls.
 - Reuse LocationPicker for admin-catalog location selection with searchable dialogs so search cannot create unapproved addresses.

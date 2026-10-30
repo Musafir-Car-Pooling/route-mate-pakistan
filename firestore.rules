@@ -29,8 +29,9 @@ service cloud.firestore {
     match /posts/{pid} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid
-        && request.resource.data.ownerId == request.auth.uid) || (signedIn() && resource.data.ownerId == request.auth.uid && request.method == 'delete');
+      allow update: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == request.auth.uid);
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid);
 
       match /interests/{uid} {
         allow read: if signedIn() && (request.auth.uid == uid || isAdmin() || post(pid).ownerId == request.auth.uid);

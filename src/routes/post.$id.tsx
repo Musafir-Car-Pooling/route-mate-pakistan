@@ -6,7 +6,7 @@ import { Countdown } from "@/components/Countdown";
 import { ContactButton } from "@/components/ContactFlow";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useStore, setState, isExpired, formatPKR, matchingPosts, type Interest, cancelOwnPost, canContactPost, deleteOwnPost } from "@/lib/store";
+import { useStore, setState, isExpired, formatPKR, matchingPosts, type Interest, type Post, cancelOwnPost, canContactPost, deleteOwnPost } from "@/lib/store";
 
 export const Route = createFileRoute("/post/$id")({
   head: () => ({

@@ -102,3 +102,16 @@ describe("travel sync rules", () => {
     expect(isExpired(p, s, 25 * 3600_000)).toBe(true);
   });
 });
+
+import { matchingPosts as mp } from "./store";
+describe("matchingPosts", () => {
+  const base = { ownerName: "A", city: "Lahore", from: "DHA", to: "Gulberg", notes: "", genderPref: "any" as const, createdAt: Date.now(), active: true, interests: [] };
+  const settings = { autoCancel: true, hours: 24 } as never;
+  it("shows only opposite-kind offers by others on the same route", () => {
+    const mine = { ...base, id: "1", kind: "request" as const, ownerId: "me" };
+    const ride = { ...base, id: "2", kind: "ride" as const, ownerId: "x" };
+    const otherRoute = { ...ride, id: "3", to: "Johar" };
+    const sameKind = { ...base, id: "4", kind: "request" as const, ownerId: "y" };
+    expect(mp(mine, [mine, ride, otherRoute, sameKind], settings).map((p) => p.id)).toEqual(["2"]);
+  });
+});

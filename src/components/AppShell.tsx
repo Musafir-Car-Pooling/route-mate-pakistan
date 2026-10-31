@@ -51,6 +51,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
   const socials = useStore((s) => s.settings.socials);
   const nav = useNavigate();
   const items = [
+    { to: user?.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides", label: user?.travelMode === "driver" ? "Ride requests near you" : "Ride shared near you", icon: Car },
     { to: "/account", label: "Profile", icon: User },
     { to: "/account", label: "Security", icon: Shield },
     { to: "/account", label: "Privacy", icon: Lock },

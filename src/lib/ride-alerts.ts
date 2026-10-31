@@ -1,13 +1,29 @@
 import { isExpired, type Interest, type Post, type Settings, type User } from "./store";
 
 export type RideAlert = { id: string; kind: "offer" | "interest"; title: string; at: number; post: Post; person?: Interest };
+/** How closely a post follows one of the member's routes: 3 exact, 2 reverse trip, 1 shares a stop, 0 same city only. */
+function routeScore(p: Post, routes: { city: string; from: string; to: string }[]) {
+  let best = -1;
+  for (const r of routes) {
+    if (!r.city || r.city !== p.city) continue;
+    const score = r.from === p.from && r.to === p.to ? 3 : r.from === p.to && r.to === p.from ? 2
+      : [p.from, p.to].some((stop) => stop && (stop === r.from || stop === r.to)) ? 1 : 0;
+    best = Math.max(best, score);
+  }
+  return best;
+}
+// Offers anywhere in the member's city are shown, closest routes first, so members on
+// slightly different stops still see each other.
 export function nearbyOffers(user: User, posts: Post[], settings: Settings, now = Date.now()) {
   const kind = user.travelMode === "driver" ? "request" : "ride";
-  const routes = [{ city: user.city, from: user.home, to: user.work }, ...posts.filter((p) => p.ownerId === user.id && p.kind !== kind && p.active && !p.cancelledAt && !isExpired(p, settings, now))];
-  return posts.filter((p) => p.kind === kind && p.ownerId !== user.id && p.active && !p.cancelledAt && !isExpired(p, settings, now)
-    && (p.genderPref === "any" || p.genderPref === user.gender)
-    && routes.some((r) => Boolean(r.city && r.from && r.to) && r.city === p.city && r.from === p.from && r.to === p.to))
-    .sort((a, b) => b.createdAt - a.createdAt);
+  const routes = [{ city: user.city, from: user.home, to: user.work }, ...posts.filter((p) => p.ownerId === user.id && p.active && !p.cancelledAt && !isExpired(p, settings, now))];
+  return posts
+    .filter((p) => p.kind === kind && p.ownerId !== user.id && p.active && !p.cancelledAt && !isExpired(p, settings, now)
+      && (p.genderPref === "any" || p.genderPref === user.gender))
+    .map((p) => ({ p, score: routeScore(p, routes) }))
+    .filter((x) => x.score >= 0)
+    .sort((a, b) => b.score - a.score || b.p.createdAt - a.p.createdAt)
+    .map((x) => x.p);
 }
 export function memberAlerts(user: User, posts: Post[], settings: Settings, now = Date.now()): RideAlert[] {
   const offers: RideAlert[] = nearbyOffers(user, posts, settings, now).map((post) => ({ id: `offer:${post.id}`, kind: "offer", title: post.kind === "ride" ? "New driver is traveling on your route" : "New passenger needs a ride on your route", at: post.createdAt, post }));

@@ -16,7 +16,7 @@ export type Interest = {
 };
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;
-  ownerOrg?: string; ownerRating?: number; ownerVerified?: boolean; ownerCar?: string;
+  ownerOrg?: string; ownerRating?: number; ownerVerified?: boolean; ownerCar?: string | undefined;
   city?: string;
   from: string; to: string; time?: string; notes: string; genderPref: "any" | "male" | "female";
   seats?: number; daily?: number; weekly?: number; monthly?: number;

@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { hydrateStore } from "../lib/store";
+import { NearbyOffersNavigation } from "@/components/NearbyOffersNavigation";
 
 function NotFoundComponent() {
   return (
@@ -72,6 +73,7 @@ function RootComponent() {
   useEffect(() => { hydrateStore(); void import("../lib/cloud").then((m) => m.startSync()).catch(() => {}); }, []);
   return (
     <QueryClientProvider client={queryClient}>
+      <NearbyOffersNavigation />
       <Outlet />
     </QueryClientProvider>
   );

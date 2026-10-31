@@ -9,7 +9,6 @@ import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
 import { FeatureSlider } from "@/components/FeatureSlider";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
-import { IncomingOffers } from "@/components/IncomingOffers";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -46,7 +45,8 @@ function Intro() {
         </div>
       </div>
     );
-  const S = slides[i] ?? slides[0]!;
+  const S = slides[i] ?? slides[0];
+  if (!S) return null;
   const done = () => setState((s) => ({ ...s, seenIntro: true }));
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col px-6 py-8">
@@ -90,7 +90,6 @@ function Home() {
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState<Post["genderPref"]>("any");
   const [seats, setSeats] = useState(3);
-  const [fares, setFares] = useState({ daily: 450, weekly: 2500, monthly: 8500 });
 
   const city = settings.cities.find((c) => c.id === cityId);
   const locations = locationsForCity(settings.cities, cityId);
@@ -105,7 +104,7 @@ function Home() {
       id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name,
       ownerOrg: user.org, ownerRating: user.rating, ownerVerified: user.verified, ownerCar: user.car || undefined,
       city: city.name, from: selectedFrom, to: selectedTo, notes, genderPref: gender,
-      ...(mode === "driver" ? { seats, ...fares } : {}), createdAt: Date.now(), active: true, interests: [],
+      ...(mode === "driver" ? { seats } : {}), createdAt: Date.now(), active: true, interests: [],
     };
     setState((s) => ({ ...s, posts: [...s.posts, p] }));
     nav({ to: "/post/$id", params: { id: p.id } });
@@ -134,19 +133,11 @@ function Home() {
           <>
             <label className="block text-sm font-semibold text-muted-foreground">Available seats
               <input type="number" min={1} max={6} className="field mt-1" value={seats} onChange={(e) => setSeats(+e.target.value)} /></label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["daily", "weekly", "monthly"] as const).map((k) => (
-                <label key={k} className="text-xs font-semibold uppercase text-muted-foreground">{k} PKR
-                  <input type="number" className="field mt-1 px-2" value={fares[k]} onChange={(e) => setFares({ ...fares, [k]: +e.target.value })} /></label>
-              ))}
-            </div>
           </>
         )}
         <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
         <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
       </div>
-
-      <IncomingOffers />
 
       <PartnerMarquee />
 

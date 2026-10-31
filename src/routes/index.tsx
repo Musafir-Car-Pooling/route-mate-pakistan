@@ -139,7 +139,6 @@ function Home() {
               <span className="block text-xs font-normal">How many passengers can you take (1–6)?</span><input type="number" min={1} max={6} className="field mt-1" value={seats} onChange={(e) => setSeats(+e.target.value)} /></label>
           </>
         )}
-        <p className="-mb-2 text-xs text-muted-foreground">Add any instructions for your travel partner (optional)</p>
         <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
         <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl transition-transform hover:scale-[1.01] animate-in fade-in zoom-in-95 duration-500">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
       </div>

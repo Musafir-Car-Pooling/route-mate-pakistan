@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as NearbyRequestsRouteImport } from './routes/nearby-requests'
+import { Route as NearbyRidesRouteImport } from './routes/nearby-rides'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as InfoSlugRouteImport } from './routes/info.$slug'
 import { Route as PostIdRouteImport } from './routes/post.$id'
@@ -36,6 +38,16 @@ const AdminRoute = AdminRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearbyRequestsRoute = NearbyRequestsRouteImport.update({
+  id: '/nearby-requests',
+  path: '/nearby-requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearbyRidesRoute = NearbyRidesRouteImport.update({
+  id: '/nearby-rides',
+  path: '/nearby-rides',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -64,6 +76,8 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/nearby-requests': typeof NearbyRequestsRoute
+  '/nearby-rides': typeof NearbyRidesRoute
   '/register': typeof RegisterRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
@@ -74,6 +88,8 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/nearby-requests': typeof NearbyRequestsRoute
+  '/nearby-rides': typeof NearbyRidesRoute
   '/register': typeof RegisterRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
@@ -85,6 +101,8 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/nearby-requests': typeof NearbyRequestsRoute
+  '/nearby-rides': typeof NearbyRidesRoute
   '/register': typeof RegisterRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
@@ -97,6 +115,8 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/login'
+    | '/nearby-requests'
+    | '/nearby-rides'
     | '/register'
     | '/info/$slug'
     | '/post/$id'
@@ -107,6 +127,8 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/login'
+    | '/nearby-requests'
+    | '/nearby-rides'
     | '/register'
     | '/info/$slug'
     | '/post/$id'
@@ -117,6 +139,8 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/login'
+    | '/nearby-requests'
+    | '/nearby-rides'
     | '/register'
     | '/info/$slug'
     | '/post/$id'
@@ -128,6 +152,8 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
   LoginRoute: typeof LoginRoute
+  NearbyRequestsRoute: typeof NearbyRequestsRoute
+  NearbyRidesRoute: typeof NearbyRidesRoute
   RegisterRoute: typeof RegisterRoute
   InfoSlugRoute: typeof InfoSlugRoute
   PostIdRoute: typeof PostIdRoute
@@ -162,6 +188,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nearby-requests': {
+      id: '/nearby-requests'
+      path: '/nearby-requests'
+      fullPath: '/nearby-requests'
+      preLoaderRoute: typeof NearbyRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nearby-rides': {
+      id: '/nearby-rides'
+      path: '/nearby-rides'
+      fullPath: '/nearby-rides'
+      preLoaderRoute: typeof NearbyRidesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -200,6 +240,8 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
   LoginRoute: LoginRoute,
+  NearbyRequestsRoute: NearbyRequestsRoute,
+  NearbyRidesRoute: NearbyRidesRoute,
   RegisterRoute: RegisterRoute,
   InfoSlugRoute: InfoSlugRoute,
   PostIdRoute: PostIdRoute,

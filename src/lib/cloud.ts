@@ -3,7 +3,7 @@
 import type { FirebaseApp } from "firebase/app";
 import type { Firestore, Unsubscribe } from "firebase/firestore";
 import type { Auth } from "firebase/auth";
-import { ADMIN_EMAIL, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type Unlock, type User } from "./store";
+import { ADMIN_EMAIL, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
 import { initFirebase } from "./firebase";
 
 type FS = typeof import("firebase/firestore");
@@ -94,7 +94,7 @@ export async function startSync() {
     subs.forEach((u) => u()); subs = [];
     interestSubs.forEach((u) => u()); interestSubs.clear();
     postDocs = [];
-    if (!fu) { setRemote((s) => ({ ...s, user: null, admin: false, users: [], posts: [], unlocks: [], phones: {}, authReady: true })); return; }
+    if (!fu) { setRemote((s) => ({ ...s, user: null, admin: false, users: [], posts: [], unlocks: [], phones: {}, memberReviews: [], authReady: true })); return; }
     const admin = fu.email?.toLowerCase() === ADMIN_EMAIL;
     const uid = fu.uid;
     if (admin) {
@@ -120,6 +120,7 @@ export async function startSync() {
         });
       }, log));
     }
+    subs.push(fs.onSnapshot(fs.collection(db, "reviews"), (snap) => setRemote((s) => ({ ...s, memberReviews: snap.docs.map((d) => ({ ...(d.data() as StoredReview), id: d.id })) })), log));
     // Live interest listeners for own posts. Wait until the post exists on the server
     // (rules read the post), and re-subscribe after any error so updates never stall.
     const watchInterests = (pid: string) => {
@@ -208,3 +209,11 @@ async function writeDiff(prev: State, next: State) {
   await Promise.all(ops);
 }
 
+
+export async function submitReview(targetId: string, rating: number, text: string) {
+  const { db, auth, fs } = await cloud();
+  const me = getState().user;
+  if (!auth.currentUser || !me) throw new Error("Not signed in");
+  const r = { reviewerId: auth.currentUser.uid, reviewerName: me.name, targetId, rating, text: text.trim().slice(0, 500), at: Date.now() };
+  await fs.setDoc(fs.doc(db, "reviews", `${r.reviewerId}_${targetId}`), r);
+}

@@ -40,6 +40,19 @@ service cloud.firestore {
       }
     }
 
+    // Reviews: only between members whose contact was unlocked (either direction). Id "<reviewer>_<target>".
+    function unlocked(a, b) { return get(/databases/$(db)/documents/unlocks/$(a + '_' + b)).data.status == 'unlocked'; }
+    match /reviews/{id} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && request.resource.data.reviewerId == request.auth.uid
+        && id == request.auth.uid + '_' + request.resource.data.targetId
+        && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.text is string && request.resource.data.text.size() <= 500
+        && (unlocked(request.auth.uid, request.resource.data.targetId) || unlocked(request.resource.data.targetId, request.auth.uid));
+      allow delete: if isAdmin() || (signedIn() && resource.data.reviewerId == request.auth.uid);
+    }
+
     // Payment proofs. Id is "<payerUid>_<memberUid>".
     match /unlocks/{id} {
       allow read: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid);

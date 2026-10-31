@@ -1,3 +1,4 @@
+import { PasswordInput } from "@/components/PasswordInput";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Briefcase, GraduationCap, BadgeCheck, Upload, Car, Users, Home, Building2 } from "lucide-react";
@@ -123,7 +124,7 @@ function Register() {
       <LocationPicker label={role === "jobian" ? "Workplace address" : "Campus address"} value={work} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={(value) => setF({ ...f, work: value })} />
       {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities available yet.</p>}
       {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
-      <input className="field" type="password" placeholder="Password (min 6 letters/numbers)" value={f.password} onChange={up("password")} />
+      <PasswordInput placeholder="Password (min 6 letters/numbers)" value={f.password} onChange={up("password")} />
       <p className="pt-2 font-display text-xl text-muted-foreground">Ride Preferences</p>
       <div className="flex flex-wrap gap-2">
         {PREFS.map((p) => (

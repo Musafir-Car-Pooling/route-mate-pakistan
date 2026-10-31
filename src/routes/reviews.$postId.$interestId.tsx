@@ -4,7 +4,7 @@ import { Star, BadgeCheck, Car, MessageSquare, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { ContactButton } from "@/components/ContactFlow";
-import { useStore, canContactPost } from "@/lib/store";
+import { useStore, canContactPost, reviewsFor } from "@/lib/store";
 
 export const Route = createFileRoute("/reviews/$postId/$interestId")({
   head: () => ({ meta: [
@@ -23,11 +23,12 @@ function MemberReviews() {
   const post = useStore((s) => s.posts.find((p) => p.id === postId));
   const user = useStore((s) => s.user);
   const settings = useStore((s) => s.settings);
+  const stored = useStore((s) => s.memberReviews);
   const [sort, setSort] = useState<"recent" | "highest" | "lowest">("recent");
   const person = post?.interests.find((p) => p.id === interestId);
   if (!user) return <AppShell back title="Member reviews"><Link to="/login" className="btn-big mt-8">Login</Link></AppShell>;
   if (!post || !person || post.ownerId !== user.id) return <AppShell back title="Member reviews"><p className="py-8 text-muted-foreground">Member unavailable.</p></AppShell>;
-  const entries = person.reviewEntries ?? [];
+  const entries = [...reviewsFor(person.id, stored), ...(person.reviewEntries ?? [])];
   const average = entries.length ? entries.reduce((sum, review) => sum + review.rating, 0) / entries.length : null;
   const sorted = [...entries].sort((a, b) => sort === "recent" ? b.at - a.at : sort === "highest" ? b.rating - a.rating : a.rating - b.rating);
   const contactable = canContactPost(post, settings, user.id);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, Star, BadgeCheck, Car, ChevronDown, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, isExpired, formatPKR, type Interest, type Post } from "@/lib/store";
 
@@ -10,6 +10,7 @@ export function IncomingOffers() {
   const user = useStore((s) => s.user);
   const posts = useStore((s) => s.posts);
   const settings = useStore((s) => s.settings);
+  const [open, setOpen] = useState<string | null>(null);
   const [resp, setResp] = useState<Record<string, "yes" | "no">>({});
   useEffect(() => { try { setResp(JSON.parse(localStorage.getItem(KEY) || "{}")); } catch { /* ignore */ } }, []);
   if (!user) return null;
@@ -48,6 +49,21 @@ export function IncomingOffers() {
                   {p.kind === "ride" && p.daily ? ` · ${formatPKR(p.daily)}/day` : ""}
                 </p>
                 {p.notes && <p className="mt-2 rounded-xl bg-secondary p-2 text-sm">{p.notes}</p>}
+                <button type="button" onClick={() => setOpen(open === p.id ? null : p.id)} aria-expanded={open === p.id}
+                  className="mt-3 flex w-full items-center justify-between rounded-xl border px-3 py-3 text-sm font-semibold">
+                  <span className="flex items-center gap-1"><Star className="size-4 fill-warning text-warning" />{(p.ownerRating ?? 5).toFixed(1)} · View ratings & reviews</span>
+                  <ChevronDown className={`size-4 transition-transform ${open === p.id ? "rotate-180" : ""}`} />
+                </button>
+                {open === p.id && (
+                  <div className="mt-2 rounded-xl bg-secondary p-3 text-sm">
+                    <p className="text-lg font-bold">{p.ownerName}</p>
+                    {p.ownerOrg && <p className="text-muted-foreground">{p.ownerOrg}</p>}
+                    {p.ownerVerified && <p className="mt-1 flex items-center gap-1 text-success"><BadgeCheck className="size-4" />Verified member</p>}
+                    {p.ownerCar && <p className="mt-1 flex items-center gap-1 text-muted-foreground"><Car className="size-4" />{p.ownerCar}</p>}
+                    <div className="mt-2 flex items-center gap-1">{[1, 2, 3, 4, 5].map((n) => <Star key={n} className={`size-4 ${n <= Math.round(p.ownerRating ?? 5) ? "fill-warning text-warning" : "text-muted-foreground"}`} />)}<span className="ml-1 font-semibold">{(p.ownerRating ?? 5).toFixed(1)} / 5</span></div>
+                    <p className="mt-2 flex items-center gap-1 text-muted-foreground"><MessageSquare className="size-4" />No written reviews yet.</p>
+                  </div>
+                )}
                 {done ? (
                   <p className="mt-3 flex items-center gap-1 font-semibold text-success"><Check className="size-4" />Interest sent</p>
                 ) : (

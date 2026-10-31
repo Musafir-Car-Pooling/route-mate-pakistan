@@ -9,6 +9,7 @@ import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
 import { FeatureSlider } from "@/components/FeatureSlider";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
+import { IncomingOffers } from "@/components/IncomingOffers";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -142,6 +143,8 @@ function Home() {
         <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
         <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
       </div>
+
+      <IncomingOffers />
 
       <PartnerMarquee />
 

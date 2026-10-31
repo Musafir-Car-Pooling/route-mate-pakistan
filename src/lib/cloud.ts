@@ -120,15 +120,23 @@ export async function startSync() {
         });
       }, log));
     }
-    subs.push(fs.onSnapshot(fs.collection(db, "posts"), (snap) => {
-      postDocs = snap.docs.map((d) => ({ ...(d.data() as Post), id: d.id, interests: [] }));
-      for (const p of postDocs) {
-        if ((admin || p.ownerId === uid) && !interestSubs.has(p.id)) {
-          interestSubs.set(p.id, fs.onSnapshot(fs.collection(db, "posts", p.id, "interests"), (is) => {
-            interests[p.id] = is.docs.map((d) => ({ ...(d.data() as Interest), id: d.id })).sort((a, b) => a.at - b.at);
-            rebuildPosts();
-          }, log));
-        }
+    // Live interest listeners for own posts. Wait until the post exists on the server
+    // (rules read the post), and re-subscribe after any error so updates never stall.
+    const watchInterests = (pid: string) => {
+      interestSubs.set(pid, fs.onSnapshot(fs.collection(db, "posts", pid, "interests"), (is) => {
+        interests[pid] = is.docs.map((d) => ({ ...(d.data() as Interest), id: d.id })).sort((a, b) => a.at - b.at);
+        rebuildPosts();
+      }, (e) => {
+        log(e);
+        interestSubs.get(pid)?.(); interestSubs.delete(pid);
+        setTimeout(() => { if (!interestSubs.has(pid) && postDocs.some((p) => p.id === pid)) watchInterests(pid); }, 1500);
+      }));
+    };
+    subs.push(fs.onSnapshot(fs.collection(db, "posts"), { includeMetadataChanges: true }, (snap) => {
+      postDocs = snap.docs.map((d) => ({ ...(d.data() as Post), id: d.id, interests: interests[d.id] ?? [] }));
+      for (const d of snap.docs) {
+        const p = d.data() as Post;
+        if ((admin || p.ownerId === uid) && !d.metadata.hasPendingWrites && !interestSubs.has(d.id)) watchInterests(d.id);
       }
       rebuildPosts();
     }, log));

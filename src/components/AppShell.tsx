@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Bell } from "lucide-react";
-import { useStore, setState, switchTravelMode } from "@/lib/store";
+import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
 import { nearbyOffers } from "@/lib/ride-alerts";
 import { Button } from "@/components/ui/button";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
@@ -54,6 +54,32 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
   const settings = useStore((s) => s.settings);
   const alertCount = user ? nearbyOffers(user, posts, settings).filter((p) => !p.interests.some((i) => i.id === user.id)).length : 0;
   const nav = useNavigate();
+  const lastCount = useRef(alertCount);
+  useEffect(() => {
+    if (alertCount > lastCount.current && "vibrate" in navigator) { try { navigator.vibrate([200, 100, 200]); } catch { /* unsupported */ } }
+    lastCount.current = alertCount;
+  }, [alertCount]);
+  const [driverForm, setDriverForm] = useState(false);
+  const [car, setCar] = useState("");
+  const [plate, setPlate] = useState("");
+  const [driverError, setDriverError] = useState("");
+  const switchMode = () => {
+    if (user && user.travelMode !== "driver" && (!user.car?.trim() || !user.plate?.trim())) {
+      setCar(user.car ?? ""); setPlate(user.plate ?? ""); setDriverError(""); setOpen(false); setDriverForm(true); return;
+    }
+    setState(switchTravelMode); setOpen(false); nav({ to: "/" });
+  };
+  const saveDriver = () => {
+    if (!car.trim()) return setDriverError("Enter your vehicle model.");
+    if (!validPlate(plate)) return setDriverError("Enter a valid number plate, e.g. LEA-1234.");
+    const vehicle = { car: car.trim(), plate: plate.trim().toUpperCase() };
+    setState((s) => {
+      if (!s.user) return s;
+      const u = { ...s.user, ...vehicle, travelMode: "driver" as const };
+      return { ...s, user: u, users: s.users.map((m) => m.id === u.id ? u : m) };
+    });
+    setDriverForm(false); nav({ to: "/" });
+  };
   const items = [
     { to: user?.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides", label: user?.travelMode === "driver" ? "Ride requests near you" : "Ride shared near you", icon: Car },
     { to: "/account", label: "Profile", icon: User },
@@ -73,7 +99,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
         ) : (
           <Button variant="secondary" size="icon" aria-label="Menu" onClick={() => { setScrollPaused(false); setOpen(true); }} className="h-11 w-11 rounded-full"><Menu /></Button>
         )}
-        <div className="flex-1">{title ? <h1 className="font-display text-3xl">{title}</h1> : <Logo />}</div>
+        <div className="min-w-0 flex-1">{title ? <h1 className="whitespace-nowrap font-display text-[clamp(1.25rem,6.5vw,1.875rem)] leading-none">{title}</h1> : <Logo />}</div>
         {user && (
           <Link to={user.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides"} aria-label={`${alertCount} ${user.travelMode === "driver" ? "ride requests" : "shared rides"} near you`} className="relative grid h-11 w-11 place-items-center rounded-full bg-secondary">
             <Bell className={`h-5 w-5 ${alertCount ? "bell-shake text-primary" : ""}`} />
@@ -82,6 +108,22 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
         )}
       </header>
       <main className="px-4">{children}</main>
+
+      {driverForm && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 p-4" role="dialog" aria-modal="true" aria-label="Driver information">
+          <div className="w-full max-w-sm card-box space-y-3 p-5 animate-in zoom-in-95 fade-in">
+            <h2 className="font-display text-3xl">Become a driver</h2>
+            <p className="text-sm text-muted-foreground">Add your vehicle details to share rides with passengers.</p>
+            <label className="block text-sm font-semibold text-muted-foreground">Vehicle model
+              <input className="field mt-1" placeholder="e.g. Honda City 2020" value={car} onChange={(e) => setCar(e.target.value)} /></label>
+            <label className="block text-sm font-semibold text-muted-foreground">Number plate
+              <input className="field mt-1 uppercase" placeholder="e.g. LEA-1234" value={plate} onChange={(e) => setPlate(e.target.value)} /></label>
+            {driverError && <p className="text-sm text-destructive">{driverError}</p>}
+            <Button className="btn-big h-auto" onClick={saveDriver}>Save & switch to driver</Button>
+            <Button variant="ghost" className="w-full" onClick={() => setDriverForm(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-50 flex">
@@ -105,7 +147,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
                 </button>
               )}
             </nav>
-            {user && <Button variant="secondary" className="my-4 min-h-14 w-full shrink-0 gap-2 whitespace-normal border border-primary/30 text-base font-bold" onClick={() => { setState(switchTravelMode); setOpen(false); nav({ to: "/" }); }}>{user.travelMode === "driver" ? <Users /> : <Car />}Switch to {user.travelMode === "driver" ? "passenger" : "driver"}<ArrowLeftRight className="ml-auto" /></Button>}
+            {user && <Button variant="secondary" className="my-4 min-h-14 w-full shrink-0 gap-2 whitespace-normal border border-primary/30 text-base font-bold" onClick={switchMode}>{user.travelMode === "driver" ? <Users /> : <Car />}Switch to {user.travelMode === "driver" ? "passenger" : "driver"}<ArrowLeftRight className="ml-auto" /></Button>}
             <div className="flex justify-center gap-4 border-t pt-4">
               {[[socials.whatsapp, MessageCircle], [socials.facebook, Facebook], [socials.linkedin, Linkedin], [socials.instagram, Instagram]].map(([href, Icon], i) => {
                 const I = Icon as typeof MessageCircle;

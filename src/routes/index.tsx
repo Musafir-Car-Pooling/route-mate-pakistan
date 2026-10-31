@@ -68,11 +68,13 @@ function Index() {
   if (!seen) return <Intro />;
   if (!user)
     return (
-      <div className="mx-auto flex min-h-screen max-w-md flex-col bg-hero px-6 pb-10 text-primary-foreground">
-        <div className="grid flex-1 place-items-center px-6"><AuthLogo imgSize="h-28 w-28" textSize="text-6xl" /></div>
-        <p className="mb-10 mt-2 text-lg font-semibold">Verified carpooling for Jobians & students.</p>
-        <Link to="/register" className="btn-big bg-background text-foreground">Create Account</Link>
-        <Link to="/login" className="mt-3 py-3 text-center text-lg font-bold">I already have an account</Link>
+      <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col bg-hero px-6 pb-6 text-primary-foreground">
+        <div className="grid flex-1 place-items-center px-6 animate-in zoom-in-90 fade-in duration-700"><AuthLogo imgSize="h-28 w-28" textSize="text-6xl" /></div>
+        <div className="mb-[12vh] animate-in fade-in slide-in-from-bottom-6 duration-700">
+          <p className="mb-6 mt-2 text-center text-lg font-semibold">Verified carpooling for Jobians & students.</p>
+          <Link to="/register" className="btn-big bg-background text-foreground">Create Account</Link>
+          <Link to="/login" className="btn-big mt-3 border-2 border-primary-foreground/70 bg-transparent">I already have an account</Link>
+        </div>
       </div>
     );
   return <Home />;
@@ -115,7 +117,8 @@ function Home() {
       <FeatureSlider />
 
       <div className="mt-4 space-y-3">
-        <h2 className="font-display text-3xl">Select your daily traveling route</h2>
+        <h2 className="whitespace-nowrap font-display text-[clamp(1.35rem,7vw,1.875rem)] animate-in fade-in slide-in-from-left-4 duration-500">Select your daily traveling route</h2>
+        <p className="-mt-2 text-xs text-muted-foreground">Choose your city, then your home and workplace / university.</p>
         <select className="field min-h-14" aria-label="City" value={city?.id ?? ""} onChange={(e) => { setCityId(e.target.value); setFrom(""); setTo(""); }}>
           <option value="">Select city</option>
           {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -125,6 +128,7 @@ function Home() {
         {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities or locations available yet.</p>}
         {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
         <div>
+          <p className="mb-1 text-xs text-muted-foreground">Select your preferred gender to travel with</p>
           <select className="field" value={gender} onChange={(e) => setGender(e.target.value as Post["genderPref"])} aria-label="Gender preference">
             <option value="any">Anyone</option><option value="female">Females Only</option><option value="male">Male Only</option>
           </select>
@@ -132,11 +136,12 @@ function Home() {
         {mode === "driver" && (
           <>
             <label className="block text-sm font-semibold text-muted-foreground">Available seats
-              <input type="number" min={1} max={6} className="field mt-1" value={seats} onChange={(e) => setSeats(+e.target.value)} /></label>
+              <span className="block text-xs font-normal">How many passengers can you take (1–6)?</span><input type="number" min={1} max={6} className="field mt-1" value={seats} onChange={(e) => setSeats(+e.target.value)} /></label>
           </>
         )}
+        <p className="-mb-2 text-xs text-muted-foreground">Add any instructions for your travel partner (optional)</p>
         <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
+        <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl transition-transform hover:scale-[1.01] animate-in fade-in zoom-in-95 duration-500">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
       </div>
 
       <PartnerMarquee />
@@ -145,10 +150,10 @@ function Home() {
         <>
           <h3 className="mb-2 mt-6 font-display text-2xl text-muted-foreground">My Posts</h3>
           <div className="space-y-3">
-            {mine.map((p) => {
+            {mine.map((p, idx) => {
               const exp = isExpired(p, settings);
               return (
-                <div key={p.id} className="flex items-center gap-2 card-box p-4">
+                <div key={p.id} style={{ animationDelay: `${idx * 60}ms` }} className="flex items-center gap-2 card-box p-4 animate-in fade-in slide-in-from-bottom-2 fill-mode-both">
                   <Link to="/post/$id" params={{ id: p.id }} className="flex flex-1 items-center gap-3">
                     <div className="flex-1">
                       <p className="text-xs font-bold uppercase text-primary">{p.kind === "ride" ? "Shared Ride" : "Ride Request"}</p>

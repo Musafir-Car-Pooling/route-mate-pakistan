@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { BadgeCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { PasswordInput } from "@/components/PasswordInput";
 import { ProfileSelections } from "@/components/ProfileSelections";
 import { useStore, setState, validPassword } from "@/lib/store";
 
@@ -42,8 +43,8 @@ function Account() {
       <ProfileSelections key={user.id} user={user} />
       <section className="mt-4 card-box space-y-3 p-5">
         <h2 className="font-display text-2xl text-primary">Security</h2>
-        <input className="field" type="password" placeholder="Current password" value={cur} onChange={(e) => setCur(e.target.value)} />
-        <input className="field" type="password" placeholder="New password (min 6)" value={np} onChange={(e) => setNp(e.target.value)} />
+        <PasswordInput placeholder="Current password" value={cur} onChange={(e) => setCur(e.target.value)} />
+        <PasswordInput placeholder="New password (min 6)" value={np} onChange={(e) => setNp(e.target.value)} />
         <button className="btn-big text-xl" onClick={async () => {
           if (!validPassword(np)) return setMsg("Minimum 6 letters/numbers");
           try { const { changePassword } = await import("@/lib/cloud"); await changePassword(cur, np); setMsg("Password updated"); setCur(""); setNp(""); }

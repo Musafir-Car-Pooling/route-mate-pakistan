@@ -1,3 +1,4 @@
+import { PasswordInput } from "@/components/PasswordInput";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { LogOut, Check, X, Upload, Trash2 } from "lucide-react";
@@ -59,7 +60,7 @@ function AdminLogin() {
     <form onSubmit={async (ev) => { ev.preventDefault(); if (!isAdminCreds(e, p)) return setErr("Invalid admin credentials"); try { const { signIn } = await import("@/lib/cloud"); await signIn(e, p); } catch { setErr("Could not sign in. Check that Email/Password sign-in is enabled in Firebase."); } }} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
       <Logo size="text-5xl" /><p className="font-display text-2xl text-muted-foreground">Admin Login</p>
       <input className="field" placeholder="Email" value={e} onChange={(x) => setE(x.target.value)} />
-      <input className="field" type="password" placeholder="Password" value={p} onChange={(x) => setP(x.target.value)} />
+      <PasswordInput placeholder="Password" value={p} onChange={(x) => setP(x.target.value)} />
       {err && <p className="text-destructive">{err}</p>}
       <button className="btn-big">Login</button>
     </form>

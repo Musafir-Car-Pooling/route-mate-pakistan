@@ -3,6 +3,7 @@ import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2, Copy, Check, Star
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, formatPKR, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";
+import { RateMember } from "@/components/RateMember";
 import easypaisaLogo from "@/assets/easypaisa-compact.png.asset.json";
 import jazzcashLogo from "@/assets/jazzcash-compact.png.asset.json";
 
@@ -24,10 +25,14 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
     if (!phone) return <div className="mt-3 flex items-center gap-2 rounded-xl bg-success/15 p-3 font-semibold text-success"><Clock className="h-5 w-5" />Unlocked · loading contact…</div>;
     const wa = "92" + phone.replace(/^0/, "");
     return (
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <a href={`tel:${phone}`} className="btn-big text-lg"><Phone className="h-5 w-5" />{phone}</a>
-        <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="btn-big bg-success text-lg text-accent-foreground"><MessageCircle className="h-5 w-5" />WhatsApp</a>
-      </div>
+      <>
+        <div className="mt-3 grid grid-cols-2 gap-2 animate-in zoom-in-95 fade-in">
+          <a href={`tel:${phone}`} className="btn-big text-lg"><Phone className="h-5 w-5" />{phone}</a>
+          <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="btn-big bg-success text-lg text-accent-foreground"><MessageCircle className="h-5 w-5" />WhatsApp</a>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">Call or WhatsApp to agree pickup point and timing. After talking, rate this member below.</p>
+        <RateMember targetId={person.id} name={person.name} />
+      </>
     );
   }
   if (unlock?.status === "pending") {

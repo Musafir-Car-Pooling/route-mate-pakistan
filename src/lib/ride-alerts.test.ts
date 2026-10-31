@@ -7,9 +7,12 @@ const settings = getState().settings;
 const passenger = { id: "passenger", travelMode: "passenger", city: "Lahore", home: "DHA", work: "Gulberg", gender: "male", name: "Ali", org: "Jazz", rating: 4, verified: true } as User;
 const ride: Post = { id: "ride", ownerId: "driver", ownerName: "Ahmed", kind: "ride", city: "Lahore", from: "DHA", to: "Gulberg", active: true, createdAt: now, interests: [], notes: "", genderPref: "any" };
 describe("interactive route alerts", () => {
-  it("alerts passengers only for active rides on their exact city and route", () => {
-    const posts = [ride, { ...ride, id: "other-city", city: "Karachi" }, { ...ride, id: "other-route", to: "Johar" }, { ...ride, id: "reverse", from: "Gulberg", to: "DHA" }, { ...ride, id: "cancelled", cancelledAt: now }, { ...ride, id: "old", createdAt: now - 25 * 3600000 }, { ...ride, id: "inactive", active: false }];
-    expect(nearbyOffers(passenger, posts, settings, now).map((p) => p.id)).toEqual(["ride"]);
+  it("shows passengers every open ride in their city, closest route first", () => {
+    const posts = [{ ...ride, id: "same-city", from: "Model Town", to: "Johar" }, { ...ride, id: "shares-stop", to: "Johar" }, { ...ride, id: "reverse", from: "Gulberg", to: "DHA" }, ride, { ...ride, id: "other-city", city: "Karachi" }, { ...ride, id: "cancelled", cancelledAt: now }, { ...ride, id: "old", createdAt: now - 25 * 3600000 }, { ...ride, id: "inactive", active: false }];
+    expect(nearbyOffers(passenger, posts, settings, now).map((p) => p.id)).toEqual(["ride", "reverse", "shares-stop", "same-city"]);
+  });
+  it("hides rides reserved for the other gender", () => {
+    expect(nearbyOffers(passenger, [{ ...ride, genderPref: "female" }], settings, now)).toHaveLength(0);
   });
   it("also matches a passenger's current posted route instead of only their saved profile", () => {
     const request = { ...ride, id: "request", kind: "request" as const, ownerId: passenger.id, to: "Office" };

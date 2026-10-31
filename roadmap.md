@@ -14,3 +14,6 @@
 - [x] Simplify Home fields and replace compact slider photos.
 - [x] Optimize payment logos and add compressed admin media uploads.
 - [x] Add touch-paused menu scrolling and partner animation; verify flows.
+- [ ] Move nearby offers into automatic dedicated screens with newest passenger interests first.
+- [ ] Add matching-route bell, sound/vibration and secure Firebase web push delivery.
+- [ ] Verify interactive member flows and document any Firebase setup still required.

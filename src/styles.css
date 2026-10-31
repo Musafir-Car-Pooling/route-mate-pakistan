@@ -120,3 +120,6 @@ select.field option { background: var(--color-popover); }
 .handshake { animation: handshake 1.8s ease-in-out infinite; transform-origin: 50% 70%; }
 @keyframes handshake { 0%,100% { transform: rotate(0) translateY(0); } 25% { transform: rotate(-2.5deg) translateY(-2px); } 50% { transform: rotate(0) translateY(1.5px); } 75% { transform: rotate(2.5deg) translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .handshake { animation: none; } }
+.bell-shake { animation: bell-shake 1.6s ease-in-out infinite; transform-origin: 50% 10%; }
+@keyframes bell-shake { 0%,50%,100% { transform: rotate(0); } 10% { transform: rotate(16deg); } 20% { transform: rotate(-14deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce) { .bell-shake { animation: none; } }

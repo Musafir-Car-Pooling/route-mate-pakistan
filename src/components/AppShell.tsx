@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users } from "lucide-react";
+import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Bell } from "lucide-react";
 import { useStore, setState, switchTravelMode } from "@/lib/store";
+import { nearbyOffers } from "@/lib/ride-alerts";
 import { Button } from "@/components/ui/button";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 
@@ -49,6 +50,9 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
   }, [open, scrollPaused]);
   const user = useStore((s) => s.user);
   const socials = useStore((s) => s.settings.socials);
+  const posts = useStore((s) => s.posts);
+  const settings = useStore((s) => s.settings);
+  const alertCount = user ? nearbyOffers(user, posts, settings).filter((p) => !p.interests.some((i) => i.id === user.id)).length : 0;
   const nav = useNavigate();
   const items = [
     { to: user?.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides", label: user?.travelMode === "driver" ? "Ride requests near you" : "Ride shared near you", icon: Car },
@@ -70,6 +74,12 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
           <Button variant="secondary" size="icon" aria-label="Menu" onClick={() => { setScrollPaused(false); setOpen(true); }} className="h-11 w-11 rounded-full"><Menu /></Button>
         )}
         <div className="flex-1">{title ? <h1 className="font-display text-3xl">{title}</h1> : <Logo />}</div>
+        {user && (
+          <Link to={user.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides"} aria-label={`${alertCount} ${user.travelMode === "driver" ? "ride requests" : "shared rides"} near you`} className="relative grid h-11 w-11 place-items-center rounded-full bg-secondary">
+            <Bell className={`h-5 w-5 ${alertCount ? "bell-shake text-primary" : ""}`} />
+            {alertCount > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-xs font-bold text-destructive-foreground">{alertCount > 99 ? "99+" : alertCount}</span>}
+          </Link>
+        )}
       </header>
       <main className="px-4">{children}</main>
 

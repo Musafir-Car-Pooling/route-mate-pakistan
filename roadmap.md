@@ -20,3 +20,4 @@
 - [x] Automatically open separate nearby offer screens for both travel modes and preserve acknowledgement/reviews.
 - [x] Remove daily, weekly and monthly fare controls from driver ride sharing.
 - [x] Elevate onboarding navigation and add carpool illustrations; verify all three screens on small phones.
+- [x] Adjust header logo spacing and single-line slogan; add and verify the below-slider searching animation.

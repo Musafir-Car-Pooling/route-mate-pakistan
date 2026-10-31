@@ -126,5 +126,14 @@ select.field option { background: var(--color-popover); }
 @keyframes handshake { 0%,100% { transform: rotate(0) translateY(0); } 25% { transform: rotate(-2.5deg) translateY(-2px); } 50% { transform: rotate(0) translateY(1.5px); } 75% { transform: rotate(2.5deg) translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .handshake { animation: none; } }
 .bell-shake { animation: bell-shake 1.6s ease-in-out infinite; transform-origin: 50% 10%; }
+.nearby-search-line { overflow: hidden; }
+.nearby-search-left { transform: scaleX(-1); }
+.nearby-search-line path { fill: none; stroke: currentColor; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.nearby-search-baseline { opacity: .24; }
+.nearby-search-signal { stroke-dasharray: 52 180; animation: nearby-search-wave 2s linear infinite; }
+.nearby-search-icon { animation: nearby-search-radar 3s linear infinite; }
+@keyframes nearby-search-wave { from { stroke-dashoffset: 52; opacity: .45; } 45% { opacity: 1; } to { stroke-dashoffset: -180; opacity: .45; } }
+@keyframes nearby-search-radar { from { transform: rotate(0); opacity: .7; } 50% { opacity: 1; } to { transform: rotate(360deg); opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { .nearby-search-signal { animation: none; stroke-dasharray: none; } .nearby-search-icon { animation: none; } }
 @keyframes bell-shake { 0%,50%,100% { transform: rotate(0); } 10% { transform: rotate(16deg); } 20% { transform: rotate(-14deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-6deg); } }
 @media (prefers-reduced-motion: reduce) { .bell-shake { animation: none; } }

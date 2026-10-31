@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
 import { FeatureSlider } from "@/components/FeatureSlider";
+import { NearbySearchIndicator } from "@/components/NearbySearchIndicator";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 import securityIllustration from "@/assets/onboarding-security.jpg";
@@ -128,6 +129,7 @@ function Home() {
   return (
     <AppShell>
       <FeatureSlider />
+      <NearbySearchIndicator />
 
       <div className="mt-4 space-y-3">
         <h2 className="whitespace-nowrap font-display text-[clamp(1.35rem,7vw,1.875rem)] animate-in fade-in slide-in-from-left-4 duration-500">Select your daily traveling route</h2>

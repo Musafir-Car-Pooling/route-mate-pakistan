@@ -17,3 +17,5 @@
 - [ ] Move nearby offers into automatic dedicated screens with newest passenger interests first.
 - [ ] Add matching-route bell, sound/vibration and secure Firebase web push delivery.
 - [ ] Verify interactive member flows and document any Firebase setup still required.
+- [ ] Automatically open separate nearby offer screens for both travel modes and preserve acknowledgement/reviews.
+- [ ] Remove daily, weekly and monthly fare controls from driver ride sharing.

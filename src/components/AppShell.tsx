@@ -12,16 +12,16 @@ export function Slogan({ className = "" }: { className?: string }) {
   return <p className={`font-slogan font-bold uppercase tracking-[0.22em] text-muted-foreground ${className}`}>{SLOGAN}</p>;
 }
 
-export function Logo({ size = "text-3xl" }: { size?: string }) {
+export function Logo({ size = "text-3xl", className = "" }: { size?: string; className?: string }) {
   return (
-    <span className="flex flex-col">
-      <span className="flex items-center gap-2">
-        <img src={logoAsset.url} alt="Travel Sync logo" width={36} height={36} className="h-9 w-9 rounded-full" />
-        <span className={`font-display ${size} leading-none`}>
+    <span className={`flex min-w-0 items-center gap-4 ${className}`}>
+      <img src={logoAsset.url} alt="Travel Sync logo" width={36} height={36} className="h-9 w-9 shrink-0 rounded-full" />
+      <span className="min-w-0">
+        <span className={`whitespace-nowrap font-display ${size} leading-none`}>
           TRAVEL <span className="text-primary">SYNC</span>
         </span>
+        <Slogan className="mt-1 whitespace-nowrap text-[10px] leading-tight tracking-[0.06em]" />
       </span>
-      <Slogan className="ml-11 text-[10px] leading-tight" />
     </span>
   );
 }
@@ -103,15 +103,15 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
   ] as const;
   return (
     <div className="mx-auto min-h-screen max-w-md pb-10">
-      <header className="sticky top-0 z-30 flex items-center gap-3 bg-background/90 px-4 py-3 backdrop-blur">
+      <header className="sticky top-0 z-30 flex items-center gap-2 bg-background/90 px-3 py-3 backdrop-blur">
         {back ? (
           <button aria-label="Back" onClick={() => history.back()} className="grid h-11 w-11 place-items-center rounded-full bg-secondary"><ArrowLeft /></button>
         ) : (
           <Button variant="secondary" size="icon" aria-label="Menu" onClick={() => { setScrollPaused(false); setOpen(true); }} className="h-11 w-11 rounded-full"><Menu /></Button>
         )}
-        <div className="min-w-0 flex-1">{title ? <h1 className="whitespace-nowrap font-display text-[clamp(1.25rem,6.5vw,1.875rem)] leading-none">{title}</h1> : <Logo />}</div>
+        <div className="min-w-0 flex-1">{title ? <h1 className="whitespace-nowrap font-display text-[clamp(1.25rem,6.5vw,1.875rem)] leading-none">{title}</h1> : <Logo className="ml-1" />}</div>
         {user && (
-          <Link to={user.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides"} aria-label={`${alertCount} ${user.travelMode === "driver" ? "ride requests" : "shared rides"} near you`} className="relative grid h-11 w-11 place-items-center rounded-full bg-secondary">
+          <Link to={user.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides"} aria-label={`${alertCount} ${user.travelMode === "driver" ? "ride requests" : "shared rides"} near you`} className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary">
             <Bell className={`h-5 w-5 ${alertCount ? "bell-shake text-primary" : ""}`} />
             {alertCount > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-xs font-bold text-destructive-foreground">{alertCount > 99 ? "99+" : alertCount}</span>}
           </Link>

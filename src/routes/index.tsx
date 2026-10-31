@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Home as HomeIcon, Building2, ShieldCheck, Users, Route as RouteIcon, Clock, ChevronRight, Trash2 } from "lucide-react";
+import { Home as HomeIcon, Building2, ArrowRight, Clock, ChevronRight, Trash2 } from "lucide-react";
 import { AppShell, AuthLogo } from "@/components/AppShell";
 import { useStore, setState, uid, isExpired, deleteOwnPost, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
@@ -10,6 +10,9 @@ import { LocationPicker } from "@/components/LocationPicker";
 import { FeatureSlider } from "@/components/FeatureSlider";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
+import securityIllustration from "@/assets/onboarding-security.jpg";
+import communityIllustration from "@/assets/onboarding-community.jpg";
+import routeIllustration from "@/assets/onboarding-route.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,9 +29,9 @@ export const Route = createFileRoute("/")({
 });
 
 const slides = [
-  { icon: ShieldCheck, title: "Security First", text: "Contacts stay hidden until a connection is unlocked. Your security is our concern." },
-  { icon: Users, title: "Verified Coworkers", text: "Every member verifies an official company or @edu.pk university email." },
-  { icon: RouteIcon, title: "Share Your Route", text: "Get matched with people travelling on the same home-to-work route." },
+  { image: securityIllustration, alt: "Professionals beside a car with a privacy shield", title: "Security First", text: "Contacts stay hidden until a connection is unlocked. Your security is our concern." },
+  { image: communityIllustration, alt: "Pakistani professionals and a university student in a verified community", title: "Verified Coworkers", text: "Every member verifies an official company or @edu.pk university email." },
+  { image: routeIllustration, alt: "Two route mates sharing a car between home and work", title: "Share Your Route", text: "Get matched with people travelling on the same home-to-work route." },
 ];
 
 function Intro() {
@@ -50,15 +53,25 @@ function Intro() {
   if (!S) return null;
   const done = () => setState((s) => ({ ...s, seenIntro: true }));
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col px-6 py-8">
-      <button onClick={done} className="self-end font-semibold text-muted-foreground">Skip</button>
-      <div key={i} className="flex flex-1 flex-col items-center justify-center text-center animate-in fade-in slide-in-from-right">
-        <div className="grid h-48 w-48 place-items-center rounded-full bg-hero"><S.icon className="h-24 w-24 text-primary-foreground" /></div>
-        <h2 className="mt-10 font-display text-5xl">{S.title}</h2>
-        <p className="mt-3 text-lg text-muted-foreground">{S.text}</p>
+    <div className="onboarding-shell mx-auto max-w-md px-6">
+      <header className="flex shrink-0 items-center justify-between gap-3 pt-5">
+        <div>
+          <p className="font-display text-2xl">TRAVEL SYNC</p>
+          <p className="text-[10px] font-semibold uppercase text-muted-foreground">Find your route mates</p>
+        </div>
+        <Button variant="ghost" onClick={done} className="text-muted-foreground">Skip</Button>
+      </header>
+      <div key={i} className="flex flex-1 flex-col items-center justify-center gap-5 py-5 text-center feature-enter" aria-live="polite">
+        <img src={S.image} alt={S.alt} width={992} height={672} className="onboarding-illustration w-full object-contain" />
+        <div className="min-h-28">
+          <h2 className="font-display text-4xl">{S.title}</h2>
+          <p className="mx-auto mt-3 max-w-xs text-base leading-relaxed text-muted-foreground">{S.text}</p>
+        </div>
       </div>
-      <div className="mb-6 flex justify-center gap-2">{slides.map((_, k) => <span key={k} className={`h-2 rounded-full ${k === i ? "w-8 bg-primary" : "w-2 bg-muted"}`} />)}</div>
-      <button className="btn-big" onClick={() => (i < 2 ? setI(i + 1) : done())}>{i < 2 ? "Next" : "Get Started"}</button>
+      <footer className="onboarding-actions shrink-0">
+        <div className="mb-5 flex justify-center gap-2" aria-label={`Step ${i + 1} of ${slides.length}`}>{slides.map((_, k) => <span key={k} className={`h-1.5 rounded-full ${k === i ? "w-7 bg-primary" : "w-2 bg-muted"}`} />)}</div>
+        <Button size="contact" className="text-2xl" onClick={() => (i < slides.length - 1 ? setI(i + 1) : done())}>{i < slides.length - 1 ? "Next" : "Get Started"}<ArrowRight aria-hidden="true" /></Button>
+      </footer>
     </div>
   );
 }

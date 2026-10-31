@@ -17,7 +17,7 @@ import routeIllustration from "@/assets/onboarding-route.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Travel Sync — Your security is our concern" },
+      { title: "Travel Sync — Find your route mates" },
       { name: "description", content: "Post a ride or a ride request and connect with verified coworkers and students on your route." },
       { property: "og:title", content: "Travel Sync — Verified Carpooling" },
       { property: "og:description", content: "Verified carpooling for Jobians and university students in Pakistan." },
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/")({
 });
 
 const slides = [
-  { image: securityIllustration, alt: "Professionals beside a car with a privacy shield", title: "Security First", text: "Contacts stay hidden until a connection is unlocked. Your security is our concern." },
+  { image: securityIllustration, alt: "Professionals beside a car with a privacy shield", title: "Security First", text: "Contacts stay hidden until a connection is unlocked. Find your route mates safely." },
   { image: communityIllustration, alt: "Pakistani professionals and a university student in a verified community", title: "Verified Coworkers", text: "Every member verifies an official company or @edu.pk university email." },
   { image: routeIllustration, alt: "Two route mates sharing a car between home and work", title: "Share Your Route", text: "Get matched with people travelling on the same home-to-work route." },
 ];
@@ -44,8 +44,7 @@ function Intro() {
         <div className="animate-in zoom-in duration-1000">
           <img src={logoAsset.url} alt="Travel Sync logo" width={112} height={112} className="handshake mx-auto h-28 w-28 rounded-full" />
           <p className="mt-5 font-display text-5xl">TRAVEL SYNC</p>
-          <p className="mt-1 font-semibold uppercase tracking-[0.28em] opacity-90">Find your route mates</p>
-          <p className="mt-2 font-semibold opacity-80">Your security is our concern</p>
+          <p className="mt-2 font-slogan text-sm font-bold uppercase tracking-[0.22em] opacity-90">Find your route mates</p>
         </div>
       </div>
     );
@@ -57,7 +56,7 @@ function Intro() {
       <header className="flex shrink-0 items-center justify-between gap-3 pt-5">
         <div>
           <p className="font-display text-2xl">TRAVEL SYNC</p>
-          <p className="text-[10px] font-semibold uppercase text-muted-foreground">Find your route mates</p>
+          <p className="font-slogan text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Find your route mates</p>
         </div>
         <Button variant="ghost" onClick={done} className="text-muted-foreground">Skip</Button>
       </header>
@@ -82,12 +81,12 @@ function Index() {
   if (!seen) return <Intro />;
   if (!user)
     return (
-      <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col bg-hero px-6 pb-6 text-primary-foreground">
+      <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col px-6 pb-6">
         <div className="grid flex-1 place-items-center px-6 animate-in zoom-in-90 fade-in duration-700"><AuthLogo imgSize="h-28 w-28" textSize="text-6xl" /></div>
         <div className="mb-[12vh] animate-in fade-in slide-in-from-bottom-6 duration-700">
-          <p className="mb-6 mt-2 text-center text-lg font-semibold">Verified carpooling for Jobians & students.</p>
-          <Link to="/register" className="btn-big bg-background text-foreground">Create Account</Link>
-          <Link to="/login" className="btn-big mt-3 border-2 border-primary-foreground/70 bg-transparent">I already have an account</Link>
+          <p className="mb-6 mt-2 text-center text-lg font-semibold text-muted-foreground">Verified carpooling for Jobians & students.</p>
+          <Link to="/register" className="btn-big">Create Account</Link>
+          <Link to="/login" className="btn-big mt-3 border-2 border-primary/70 bg-transparent">I already have an account</Link>
         </div>
       </div>
     );

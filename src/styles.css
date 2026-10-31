@@ -81,6 +81,7 @@
 }
 
 @utility font-display { font-family: var(--font-display); letter-spacing: 0.02em; }
+@utility font-slogan { font-family: var(--font-slogan); }
 @utility bg-hero { background-image: var(--gradient-hero); }
 @utility field {
   width: 100%;

@@ -2,7 +2,7 @@ import { isExpired, type Interest, type Post, type Settings, type User } from ".
 
 export type RideAlert = { id: string; kind: "offer" | "interest"; title: string; at: number; post: Post; person?: Interest };
 /** How closely a post follows one of the member's routes: 3 exact, 2 reverse trip, 1 shares a stop, 0 same city only. */
-function routeScore(p: Post, routes: { city: string; from: string; to: string }[]) {
+function routeScore(p: Post, routes: { city?: string; from: string; to: string }[]) {
   let best = -1;
   for (const r of routes) {
     if (!r.city || r.city !== p.city) continue;

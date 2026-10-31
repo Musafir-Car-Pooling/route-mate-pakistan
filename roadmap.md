@@ -14,8 +14,8 @@
 - [x] Simplify Home fields and replace compact slider photos.
 - [x] Optimize payment logos and add compressed admin media uploads.
 - [x] Add touch-paused menu scrolling and partner animation; verify flows.
-- [ ] Move nearby offers into automatic dedicated screens with newest passenger interests first.
-- [ ] Add matching-route bell, sound/vibration and secure Firebase web push delivery.
-- [ ] Verify interactive member flows and document any Firebase setup still required.
-- [ ] Automatically open separate nearby offer screens for both travel modes and preserve acknowledgement/reviews.
-- [ ] Remove daily, weekly and monthly fare controls from driver ride sharing.
+- [ ] Automatic newest-interest passenger screen — deferred alongside the earlier alerts request.
+- [ ] Matching-route bell, sound/vibration and secure Firebase web push — deferred at user's request; web push connection details missing.
+- [x] Verify live ride/request reception, pre-interest reviews and acknowledgement with two temporary Firebase accounts.
+- [x] Automatically open separate nearby offer screens for both travel modes and preserve acknowledgement/reviews.
+- [x] Remove daily, weekly and monthly fare controls from driver ride sharing.

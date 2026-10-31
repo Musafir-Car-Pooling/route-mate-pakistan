@@ -102,7 +102,9 @@ function Home() {
   const submit = () => {
     if (!canSubmit || !city) return;
     const p: Post = {
-      id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name, city: city.name, from: selectedFrom, to: selectedTo, notes, genderPref: gender,
+      id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name,
+      ownerOrg: user.org, ownerRating: user.rating, ownerVerified: user.verified, ownerCar: user.car || undefined,
+      city: city.name, from: selectedFrom, to: selectedTo, notes, genderPref: gender,
       ...(mode === "driver" ? { seats, ...fares } : {}), createdAt: Date.now(), active: true, interests: [],
     };
     setState((s) => ({ ...s, posts: [...s.posts, p] }));

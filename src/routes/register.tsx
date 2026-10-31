@@ -35,6 +35,9 @@ function Register() {
   const [otpSent, setOtpSent] = useState<string>();
   const [otp, setOtp] = useState("");
   const [verified, setVerified] = useState(false);
+  const [phoneOtpSent, setPhoneOtpSent] = useState<string>();
+  const [phoneOtp, setPhoneOtp] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const [carPhoto, setCarPhoto] = useState<string>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [err, setErr] = useState("");
@@ -51,6 +54,10 @@ function Register() {
     if (!validOfficialEmail(f.email, role)) return setErr(role === "student" ? "Use your university @edu.pk email" : "Use your official company email (not Gmail/Yahoo)");
     setErr(""); setOtpSent(String(Math.floor(100000 + Math.random() * 900000)));
   };
+  const sendPhoneOtp = () => {
+    if (!/^03\d{2}-?\d{7}$/.test(f.phone.trim())) return setErr("Enter a valid mobile number (03xx-xxxxxxx)");
+    setErr(""); setPhoneOtpSent(String(Math.floor(100000 + Math.random() * 900000)));
+  };
   const [busy, setBusy] = useState(false);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +66,7 @@ function Register() {
     if (req.some((k) => !f[k].trim())) return setErr("Please fill all required fields");
     if (!city || !validRegistrationCatalog(getState().settings, getState().companies, { cityId, org: f.org, dept: f.dept, role, home: f.home, work: f.work })) return setErr("Select a city, organization, department and addresses from the available lists.");
     if (!verified) return setErr("Verify your official email with OTP");
+    if (!phoneVerified) return setErr("Verify your mobile number with OTP");
     if (!validPassword(f.password)) return setErr("Password: minimum 6 letters/numbers only");
     if (travelMode === "driver" && !validOptionalVehicle(f)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
     const email = f.email.trim().toLowerCase();
@@ -119,7 +127,18 @@ function Register() {
         </div>
       )}
       {verified && <p className="flex items-center gap-2 font-semibold text-success"><BadgeCheck />Verified Official Email</p>}
-      <input className="field" placeholder="Phone (03xx-xxxxxxx)" value={f.phone} onChange={up("phone")} />
+      <div className="flex gap-2">
+        <input className="field" placeholder="Phone (03xx-xxxxxxx)" value={f.phone} onChange={(e) => { up("phone")(e); setPhoneVerified(false); }} />
+        <Button type="button" variant="secondary" onClick={sendPhoneOtp} className="h-auto shrink-0 px-4 font-bold text-primary">OTP</Button>
+      </div>
+      {phoneOtpSent && !phoneVerified && (
+        <div className="card-box space-y-2 p-3">
+          <p className="text-sm text-muted-foreground">Demo OTP sent to your mobile: <b className="text-foreground">{phoneOtpSent}</b></p>
+          <div className="flex gap-2"><input className="field" placeholder="Enter mobile OTP" value={phoneOtp} onChange={(e) => setPhoneOtp(e.target.value)} />
+            <Button type="button" onClick={() => (phoneOtp === phoneOtpSent ? (setPhoneVerified(true), setErr("")) : setErr("Wrong mobile OTP"))} className="h-auto shrink-0 px-4 font-bold">Verify</Button></div>
+        </div>
+      )}
+      {phoneVerified && <p className="flex items-center gap-2 font-semibold text-success"><BadgeCheck />Verified Mobile Number</p>}
       <LocationPicker label="Home address" value={home} locations={locations} city={city?.name} icon={<Home className="h-5 w-5" />} onChange={(value) => setF({ ...f, home: value })} />
       <LocationPicker label={role === "jobian" ? "Workplace address" : "Campus address"} value={work} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={(value) => setF({ ...f, work: value })} />
       {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities available yet.</p>}

@@ -9,7 +9,7 @@ import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 export const SLOGAN = "Find your route mates";
 
 export function Slogan({ className = "" }: { className?: string }) {
-  return <p className={`font-semibold uppercase tracking-[0.28em] text-muted-foreground ${className}`}>{SLOGAN}</p>;
+  return <p className={`font-slogan font-bold uppercase tracking-[0.22em] text-muted-foreground ${className}`}>{SLOGAN}</p>;
 }
 
 export function Logo({ size = "text-3xl" }: { size?: string }) {
@@ -21,7 +21,7 @@ export function Logo({ size = "text-3xl" }: { size?: string }) {
           TRAVEL <span className="text-primary">SYNC</span>
         </span>
       </span>
-      <Slogan className="ml-11 text-[9px] leading-tight" />
+      <Slogan className="ml-11 text-[10px] leading-tight" />
     </span>
   );
 }
@@ -33,7 +33,7 @@ export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl" }: { img
       <span className={`whitespace-nowrap font-display ${textSize} leading-none`}>
         TRAVEL <span className="text-brand-orange">SYNC</span>
       </span>
-      <Slogan className="text-[11px]" />
+      <Slogan className="text-sm" />
     </div>
   );
 }

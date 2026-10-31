@@ -41,7 +41,8 @@ function Intro() {
         <div className="animate-in zoom-in duration-1000">
           <img src={logoAsset.url} alt="Travel Sync logo" width={112} height={112} className="handshake mx-auto h-28 w-28 rounded-full" />
           <p className="mt-5 font-display text-5xl">TRAVEL SYNC</p>
-          <p className="mt-1 font-semibold opacity-90">Your security is our concern</p>
+          <p className="mt-1 font-semibold uppercase tracking-[0.28em] opacity-90">Find your route mates</p>
+          <p className="mt-2 font-semibold opacity-80">Your security is our concern</p>
         </div>
       </div>
     );

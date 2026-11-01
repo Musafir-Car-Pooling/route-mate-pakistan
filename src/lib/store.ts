@@ -107,7 +107,7 @@ export function useStore<T>(sel: (s: State) => T): T {
 export const uid = () => Math.random().toString(36).slice(2, 10);
 export const ADMIN_EMAIL = "pp@gmail.com";
 export const ADMIN_PASS = "ppllmm";
-export const isAdminCreds = (e: string, p: string) => e.trim().toLowerCase() === ADMIN_EMAIL && p === ADMIN_PASS;
+export const isAdminCreds = (e: string, p: string) => e.trim().toLowerCase() === ADMIN_EMAIL && p.trim() === ADMIN_PASS;
 export const validPassword = (p: string) => /^[a-zA-Z0-9]{6,}$/.test(p);
 export const validOfficialEmail = (e: string, role: Role) => {
   const m = e.trim().toLowerCase().match(/^[^@\s]+@([^@\s]+\.[a-z]{2,})$/);

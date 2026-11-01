@@ -28,6 +28,7 @@ export type Unlock = {
 };
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
 export type City = { id: string; name: string; locations: string[] };
+export type FakeMember = { id: string; name: string; phone: string; gender: Gender; org: string };
 export type Settings = {
   cities: City[];
   departments: string[];
@@ -35,6 +36,8 @@ export type Settings = {
   bankTitle: string; bankIban: string; easypaisa: string; jazzcash: string;
   socials: { whatsapp: string; facebook: string; linkedin: string; instagram: string };
   pages: Record<string, string>; slides: string[];
+  demoMode?: boolean;
+  fakeMembers?: FakeMember[];
   paymentIcons?: Partial<Record<"easypaisa" | "jazzcash" | "bank", string>>;
 };
 export type State = {
@@ -185,4 +188,15 @@ export async function compressImage(file: File, max = 800, q = 0.7): Promise<str
   context.drawImage(img, 0, 0, c.width, c.height);
   URL.revokeObjectURL(url);
   return c.toDataURL("image/jpeg", q);
+}
+
+/** Interests shown to a post owner: real ones plus admin-made fake members while demo mode is on. */
+export function displayInterests(post: Post, settings: Settings, userId: string | undefined): Interest[] {
+  if (!settings.demoMode || !userId || post.ownerId !== userId || !post.active || post.cancelledAt) return post.interests;
+  const fakes: Interest[] = (settings.fakeMembers ?? []).map((f, i) => ({
+    id: "fake_" + f.id, name: f.name, org: f.org || "Verified member", gender: f.gender, rating: 4.8, reviews: 0,
+    verified: true, phone: f.phone, at: post.createdAt + (i + 1) * 60_000, demo: true,
+    car: post.kind === "request" ? "Honda City" : undefined,
+  }));
+  return [...post.interests, ...fakes];
 }

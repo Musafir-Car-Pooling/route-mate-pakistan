@@ -7,7 +7,7 @@ import { Countdown } from "@/components/Countdown";
 import { ContactButton } from "@/components/ContactFlow";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useStore, setState, isExpired, formatPKR, matchingPosts, type Interest, type Post, cancelOwnPost, canContactPost, deleteOwnPost } from "@/lib/store";
+import { useStore, setState, isExpired, formatPKR, matchingPosts, type Interest, type Post, cancelOwnPost, canContactPost, deleteOwnPost, displayInterests } from "@/lib/store";
 
 export const Route = createFileRoute("/post/$id")({
   head: () => ({
@@ -67,12 +67,13 @@ function PostPage() {
       {post.cancelledAt && <Button variant="outline" className="mt-3 w-full text-destructive" onClick={() => { setState((s) => deleteOwnPost(s, post.id)); nav({ to: "/" }); }}><Trash2 className="size-4" />Delete {isRide ? "ride" : "request"}</Button>}
       <Dialog open={confirmCancel} onOpenChange={setConfirmCancel}><DialogContent className="max-w-sm rounded-lg"><DialogTitle>Cancel this {isRide ? "ride" : "request"}?</DialogTitle><DialogDescription>Matching will stop and no new contact payments can be made for this offer.</DialogDescription><Button variant="destructive" onClick={() => { setState((s) => cancelOwnPost(s, post.id)); setConfirmCancel(false); }}>Yes, cancel {isRide ? "ride" : "request"}</Button><Button variant="outline" onClick={() => setConfirmCancel(false)}>Keep {isRide ? "ride" : "request"}</Button></DialogContent></Dialog>
 
+      {/* demo interests derived per owner */}
       <div className="mt-6 flex items-end justify-between">
         <h2 className="font-display text-3xl">Interested {isRide ? "Passengers" : "Drivers"}</h2>
-        <span className="rounded-full bg-primary px-4 py-1 font-display text-2xl text-primary-foreground">{post.interests.length}</span>
+        <span className="rounded-full bg-primary px-4 py-1 font-display text-2xl text-primary-foreground">{shown.length}</span>
       </div>
 
-      {post.interests.length === 0 && available && (
+      {shown.length === 0 && available && (
         <div className="mt-4 flex items-center gap-3 card-box p-5 text-muted-foreground">
           <Loader2 className="animate-spin text-primary" /> Broadcasting to verified members on your route…
         </div>
@@ -88,7 +89,7 @@ function PostPage() {
       }} />}
 
       <div className="mt-3 space-y-3">
-        {post.interests.map((p) => (
+        {shown.map((p) => (
           <div key={p.id} className="card-box p-4 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex items-center gap-3">
               <div className={`grid h-14 w-14 place-items-center rounded-full font-display text-2xl ${p.gender === "female" ? "bg-female/20 text-female" : "bg-primary/20 text-primary"}`}>{p.name.split(" ").map((w) => w[0]).join("")}</div>

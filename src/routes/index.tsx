@@ -9,7 +9,6 @@ import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
 import { FeatureSlider } from "@/components/FeatureSlider";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
-import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 import securityIllustration from "@/assets/onboarding-security.jpg";
 import communityIllustration from "@/assets/onboarding-community.jpg";
 import routeIllustration from "@/assets/onboarding-route.jpg";

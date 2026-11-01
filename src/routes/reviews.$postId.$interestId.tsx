@@ -4,7 +4,7 @@ import { Star, BadgeCheck, Car, MessageSquare, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { ContactButton } from "@/components/ContactFlow";
-import { useStore, canContactPost, reviewsFor , displayInterests } from "@/lib/store";
+import { useStore, canContactPost, reviewsFor } from "@/lib/store";
 
 export const Route = createFileRoute("/reviews/$postId/$interestId")({
   head: () => ({ meta: [
@@ -25,7 +25,7 @@ function MemberReviews() {
   const settings = useStore((s) => s.settings);
   const stored = useStore((s) => s.memberReviews);
   const [sort, setSort] = useState<"recent" | "highest" | "lowest">("recent");
-  const person = post && displayInterests(post, settings, user?.id).find((p) => p.id === interestId);
+  const person = post?.interests.find((p) => p.id === interestId);
   if (!user) return <AppShell back title="Member reviews"><Link to="/login" className="btn-big mt-8">Login</Link></AppShell>;
   if (!post || !person || post.ownerId !== user.id) return <AppShell back title="Member reviews"><p className="py-8 text-muted-foreground">Member unavailable.</p></AppShell>;
   const entries = [...reviewsFor(person.id, stored), ...(person.reviewEntries ?? [])];

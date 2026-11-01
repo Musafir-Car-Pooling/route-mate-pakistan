@@ -133,7 +133,10 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
   const socials = useStore((s) => s.settings.socials);
   const posts = useStore((s) => s.posts);
   const settings = useStore((s) => s.settings);
-  const alertCount = user ? nearbyOffers(user, posts, settings).filter((p) => !p.interests.some((i) => i.id === user.id)).length : 0;
+  const [seenTick, setSeenTick] = useState(0);
+  useEffect(() => onNearbySeenChange(() => setSeenTick((t) => t + 1)), []);
+  const alertCount = user ? unseenNearbyCount(user, posts, settings) : 0;
+  void seenTick;
   const nav = useNavigate();
   const lastCount = useRef(alertCount);
   useEffect(() => {

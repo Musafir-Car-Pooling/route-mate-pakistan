@@ -1,13 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Star, BadgeCheck, Car, Clock, AlertTriangle, Loader2, XCircle, Trash2, X } from "lucide-react";
-import { removeMemberInterest } from "@/lib/ride-alerts";
+import { useEffect, useState } from "react";
+import { Star, BadgeCheck, Car, Clock, AlertTriangle, Loader2, XCircle, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Countdown } from "@/components/Countdown";
 import { ContactButton } from "@/components/ContactFlow";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useStore, setState, isExpired, formatPKR, matchingPosts, type Interest, type Post, cancelOwnPost, canContactPost, deleteOwnPost, displayInterests } from "@/lib/store";
+import { useStore, setState, isExpired, cancelOwnPost, canContactPost, deleteOwnPost, displayInterests } from "@/lib/store";
 
 export const Route = createFileRoute("/post/$id")({
   head: () => ({
@@ -32,7 +31,6 @@ function PostPage() {
   const nav = useNavigate();
   const expired = post ? isExpired(post, settings) : false;
 
-  const allPosts = useStore((s) => s.posts);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 5000); return () => clearInterval(t); }, []);
   const unsent = useStore((s) => s.unsent?.includes(id) ?? false);

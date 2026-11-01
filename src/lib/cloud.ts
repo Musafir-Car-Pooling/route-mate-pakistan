@@ -172,7 +172,9 @@ export async function startSync() {
     keep("reviews", (err) => fs.onSnapshot(fs.collection(db, "reviews"), (snap) => setRemote((s) => ({ ...s, memberReviews: snap.docs.map((d) => ({ ...(d.data() as StoredReview), id: d.id })) })), err));
     // Live interest listeners for own posts. Wait until the post exists on the server
     // (rules read the post), and re-subscribe after any error so updates never stall.
-    const watchInterests = (pid: string) => {
+    const mySession = session;
+    watchInterests = (pid: string) => {
+      if (mySession !== session) return;
       interestSubs.set(pid, fs.onSnapshot(fs.collection(db, "posts", pid, "interests"), (is) => {
         interests[pid] = is.docs.map((d) => ({ ...(d.data() as Interest), id: d.id })).sort((a, b) => a.at - b.at);
         rebuildPosts();
@@ -183,12 +185,7 @@ export async function startSync() {
       }));
     };
     keep("posts", (err) => fs.onSnapshot(fs.collection(db, "posts"), { includeMetadataChanges: true }, (snap) => {
-      postDocs = snap.docs.map((d) => ({ ...(d.data() as Post), id: d.id, interests: interests[d.id] ?? [] }));
-      for (const d of snap.docs) {
-        const p = d.data() as Post;
-        if ((admin || p.ownerId === uid) && !d.metadata.hasPendingWrites && !interestSubs.has(d.id)) watchInterests(d.id);
-      }
-      rebuildPosts();
+      applyPosts(snap.docs.map((d) => ({ id: d.id, data: d.data() as Post, pending: d.metadata.hasPendingWrites })), uid, admin);
     }, err));
   });
 }

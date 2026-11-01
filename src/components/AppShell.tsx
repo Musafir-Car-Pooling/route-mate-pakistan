@@ -8,19 +8,56 @@ import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 
 export const SLOGAN = "Find your route mates";
 
-export function Slogan({ className = "" }: { className?: string }) {
-  return <p className={`font-slogan font-bold uppercase tracking-[0.22em] text-muted-foreground ${className}`}>{SLOGAN}</p>;
+export function Slogan({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return <p style={style} className={`font-slogan font-bold uppercase text-muted-foreground ${className}`}>{SLOGAN}</p>;
 }
 
 export function Logo({ size = "text-3xl", className = "" }: { size?: string; className?: string }) {
+  const wm = useRef<HTMLSpanElement>(null);
+  const sl = useRef<HTMLElement>(null);
+  const [wmWidth, setWmWidth] = useState(0);
+  const [fontsReady, setFontsReady] = useState(false);
+  useEffect(() => {
+    let on = true;
+    document.fonts?.ready.then(() => { if (on) setFontsReady(true); });
+    return () => { on = false; };
+  }, []);
+  useEffect(() => {
+    const el = wm.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const measure = () => setWmWidth(el.getBoundingClientRect().width);
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    return () => ro.disconnect();
+  }, []);
+  useLayoutEffect(() => {
+    const el = sl.current;
+    if (!el || !wmWidth) return;
+    el.style.fontSize = "";
+    el.style.letterSpacing = "0px";
+    const natural = el.getBoundingClientRect().width;
+    const count = (el.textContent ?? "").replace(/\s/g, "").length - 1;
+    const extra = (wmWidth - natural) / Math.max(count, 1);
+    if (extra >= 0) {
+      el.style.letterSpacing = `${extra.toFixed(2)}px`;
+    } else {
+      el.style.fontSize = `${(10 * wmWidth / natural).toFixed(2)}px`;
+      el.style.letterSpacing = "0px";
+    }
+  }, [wmWidth, fontsReady, size]);
   return (
     <span className={`flex min-w-0 items-center gap-4 ${className}`}>
       <img src={logoAsset.url} alt="Travel Sync logo" width={36} height={36} className="h-9 w-9 shrink-0 rounded-full" />
-      <span className="min-w-0 overflow-hidden">
-        <span className={`whitespace-nowrap font-display ${size} leading-none`}>
+      <span className="min-w-0 overflow-hidden" style={wmWidth ? { width: wmWidth } : undefined}>
+        <span ref={wm} className={`block whitespace-nowrap font-display ${size} leading-none`}>
           TRAVEL <span className="text-primary">SYNC</span>
         </span>
-        <Slogan className="mt-0.5 block max-w-full truncate whitespace-nowrap text-[10px] leading-none tracking-[0.06em]" />
+        <Slogan
+          ref={sl}
+          className="mt-0.5 block whitespace-nowrap text-[10px] leading-none tracking-[0.06em]"
+          style={{ width: wmWidth || undefined }}
+        />
       </span>
     </span>
   );

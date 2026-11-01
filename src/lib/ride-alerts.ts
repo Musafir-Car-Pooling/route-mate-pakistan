@@ -47,3 +47,40 @@ export function removeMemberInterest(state: import("./store").State, postId: str
   if (!user || !post || !post.interests.some((i) => i.id === user.id)) return state;
   return { ...state, posts: state.posts.map((p) => p.id === postId ? { ...p, interests: p.interests.filter((i) => i.id !== user.id) } : p) };
 }
+
+// Delivery receipts: offers the member has already opened on the nearby screen.
+// Session-scoped so a fresh login counts everything again, and shared between the
+// bell badge, the auto-navigation and the nearby screen so they never disagree.
+const seenCache = new Map<string, Set<string>>();
+const seenListeners = new Set<() => void>();
+export const nearbySeenKey = (user: User) => `${user.id}:${user.travelMode ?? "passenger"}`;
+export function getSeenNearby(user: User): Set<string> {
+  const key = nearbySeenKey(user);
+  let seen = seenCache.get(key);
+  if (!seen) {
+    seen = new Set<string>();
+    if (typeof sessionStorage !== "undefined") {
+      try { seen = new Set(JSON.parse(sessionStorage.getItem(`nearby:${key}`) ?? "[]") as string[]); } catch { /* storage unavailable */ }
+    }
+    seenCache.set(key, seen);
+  }
+  return seen;
+}
+export function markNearbySeen(user: User, ids: string[]) {
+  if (!ids.length) return;
+  const seen = getSeenNearby(user);
+  ids.forEach((id) => seen.add(id));
+  if (typeof sessionStorage !== "undefined") {
+    try { sessionStorage.setItem(`nearby:${nearbySeenKey(user)}`, JSON.stringify([...seen])); } catch { /* storage unavailable */ }
+  }
+  seenListeners.forEach((l) => l());
+}
+export function onNearbySeenChange(listener: () => void) {
+  seenListeners.add(listener);
+  return () => { seenListeners.delete(listener); };
+}
+/** Bell badge: only offers the member has not opened yet and has not already joined. */
+export function unseenNearbyCount(user: User, posts: Post[], settings: Settings, now = Date.now()) {
+  const seen = getSeenNearby(user);
+  return nearbyOffers(user, posts, settings, now).filter((p) => !seen.has(p.id) && !p.interests.some((i) => i.id === user.id)).length;
+}

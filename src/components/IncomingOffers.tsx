@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, X, Star, BadgeCheck, Car, ChevronDown, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, type Post } from "@/lib/store";
-import { addMemberInterest, nearbyOffers } from "@/lib/ride-alerts";
+import { addMemberInterest, nearbyOffers, removeMemberInterest } from "@/lib/ride-alerts";
 
 const KEY = "travelsync-responses";
 
@@ -22,9 +22,19 @@ export function IncomingOffers() {
     setResp(next);
     try { localStorage.setItem(`${KEY}:${user.id}`, JSON.stringify(next)); } catch { /* quota */ }
   };
+  const forget = (id: string) => {
+    const next = { ...resp };
+    delete next[id];
+    setResp(next);
+    try { localStorage.setItem(`${KEY}:${user.id}`, JSON.stringify(next)); } catch { /* quota */ }
+  };
   const interested = (p: Post) => {
     setState((s) => addMemberInterest(s, p.id));
     save(p.id, "yes");
+  };
+  const cancelInterest = (p: Post) => {
+    setState((s) => removeMemberInterest(s, p.id));
+    forget(p.id);
   };
 
   return (
@@ -60,7 +70,10 @@ export function IncomingOffers() {
                   </div>
                 )}
                 {done ? (
-                  <p className="mt-3 flex items-center gap-1 font-semibold text-success"><Check className="size-4" />Interest sent</p>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <p className="flex items-center gap-1 font-semibold text-success"><Check className="size-4" />Interest sent</p>
+                    <Button type="button" variant="outline" size="connection" onClick={() => cancelInterest(p)}><X className="size-4" />Cancel interest</Button>
+                  </div>
                 ) : (
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <Button onClick={() => interested(p)}><Check className="size-4" />Interested</Button>

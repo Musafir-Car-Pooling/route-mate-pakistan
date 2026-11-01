@@ -182,7 +182,7 @@ function Home() {
                     <div className="flex-1">
                       <p className="text-xs font-bold uppercase text-primary">{p.kind === "ride" ? "Shared Ride" : "Ride Request"}</p>
                       <p className="font-bold">{p.from} → {p.to}</p>
-                      <p className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="h-4 w-4" />{p.cancelledAt ? "Cancelled" : !p.active ? "Inactive" : exp ? "Expired" : <Countdown post={p} />} · {p.interests.length} interested</p>
+                      <p className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="h-4 w-4" />{p.cancelledAt ? "Cancelled" : !p.active ? "Inactive" : exp ? "Expired" : <Countdown post={p} />} · {p.interests.filter((i) => i.at <= Date.now()).length} interested</p>
                     </div>
                     <ChevronRight />
                   </Link>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { LogOut, Check, X, Upload, Trash2 } from "lucide-react";
 import { Logo, AuthLogo } from "@/components/AppShell";
 import { AdminLocations } from "@/components/AdminLocations";
+import { AdminDemoUsers } from "@/components/AdminDemoUsers";
 import { AdminDepartments } from "@/components/AdminDepartments";
 import { Button } from "@/components/ui/button";
 import { MediaUpload } from "@/components/MediaUpload";
@@ -84,6 +85,8 @@ function SettingsTab() {
       <label className="block card-box p-4 font-semibold">Contact Unlock Fee (PKR)<input type="number" className="field mt-2 font-display text-3xl" value={s.fee} onChange={(e) => setSettings({ fee: Math.max(0, +e.target.value) })} /></label>
       <Toggle label="Auto-cancel leads" on={s.autoCancel} onClick={() => setSettings({ autoCancel: !s.autoCancel })} />
       <label className="block card-box p-4 font-semibold">Auto-cancel duration (hours)<input type="number" min={1} className="field mt-2" value={s.hours} onChange={(e) => setSettings({ hours: Math.max(1, +e.target.value) })} /></label>
+      <Toggle label={s.demoMode ? "Demo mode ON — new posts get 5 demo interests" : "Real mode — only real members"} on={!!s.demoMode} onClick={() => setSettings({ demoMode: !s.demoMode })} />
+      <AdminDemoUsers />
       <Toggle label="Instant unlock on payment (skip manual verification)" on={s.instantUnlock} onClick={() => setSettings({ instantUnlock: !s.instantUnlock })} />
       <div className="card-box space-y-2 p-4 font-semibold">Payment accounts
         <input className="field" placeholder="Easypaisa number" value={s.easypaisa} onChange={(e) => setSettings({ easypaisa: e.target.value })} />

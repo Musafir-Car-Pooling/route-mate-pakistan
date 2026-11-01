@@ -28,7 +28,10 @@ export type Unlock = {
 };
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
 export type City = { id: string; name: string; locations: string[] };
+/** Admin-made member shown as interested on new posts while demo mode is on. Phone lives in private/demo_{id}. */
+export type DemoUser = { id: string; name: string; org: string; gender: Gender; rating: number; car?: string; reviews: MemberReview[] };
 export type Settings = {
+  demoMode?: boolean; demoUsers?: DemoUser[];
   cities: City[];
   departments: string[];
   fee: number; autoCancel: boolean; hours: number; instantUnlock: boolean;
@@ -146,6 +149,22 @@ export const validRegistrationCatalog = (settings: Settings, companies: Company[
 export const matchingPosts = (post: Post, posts: Post[], s: Settings, now = Date.now()) => posts.filter((p) =>
   p.id !== post.id && p.ownerId !== post.ownerId && p.kind !== post.kind && p.active && !p.cancelledAt && !isExpired(p, s, now)
   && p.city === post.city && p.from === post.from && p.to === post.to);
+
+export const DEMO_PREFIX = "demo_";
+export const DEMO_PER_POST = 5;
+/** Up to 5 random demo members matching the post's gender rule, arriving one by one over ~2 minutes. */
+export function pickDemoInterests(post: Post, settings: Settings, now = Date.now(), rand = Math.random): Interest[] {
+  if (!settings.demoMode) return [];
+  const pool = (settings.demoUsers ?? []).filter((d) => post.genderPref === "any" || d.gender === post.genderPref);
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j]!, pool[i]!]; }
+  return pool.slice(0, DEMO_PER_POST).map((d, i) => ({
+    id: DEMO_PREFIX + d.id, name: d.name, org: d.org, gender: d.gender, rating: d.rating, reviews: d.reviews.length,
+    verified: true, car: post.kind === "request" ? d.car || undefined : undefined, reviewEntries: d.reviews,
+    at: now + 8000 + i * 22000 + Math.floor(rand() * 8000),
+  }));
+}
+/** Interests whose arrival time has come (demo members arrive gradually). */
+export const visibleInterests = (post: Post, now = Date.now()) => post.interests.filter((i) => i.at <= now);
 
 export function unlockFor(postId: string, interestId: string, s: State = state) {
   return s.unlocks.find((u) => u.postId === postId && u.interestId === interestId && u.status !== "rejected");

@@ -28,7 +28,7 @@ export function nearbyOffers(user: User, posts: Post[], settings: Settings, now 
 export function memberAlerts(user: User, posts: Post[], settings: Settings, now = Date.now()): RideAlert[] {
   const offers: RideAlert[] = nearbyOffers(user, posts, settings, now).map((post) => ({ id: `offer:${post.id}`, kind: "offer", title: post.kind === "ride" ? "New driver is traveling on your route" : "New passenger needs a ride on your route", at: post.createdAt, post }));
   const interests: RideAlert[] = posts.filter((p) => p.ownerId === user.id && p.kind === (user.travelMode === "driver" ? "ride" : "request") && p.active && !p.cancelledAt && !isExpired(p, settings, now))
-    .flatMap((post) => post.interests.filter((person) => person.id !== user.id).map((person) => ({ id: `interest:${post.id}:${person.id}:${person.at}`, kind: "interest" as const, title: post.kind === "ride" ? "A passenger is interested in your ride" : "A driver is interested in your request", at: person.at, post, person })));
+    .flatMap((post) => post.interests.filter((person) => person.id !== user.id && person.at <= now).map((person) => ({ id: `interest:${post.id}:${person.id}:${person.at}`, kind: "interest" as const, title: post.kind === "ride" ? "A passenger is interested in your ride" : "A driver is interested in your request", at: person.at, post, person })));
   return [...offers, ...interests].sort((a, b) => b.at - a.at);
 }
 

@@ -14,7 +14,7 @@ export function Slogan({ className = "", style, ref }: { className?: string; sty
 
 export function Logo({ size = "text-3xl", className = "" }: { size?: string; className?: string }) {
   const wm = useRef<HTMLSpanElement>(null);
-  const sl = useRef<HTMLElement>(null);
+  const sl = useRef<HTMLParagraphElement>(null);
   const [wmWidth, setWmWidth] = useState(0);
   const [fontsReady, setFontsReady] = useState(false);
   useEffect(() => {

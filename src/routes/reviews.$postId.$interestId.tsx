@@ -28,7 +28,9 @@ function MemberReviews() {
   const person = post?.interests.find((p) => p.id === interestId);
   if (!user) return <AppShell back title="Member reviews"><Link to="/login" className="btn-big mt-8">Login</Link></AppShell>;
   if (!post || !person || post.ownerId !== user.id) return <AppShell back title="Member reviews"><p className="py-8 text-muted-foreground">Member unavailable.</p></AppShell>;
-  const entries = [...reviewsFor(person.id, stored), ...(person.reviewEntries ?? [])];
+  // Demo members: use the admin's current review list so reviews added later still show.
+  const demo = person.id.startsWith("demo_") ? settings.demoUsers?.find((d) => "demo_" + d.id === person.id) : undefined;
+  const entries = [...reviewsFor(person.id, stored), ...(demo ? demo.reviews : person.reviewEntries ?? [])];
   const average = entries.length ? entries.reduce((sum, review) => sum + review.rating, 0) / entries.length : null;
   const sorted = [...entries].sort((a, b) => sort === "recent" ? b.at - a.at : sort === "highest" ? b.rating - a.rating : a.rating - b.rating);
   const contactable = canContactPost(post, settings, user.id);

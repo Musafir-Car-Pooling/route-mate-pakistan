@@ -21,7 +21,6 @@ export const Route = createFileRoute("/register")({
   component: Register,
 });
 
-const PREFS = ["Smoking allowed", "No smoking", "AC", "Music", "Quiet ride"];
 
 function Register() {
   const nav = useNavigate();

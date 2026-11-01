@@ -75,6 +75,23 @@ export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl" }: { img
   );
 }
 
+// "Logo adjustment" pattern (used on request, e.g. create account screen):
+// logo image at the left of the TRAVEL SYNC wordmark, logo sized to the
+// wordmark text height, lockup pinned to the top of the screen.
+export function AuthLogoRow({ imgSize = "h-12 w-12", textSize = "text-5xl" }: { imgSize?: string; textSize?: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <img src={logoAsset.url} alt="Travel Sync logo" className={`${imgSize} shrink-0 rounded-full`} />
+      <span className="min-w-0">
+        <span className={`block whitespace-nowrap font-display ${textSize} leading-none`}>
+          TRAVEL <span className="text-brand-orange">SYNC</span>
+        </span>
+        <Slogan className="mt-0.5 block text-left text-sm leading-none" />
+      </span>
+    </div>
+  );
+}
+
 export function AppShell({ children, title, back }: { children: ReactNode; title?: string; back?: boolean }) {
   const [open, setOpen] = useState(false);
   const menu = useRef<HTMLElement>(null);

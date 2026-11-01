@@ -40,6 +40,7 @@ function PostPage() {
   if (!user || post.ownerId !== user.id) return <AppShell back title="Offer unavailable"><p className="py-8">This offer is not available.</p></AppShell>;
   const isRide = post.kind === "ride";
   const available = canContactPost(post, settings, user.id);
+  const shown = displayInterests(post, settings, user.id);
 
   return (
     <AppShell back title={isRide ? "My Ride" : "My Request"}>

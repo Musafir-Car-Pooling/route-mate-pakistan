@@ -29,7 +29,7 @@ export type Unlock = {
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
 export type City = { id: string; name: string; locations: string[] };
 /** Admin-made member shown as interested on new posts while demo mode is on. Phone lives in private/demo_{id}. */
-export type DemoUser = { id: string; name: string; org: string; gender: Gender; rating: number; car?: string; reviews: MemberReview[] };
+export type DemoUser = { id: string; name: string; org: string; gender: Gender; rating: number; car?: string | undefined; reviews: MemberReview[] };
 export type Settings = {
   demoMode?: boolean; demoUsers?: DemoUser[];
   cities: City[];

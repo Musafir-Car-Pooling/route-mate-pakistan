@@ -162,7 +162,8 @@ function Home() {
           </>
         )}
         <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl transition-transform hover:scale-[1.01] animate-in fade-in zoom-in-95 duration-500">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
+        <Button onClick={() => void submit()} disabled={!canSubmit || sending} className="btn-big h-auto text-3xl transition-transform hover:scale-[1.01] animate-in fade-in zoom-in-95 duration-500">{sending ? "Sharing…" : mode === "driver" ? "Share Ride" : "Send Request"}</Button>
+        {shareError && <p role="alert" className="text-center text-sm font-semibold text-destructive">{shareError}</p>}
       </div>
 
       <PartnerMarquee />

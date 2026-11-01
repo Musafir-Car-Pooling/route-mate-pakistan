@@ -6,6 +6,7 @@ import { AuthLogoRow } from "@/components/AppShell";
 import { getState, useStore, locationsForCity, validRegistrationCatalog, validPassword, validOfficialEmail, validOptionalVehicle, compressImage, type Role, type Gender, type TravelMode } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { LocationPicker } from "@/components/LocationPicker";
+import { SameAddressDialog } from "@/components/SameAddressDialog";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -45,6 +46,7 @@ function Register() {
   const organizations = companies.filter((c) => c.approved);
   const org = organizations.some((c) => c.name === f.org) ? f.org : "";
   const dept = role === "student" || settings.departments.includes(f.dept) ? f.dept : "";
+  const [same, setSame] = useState(false);
   const home = locations.includes(f.home) ? f.home : "";
   const work = locations.includes(f.work) ? f.work : "";
 
@@ -60,6 +62,7 @@ function Register() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!travelMode) return setErr("Choose whether you have a car or need a ride");
+    if (f.home && f.home === f.work) { setSame(true); return; }
     const req = ["name", "org", "email", "phone", "home", "work"] as const;
     if (req.some((k) => !f[k].trim())) return setErr("Please fill all required fields");
     if (!city || !validRegistrationCatalog(getState().settings, getState().companies, { cityId, org: f.org, dept: f.dept, role, home: f.home, work: f.work })) return setErr("Select a city, organization, department and addresses from the available lists.");
@@ -137,8 +140,9 @@ function Register() {
         </div>
       )}
       {phoneVerified && <p className="flex items-center gap-2 font-semibold text-success"><BadgeCheck />Verified Mobile Number</p>}
-      <LocationPicker label="Home address" value={home} locations={locations} city={city?.name} icon={<Home className="h-5 w-5" />} onChange={(value) => setF({ ...f, home: value })} />
-      <LocationPicker label={role === "jobian" ? "Workplace address" : "Campus address"} value={work} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={(value) => setF({ ...f, work: value })} />
+      <LocationPicker label="Home address" value={home} locations={locations} city={city?.name} icon={<Home className="h-5 w-5" />} onChange={(value) => (value === work ? setSame(true) : setF({ ...f, home: value }))} />
+      <LocationPicker label={role === "jobian" ? "Workplace address" : "Campus address"} value={work} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={(value) => (value === home ? setSame(true) : setF({ ...f, work: value }))} />
+      <SameAddressDialog open={same} onClose={() => setSame(false)} />
       {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities available yet.</p>}
       {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
       <PasswordInput placeholder="Password (min 6 letters/numbers)" value={f.password} onChange={up("password")} />

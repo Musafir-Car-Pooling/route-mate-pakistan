@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Check, X, Star, BadgeCheck, Car, ChevronDown, MessageSquare } from "lucide-react";
+import { Check, X, Star, BadgeCheck, Car, ChevronDown, MessageSquare, Share2 } from "lucide-react";
+import { shareText, appUrl } from "@/lib/share";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, type Post } from "@/lib/store";
 import { addMemberInterest, nearbyOffers, removeMemberInterest } from "@/lib/ride-alerts";
@@ -47,7 +48,8 @@ export function IncomingOffers() {
             const done = resp[p.id] === "yes" || p.interests.some((i) => i.id === user.id);
             return (
               <div key={p.id} className="card-box p-4">
-                <p className="text-xs font-bold uppercase text-primary">{p.kind === "ride" ? "Shared Ride" : "Ride Request"} · {p.ownerName}</p>
+                <div className="flex items-start justify-between gap-2"><p className="text-xs font-bold uppercase text-primary">{p.kind === "ride" ? "Shared Ride" : "Ride Request"} · {p.ownerName}</p>
+                  <Button type="button" variant="ghost" size="icon" className="-mr-2 -mt-2 shrink-0" aria-label={`Share this ${p.kind === "ride" ? "ride" : "request"}`} onClick={() => void shareText("Travel Sync", `${p.kind === "ride" ? "Shared ride" : "Ride request"} on Travel Sync: ${p.from} → ${p.to}${p.city ? ` (${p.city})` : ""}. Join Travel Sync to connect.`, appUrl())}><Share2 className="size-5 text-primary" /></Button></div>
                 <p className="font-bold">{p.from} → {p.to}</p>
                 <p className="text-sm text-muted-foreground">
                   {p.genderPref === "female" ? "Females Only" : p.genderPref === "male" ? "Male Only" : "Anyone"}

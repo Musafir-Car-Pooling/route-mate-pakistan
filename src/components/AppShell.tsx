@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Bell } from "lucide-react";
+import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Bell, Share2 } from "lucide-react";
+import { shareText, appUrl } from "@/lib/share";
 import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
 import { onNearbySeenChange, unseenNearbyCount } from "@/lib/ride-alerts";
 import { Button } from "@/components/ui/button";
@@ -225,6 +226,9 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
                   <i.icon className="h-5 w-5 text-primary" /> {i.label}
                 </Link>
               ))}
+              <button onClick={() => { setOpen(false); void shareText("Travel Sync", "Join me on Travel Sync — verified carpooling for Jobians & students. Find your route mates!", appUrl()); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-lg font-semibold hover:bg-secondary">
+                <Share2 className="h-5 w-5 text-primary" /> Share with friends
+              </button>
               {user && (
                 <button onClick={() => { setState((s) => ({ ...s, user: null })); setOpen(false); nav({ to: "/login" }); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-lg font-semibold text-destructive">
                   <LogOut className="h-5 w-5" /> Logout

@@ -2,7 +2,7 @@ import { PasswordInput } from "@/components/PasswordInput";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Briefcase, GraduationCap, BadgeCheck, Upload, Car, Users, Home, Building2 } from "lucide-react";
-import { AuthLogo } from "@/components/AppShell";
+import { AuthLogoRow } from "@/components/AppShell";
 import { getState, useStore, locationsForCity, validRegistrationCatalog, validPassword, validOfficialEmail, validOptionalVehicle, compressImage, type Role, type Gender, type TravelMode } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { LocationPicker } from "@/components/LocationPicker";
@@ -30,7 +30,6 @@ function Register() {
   const [travelMode, setTravelMode] = useState<TravelMode>();
   const [role, setRole] = useState<Role>("jobian");
   const [f, setF] = useState({ name: "", gender: "male" as Gender, org: "", dept: "", email: "", phone: "", home: "", work: "", password: "", car: "", plate: "" });
-  const [prefs, setPrefs] = useState<string[]>(["No smoking", "AC"]);
   const [otpSent, setOtpSent] = useState<string>();
   const [otp, setOtp] = useState("");
   const [verified, setVerified] = useState(false);

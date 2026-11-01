@@ -61,6 +61,7 @@ function DemoRow({ d }: { d: DemoUser }) {
         <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setOpen(!open)}>
           <p className="font-bold">{d.name}</p>
           <p className="text-xs text-muted-foreground">{d.org} · {d.gender === "female" ? "Female" : "Male"} · ★ {d.rating} · {d.reviews.length} reviews</p>
+          {!open && <p className="text-xs font-semibold text-primary">Tap to edit and add reviews</p>}
         </button>
         {open ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         <Button type="button" variant="ghost" size="icon" aria-label={`Delete ${d.name}`} onClick={remove}><Trash2 className="text-destructive" /></Button>

@@ -68,7 +68,7 @@ function Register() {
     if (!validPassword(f.password)) return setErr("Password: minimum 6 letters/numbers only");
     if (travelMode === "driver" && !validOptionalVehicle(f)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
     const email = f.email.trim().toLowerCase();
-    const user = { ...f, city: city.name, email, role, travelMode, prefs, verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
+    const user = { ...f, city: city.name, email, role, travelMode, prefs: [], verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
     setBusy(true); setErr("");
     try {
       const { registerAccount } = await import("@/lib/cloud");
@@ -88,7 +88,7 @@ function Register() {
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-md space-y-3 px-5 py-8">
-      <AuthLogo imgSize="h-20 w-20" textSize="text-5xl" />
+      <AuthLogoRow imgSize="h-12 w-12" textSize="text-5xl" />
       <h1 className="font-display text-3xl text-muted-foreground">Create Account</h1>
       <div className="grid grid-cols-2 gap-2" role="group" aria-label="Travel choice">
         {([["driver", "I've a car", Car], ["passenger", "Need a ride", Users]] as const).map(([k, label, Icon]) => (

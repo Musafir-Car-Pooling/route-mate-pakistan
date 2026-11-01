@@ -35,7 +35,9 @@ service cloud.firestore {
 
       match /interests/{uid} {
         allow read: if signedIn() && (request.auth.uid == uid || isAdmin() || post(pid).ownerId == request.auth.uid);
-        allow create, update: if signedIn() && request.auth.uid == uid && post(pid).active == true;
+        allow create, update: if signedIn() && post(pid).active == true && (request.auth.uid == uid
+          || (uid.matches('demo_.*') && post(pid).ownerId == request.auth.uid
+            && get(/databases/$(db)/documents/settings/app).data.demoMode == true));
         allow delete: if signedIn() && (request.auth.uid == uid || isAdmin() || post(pid).ownerId == request.auth.uid);
       }
     }

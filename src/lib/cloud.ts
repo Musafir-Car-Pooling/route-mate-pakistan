@@ -3,7 +3,7 @@
 import type { FirebaseApp } from "firebase/app";
 import type { Firestore, Unsubscribe } from "firebase/firestore";
 import type { Auth } from "firebase/auth";
-import { ADMIN_EMAIL, ADMIN_PASS, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
+import { pickDemoInterests, ADMIN_EMAIL, ADMIN_PASS, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
 import { initFirebase } from "./firebase";
 
 type FS = typeof import("firebase/firestore");
@@ -88,7 +88,13 @@ export async function sharePost(p: Post): Promise<"sent" | "queued"> {
   postDocs = [...postDocs.filter((x) => x.id !== p.id), { ...p, interests: [] }];
   setRemote((s) => ({ ...s, posts: [...s.posts.filter((x) => x.id !== p.id), p] }));
   const write = fs.setDoc(fs.doc(db, "posts", p.id), postDoc(p));
-  write.then(() => { unsentPosts.delete(p.id); markUnsent(); rebuildPosts(); }, (e) => {
+  write.then(() => {
+    unsentPosts.delete(p.id); markUnsent(); rebuildPosts();
+    for (const i of pickDemoInterests(p, getState().settings)) {
+      const { id, ...rest } = i;
+      fs.setDoc(fs.doc(db, "posts", p.id, "interests", id), rest).catch(log);
+    }
+  }, (e) => {
     log(e);
     unsentPosts.delete(p.id); markUnsent();
     postDocs = postDocs.filter((x) => x.id !== p.id);
@@ -295,4 +301,19 @@ export async function submitReview(targetId: string, rating: number, text: strin
   if (!auth.currentUser || !me) throw new Error("Not signed in");
   const r = { reviewerId: auth.currentUser.uid, reviewerName: me.name, targetId, rating, text: text.trim().slice(0, 500), at: Date.now() };
   await fs.setDoc(fs.doc(db, "reviews", `${r.reviewerId}_${targetId}`), r);
+}
+
+// ---------- Demo members (admin only) ----------
+export async function saveDemoPhone(id: string, phone: string) {
+  const { db, fs } = await cloud();
+  await fs.setDoc(fs.doc(db, "private", "demo_" + id), { phone });
+}
+export async function loadDemoPhone(id: string) {
+  const { db, fs } = await cloud();
+  const d = await fs.getDoc(fs.doc(db, "private", "demo_" + id));
+  return (d.data()?.["phone"] as string | undefined) ?? "";
+}
+export async function deleteDemoPhone(id: string) {
+  const { db, fs } = await cloud();
+  await fs.deleteDoc(fs.doc(db, "private", "demo_" + id));
 }

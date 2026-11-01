@@ -116,3 +116,23 @@ describe("matchingPosts", () => {
   });
 });
 
+
+import { pickDemoInterests as pickDemo } from "./store";
+describe("demo interests", () => {
+  const base = { id: "p", kind: "request", ownerId: "o", ownerName: "O", from: "A", to: "B", notes: "", genderPref: "any", createdAt: 0, active: true, interests: [] } as never;
+  const users = Array.from({ length: 8 }, (_, i) => ({ id: "d" + i, name: "N" + i, org: "X", gender: i < 3 ? "female" : "male", rating: 5, reviews: [] })) as never;
+  it("gives 5 unique demo members in demo mode", () => {
+    const r = pickDemo(base, { demoMode: true, demoUsers: users } as never, 0);
+    expect(r).toHaveLength(5);
+    expect(new Set(r.map((i) => i.id)).size).toBe(5);
+    expect(r.every((i) => i.id.startsWith("demo_") && i.at > 0)).toBe(true);
+  });
+  it("follows the gender rule", () => {
+    const r = pickDemo({ ...(base as object), genderPref: "female" } as never, { demoMode: true, demoUsers: users } as never, 0);
+    expect(r).toHaveLength(3);
+    expect(r.every((i) => i.gender === "female")).toBe(true);
+  });
+  it("gives none in real mode", () => {
+    expect(pickDemo(base, { demoMode: false, demoUsers: users } as never, 0)).toHaveLength(0);
+  });
+});

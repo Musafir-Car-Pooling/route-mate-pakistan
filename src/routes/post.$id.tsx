@@ -6,7 +6,7 @@ import { Countdown } from "@/components/Countdown";
 import { ContactButton } from "@/components/ContactFlow";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useStore, setState, isExpired, cancelOwnPost, canContactPost, deleteOwnPost } from "@/lib/store";
+import { useStore, setState, isExpired, cancelOwnPost, canContactPost, deleteOwnPost, visibleInterests } from "@/lib/store";
 
 export const Route = createFileRoute("/post/$id")({
   head: () => ({
@@ -29,6 +29,8 @@ function PostPage() {
   const user = useStore((s) => s.user);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const nav = useNavigate();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 3000); return () => clearInterval(t); }, []);
   const expired = post ? isExpired(post, settings) : false;
 
   const unsent = useStore((s) => s.unsent?.includes(id) ?? false);
@@ -37,7 +39,7 @@ function PostPage() {
   if (!user || post.ownerId !== user.id) return <AppShell back title="Offer unavailable"><p className="py-8">This offer is not available.</p></AppShell>;
   const isRide = post.kind === "ride";
   const available = canContactPost(post, settings, user.id);
-  const shown = post.interests;
+  const shown = visibleInterests(post, now);
 
   return (
     <AppShell back title={isRide ? "My Ride" : "My Request"}>

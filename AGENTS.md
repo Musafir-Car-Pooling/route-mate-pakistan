@@ -26,3 +26,4 @@
 - PartnerMarquee uses a duplicated, reduced-motion-aware track; the member tray scrolls only its navigation and stops automatic movement upon user interaction to preserve control accessibility.
 - NearbyOffersNavigation opens dedicated nearby routes for new same-route offers from live store updates; session receipts prevent reopening acknowledged screens, and reviews/payment/profile flows are not interrupted.
 - Home-screen installation stays manifest-only with a shared InstallAppPrompt using the browser's deferred install event or mobile menu instructions; never add app-shell caching or alter the separate messaging worker for installability.
+- Demo members are kept in settings.demoUsers (no phones) with phones in private/demo_{id}; the poster's client writes demo_ interest docs after the post is confirmed, so the existing unlock rule protects demo phones too.

@@ -21,5 +21,5 @@
 - [x] Remove daily, weekly and monthly fare controls from driver ride sharing.
 - [x] Elevate onboarding navigation and add carpool illustrations; verify all three screens on small phones.
 - [x] Adjust header logo spacing and single-line slogan; add and verify the below-slider searching animation.
-- [ ] Add automatic browser install invitation and verify installed-mode suppression.
-- [ ] Rebuild installed icons with the smaller official logo on black and verify manifest assets.
+- [x] Add automatic browser install invitation and verify installed-mode suppression.
+- [x] Rebuild installed icons with the smaller official logo on black and verify manifest assets.

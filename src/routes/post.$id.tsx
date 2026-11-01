@@ -67,7 +67,6 @@ function PostPage() {
       {post.cancelledAt && <Button variant="outline" className="mt-3 w-full text-destructive" onClick={() => { setState((s) => deleteOwnPost(s, post.id)); nav({ to: "/" }); }}><Trash2 className="size-4" />Delete {isRide ? "ride" : "request"}</Button>}
       <Dialog open={confirmCancel} onOpenChange={setConfirmCancel}><DialogContent className="max-w-sm rounded-lg"><DialogTitle>Cancel this {isRide ? "ride" : "request"}?</DialogTitle><DialogDescription>Matching will stop and no new contact payments can be made for this offer.</DialogDescription><Button variant="destructive" onClick={() => { setState((s) => cancelOwnPost(s, post.id)); setConfirmCancel(false); }}>Yes, cancel {isRide ? "ride" : "request"}</Button><Button variant="outline" onClick={() => setConfirmCancel(false)}>Keep {isRide ? "ride" : "request"}</Button></DialogContent></Dialog>
 
-      {/* demo interests derived per owner */}
       <div className="mt-6 flex items-end justify-between">
         <h2 className="font-display text-3xl">Interested {isRide ? "Passengers" : "Drivers"}</h2>
         <span className="rounded-full bg-primary px-4 py-1 font-display text-2xl text-primary-foreground">{shown.length}</span>

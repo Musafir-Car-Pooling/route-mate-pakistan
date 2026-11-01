@@ -1,4 +1,4 @@
-import { isExpired, type Interest, type Post, type Settings, type User } from "./store";
+import { isExpired, displayInterests, type Interest, type Post, type Settings, type User } from "./store";
 
 export type RideAlert = { id: string; kind: "offer" | "interest"; title: string; at: number; post: Post; person?: Interest };
 /** How closely a post follows one of the member's routes: 3 exact, 2 reverse trip, 1 shares a stop, 0 same city only. */

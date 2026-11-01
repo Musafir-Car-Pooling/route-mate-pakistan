@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Home as HomeIcon, Building2, ArrowRight, Clock, ChevronRight, Trash2 } from "lucide-react";
 import { AppShell, AuthLogo, HandshakeEmblem } from "@/components/AppShell";
-import { useStore, setState, uid, isExpired, deleteOwnPost, type Post } from "@/lib/store";
+import { useStore, setState, uid, isExpired, deleteOwnPost, displayInterests, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";

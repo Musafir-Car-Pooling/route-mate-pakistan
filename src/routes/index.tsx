@@ -105,6 +105,8 @@ function Home() {
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState<Post["genderPref"]>("any");
   const [seats, setSeats] = useState(3);
+  const [sending, setSending] = useState(false);
+  const [shareError, setShareError] = useState("");
 
   const city = settings.cities.find((c) => c.id === cityId);
   const locations = locationsForCity(settings.cities, cityId);
@@ -113,16 +115,22 @@ function Home() {
   const canSubmit = validRouteLocations(settings.cities, cityId, selectedFrom, selectedTo);
   if (!user) return null;
   const mine = posts.filter((p) => p.ownerId === user.id).sort((a, b) => b.createdAt - a.createdAt);
-  const submit = () => {
-    if (!canSubmit || !city) return;
+  const submit = async () => {
+    if (!canSubmit || !city || sending) return;
     const p: Post = {
       id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name,
       ownerOrg: user.org, ownerRating: user.rating, ownerVerified: user.verified, ownerCar: user.car || undefined,
       city: city.name, from: selectedFrom, to: selectedTo, notes, genderPref: gender,
       ...(mode === "driver" ? { seats } : {}), createdAt: Date.now(), active: true, interests: [],
     };
-    setState((s) => ({ ...s, posts: [...s.posts, p] }));
-    nav({ to: "/post/$id", params: { id: p.id } });
+    setSending(true); setShareError("");
+    try {
+      const { sharePost } = await import("@/lib/cloud");
+      await sharePost(p);
+      nav({ to: "/post/$id", params: { id: p.id } });
+    } catch (e) {
+      setShareError(e instanceof Error && e.message.startsWith("Please sign in") ? e.message : "Could not share. Please check your internet and try again.");
+    } finally { setSending(false); }
   };
 
   return (
@@ -154,7 +162,8 @@ function Home() {
           </>
         )}
         <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <Button onClick={submit} disabled={!canSubmit} className="btn-big h-auto text-3xl transition-transform hover:scale-[1.01] animate-in fade-in zoom-in-95 duration-500">{mode === "driver" ? "Share Ride" : "Send Request"}</Button>
+        <Button onClick={() => void submit()} disabled={!canSubmit || sending} className="btn-big h-auto text-3xl transition-transform hover:scale-[1.01] animate-in fade-in zoom-in-95 duration-500">{sending ? "Sharing…" : mode === "driver" ? "Share Ride" : "Send Request"}</Button>
+        {shareError && <p role="alert" className="text-center text-sm font-semibold text-destructive">{shareError}</p>}
       </div>
 
       <PartnerMarquee />

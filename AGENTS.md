@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Firestore is the source of truth; src/lib/store.ts is the in-memory view and src/lib/cloud.ts mirrors setState diffs to Firestore and applies snapshots via setRemote. Phone numbers live only in private/{uid}, readable via firestore.rules once unlocks/{payer}_{member} is "unlocked"; keep firestore.rules in sync with any data change.
+- New posts go through cloud.sharePost (waits for server confirmation, tracks state.unsent) and posts are also re-read from the server on resume/online/every 20s, because mobile networks can silently stall writes or the live stream and members would never see each other.
 - City catalogs are nested under settings in the prototype store, and home validates route choices against that catalog; this keeps admin entries and passenger/driver options consistent.
 - Admin city/location controls live in a dedicated AdminLocations component to keep catalog management separate from payment and CMS controls.
 - Reuse LocationPicker for admin-catalog location selection with searchable dialogs so search cannot create unapproved addresses.

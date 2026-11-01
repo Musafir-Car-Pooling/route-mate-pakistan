@@ -69,6 +69,31 @@ export async function changePassword(current: string, next: string) {
 
 // ---------- Live sync ----------
 let started = false;
+let postDocs: Post[] = [];
+const unsentPosts = new Set<string>();
+let rebuildPosts = () => {};
+const markUnsent = () => setRemote((s) => ({ ...s, unsent: [...unsentPosts] }));
+
+/**
+ * Share a new ride/request and wait for the server to confirm it, because only confirmed
+ * posts reach other members. Resolves "queued" when there is no internet yet (Firestore
+ * keeps retrying), and throws when the server rejects it.
+ */
+export async function sharePost(p: Post): Promise<"sent" | "queued"> {
+  const { db, fs, auth } = await cloud();
+  if (!auth.currentUser || auth.currentUser.uid !== p.ownerId) throw new Error("Please sign in again before sharing.");
+  unsentPosts.add(p.id); markUnsent();
+  postDocs = [...postDocs.filter((x) => x.id !== p.id), { ...p, interests: [] }];
+  setRemote((s) => ({ ...s, posts: [...s.posts.filter((x) => x.id !== p.id), p] }));
+  const write = fs.setDoc(fs.doc(db, "posts", p.id), postDoc(p));
+  write.then(() => { unsentPosts.delete(p.id); markUnsent(); rebuildPosts(); }, (e) => {
+    log(e);
+    unsentPosts.delete(p.id); markUnsent();
+    postDocs = postDocs.filter((x) => x.id !== p.id);
+    setRemote((s) => ({ ...s, posts: s.posts.filter((x) => x.id !== p.id) }));
+  });
+  return Promise.race([write.then(() => "sent" as const), new Promise<"queued">((r) => setTimeout(() => r("queued"), 8000))]);
+}
 export async function startSync() {
   if (started || typeof window === "undefined") return;
   started = true;
@@ -86,9 +111,8 @@ export async function startSync() {
 
   let subs: Unsubscribe[] = [];
   const interestSubs = new Map<string, Unsubscribe>();
-  let postDocs: Post[] = [];
   const interests: Record<string, Interest[]> = {};
-  const rebuildPosts = () => setRemote((s) => ({ ...s, posts: postDocs.map((p) => ({ ...p, interests: interests[p.id] ?? [] })) }));
+  rebuildPosts = () => setRemote((s) => ({ ...s, posts: postDocs.map((p) => ({ ...p, interests: interests[p.id] ?? [] })) }));
 
   let session = 0;
   // Live listener that never dies: Firestore permanently closes a listener after an error
@@ -101,12 +125,43 @@ export async function startSync() {
       current = open((e) => {
         console.warn(`[firebase] ${label}`, e);
         current?.(); current = null;
-        setTimeout(start, delay); delay = Math.min(delay * 2, 15000);
+        // Rules that deny a listener (e.g. unpublished rules) retry slowly so they don't churn the shared connection.
+        const denied = (e as { code?: string }).code === "permission-denied";
+        setTimeout(start, denied ? Math.max(delay, 60000) : delay); delay = Math.min(delay * 2, 15000);
       });
     };
     start();
     subs.push(() => { stopped = true; current?.(); });
   };
+
+  // Server snapshot of all posts; keeps own posts still waiting for the server.
+  const applyPosts = (docs: { id: string; data: Post; pending: boolean }[], uid: string, admin: boolean) => {
+    const ids = new Set(docs.map((d) => d.id));
+    postDocs = [...docs.map((d) => ({ ...d.data, id: d.id, interests: interests[d.id] ?? [] })), ...postDocs.filter((p) => unsentPosts.has(p.id) && !ids.has(p.id))];
+    for (const d of docs) if ((admin || d.data.ownerId === uid) && !d.pending && !interestSubs.has(d.id)) watchInterests(d.id);
+    rebuildPosts();
+  };
+  let watchInterests: (pid: string) => void = () => {};
+
+  // Backup delivery: mobile networks can silently stall the live stream, so re-read posts
+  // from the server when the app is reopened, regains internet, and every 20 seconds.
+  let lastRefresh = 0;
+  const refresh = (force = false) => {
+    const fu = auth.currentUser;
+    if (!fu || document.visibilityState === "hidden") return;
+    if (!force && Date.now() - lastRefresh < 5000) return;
+    lastRefresh = Date.now();
+    const mine = session;
+    const admin = fu.email?.toLowerCase() === ADMIN_EMAIL;
+    fs.getDocsFromServer(fs.collection(db, "posts")).then((snap) => {
+      if (mine !== session) return;
+      applyPosts(snap.docs.map((d) => ({ id: d.id, data: d.data() as Post, pending: false })), fu.uid, admin);
+    }).catch(log);
+  };
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") refresh(true); });
+  window.addEventListener("online", () => refresh(true));
+  window.addEventListener("focus", () => refresh());
+  setInterval(() => refresh(true), 20000);
 
   fa.onAuthStateChanged(auth, async (fu) => {
     session++;
@@ -142,7 +197,9 @@ export async function startSync() {
     keep("reviews", (err) => fs.onSnapshot(fs.collection(db, "reviews"), (snap) => setRemote((s) => ({ ...s, memberReviews: snap.docs.map((d) => ({ ...(d.data() as StoredReview), id: d.id })) })), err));
     // Live interest listeners for own posts. Wait until the post exists on the server
     // (rules read the post), and re-subscribe after any error so updates never stall.
-    const watchInterests = (pid: string) => {
+    const mySession = session;
+    watchInterests = (pid: string) => {
+      if (mySession !== session) return;
       interestSubs.set(pid, fs.onSnapshot(fs.collection(db, "posts", pid, "interests"), (is) => {
         interests[pid] = is.docs.map((d) => ({ ...(d.data() as Interest), id: d.id })).sort((a, b) => a.at - b.at);
         rebuildPosts();
@@ -153,12 +210,7 @@ export async function startSync() {
       }));
     };
     keep("posts", (err) => fs.onSnapshot(fs.collection(db, "posts"), { includeMetadataChanges: true }, (snap) => {
-      postDocs = snap.docs.map((d) => ({ ...(d.data() as Post), id: d.id, interests: interests[d.id] ?? [] }));
-      for (const d of snap.docs) {
-        const p = d.data() as Post;
-        if ((admin || p.ownerId === uid) && !d.metadata.hasPendingWrites && !interestSubs.has(d.id)) watchInterests(d.id);
-      }
-      rebuildPosts();
+      applyPosts(snap.docs.map((d) => ({ id: d.id, data: d.data() as Post, pending: d.metadata.hasPendingWrites })), uid, admin);
     }, err));
   });
 }

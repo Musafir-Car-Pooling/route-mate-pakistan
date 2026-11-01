@@ -42,6 +42,8 @@ export type State = {
   unlocks: Unlock[]; companies: Company[]; settings: Settings;
   phones: Record<string, string>; authReady: boolean;
   memberReviews: StoredReview[];
+  /** Own posts the server has not confirmed yet (no internet), so other members cannot see them. */
+  unsent?: string[];
 };
 /** Review written after a contact was unlocked. Id is "<reviewerId>_<targetId>". */
 export type StoredReview = { id: string; reviewerId: string; reviewerName: string; targetId: string; rating: number; text: string; at: number };
@@ -49,7 +51,7 @@ export const reviewsFor = (targetId: string, list: StoredReview[]): MemberReview
   list.filter((r) => r.targetId === targetId).map((r) => ({ id: r.id, author: r.reviewerName, rating: r.rating, text: r.text, at: r.at }));
 
 const defaults: State = {
-  user: null, admin: false, seenIntro: false, users: [], posts: [], unlocks: [], phones: {}, authReady: false, memberReviews: [],
+  user: null, admin: false, seenIntro: false, users: [], posts: [], unlocks: [], phones: {}, authReady: false, memberReviews: [], unsent: [],
   companies: ["Systems Ltd", "Jazz", "Engro", "NetSol", "LUMS", "FAST NUCES", "HBL"].map((n, i) => ({ id: "c" + i, name: n, approved: true })),
   settings: {
     cities: [],

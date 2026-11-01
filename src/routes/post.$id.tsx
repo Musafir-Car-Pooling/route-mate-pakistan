@@ -33,6 +33,7 @@ function PostPage() {
 
   const allPosts = useStore((s) => s.posts);
   const [sent, setSent] = useState<string[]>([]);
+  const unsent = useStore((s) => s.unsent?.includes(id) ?? false);
 
   if (!post) return <AppShell back title="Not found"><Link to="/" className="btn-big mt-10">Go home</Link></AppShell>;
   if (!user || post.ownerId !== user.id) return <AppShell back title="Offer unavailable"><p className="py-8">This offer is not available.</p></AppShell>;
@@ -46,6 +47,13 @@ function PostPage() {
         <p className="text-sm text-muted-foreground">{post.genderPref === "female" ? "Females Only" : post.genderPref === "male" ? "Male Only" : "Anyone"}{isRide && ` · ${post.seats} seats`}</p>
         {post.notes && <p className="mt-2 rounded-xl bg-secondary p-3 text-sm">{post.notes}</p>}
       </div>
+      {unsent && (
+        <div role="status" className="mt-3 flex items-center gap-3 rounded-lg bg-warning/15 p-4 text-warning">
+          <Loader2 className="size-5 shrink-0 animate-spin" />
+          <p className="text-sm font-semibold">Not shared yet — waiting for internet. Nearby members will see it as soon as you are connected.</p>
+        </div>
+      )}
+
 
       <div className={`mt-3 flex items-center gap-3 rounded-lg p-4 ${!available ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
         {!available ? <AlertTriangle className="shrink-0" /> : <Clock className="shrink-0" />}

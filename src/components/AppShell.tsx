@@ -8,8 +8,8 @@ import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 
 export const SLOGAN = "Find your route mates";
 
-export function Slogan({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
-  return <p style={style} className={`font-slogan font-bold uppercase text-muted-foreground ${className}`}>{SLOGAN}</p>;
+export function Slogan({ className = "", style, ref }: { className?: string; style?: React.CSSProperties; ref?: React.Ref<HTMLParagraphElement> }) {
+  return <p ref={ref} style={style} className={`font-slogan font-bold uppercase text-muted-foreground ${className}`}>{SLOGAN}</p>;
 }
 
 export function Logo({ size = "text-3xl", className = "" }: { size?: string; className?: string }) {

@@ -142,12 +142,6 @@ function Register() {
       {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities available yet.</p>}
       {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
       <PasswordInput placeholder="Password (min 6 letters/numbers)" value={f.password} onChange={up("password")} />
-      <p className="pt-2 font-display text-xl text-muted-foreground">Ride Preferences</p>
-      <div className="flex flex-wrap gap-2">
-        {PREFS.map((p) => (
-          <Button type="button" key={p} variant={prefs.includes(p) ? "default" : "secondary"} aria-pressed={prefs.includes(p)} onClick={() => setPrefs(prefs.includes(p) ? prefs.filter((x) => x !== p) : [...prefs, p])} className="h-auto px-4 py-2 font-semibold">{p}</Button>
-        ))}
-      </div>
       {travelMode === "driver" && <>
       <p className="pt-2 font-display text-xl">Vehicle information (optional)</p>
       <p className="text-sm text-muted-foreground">Car model, number plate and vehicle picture are all optional.</p>

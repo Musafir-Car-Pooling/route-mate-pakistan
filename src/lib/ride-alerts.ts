@@ -39,3 +39,11 @@ export function addMemberInterest(state: import("./store").State, postId: string
   const person: Interest = { id: user.id, name: user.name, org: user.org, gender: user.gender, rating: user.rating, reviews: 0, verified: user.verified, car: user.car || undefined, at: now };
   return { ...state, posts: state.posts.map((p) => p.id === postId ? { ...p, interests: [...p.interests, person] } : p) };
 }
+
+/** The interested member withdraws their own interest; other members' entries stay untouched. */
+export function removeMemberInterest(state: import("./store").State, postId: string) {
+  const user = state.user;
+  const post = state.posts.find((p) => p.id === postId);
+  if (!user || !post || !post.interests.some((i) => i.id === user.id)) return state;
+  return { ...state, posts: state.posts.map((p) => p.id === postId ? { ...p, interests: p.interests.filter((i) => i.id !== user.id) } : p) };
+}

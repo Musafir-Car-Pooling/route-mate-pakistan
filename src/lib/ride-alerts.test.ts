@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMemberInterest, memberAlerts, nearbyOffers } from "./ride-alerts";
+import { addMemberInterest, memberAlerts, nearbyOffers, removeMemberInterest } from "./ride-alerts";
 import { getState, type Post, type User } from "./store";
 
 const now = 100000;
@@ -36,6 +36,14 @@ describe("interactive route alerts", () => {
     const cancelled = { ...state, posts: [{ ...ride, cancelledAt: now }] };
     expect(addMemberInterest(cancelled, ride.id, now)).toBe(cancelled);
     expect(addMemberInterest(state, ride.id, now + 25 * 3600000)).toBe(state);
+  });
+  it("lets a member cancel only their own interest", () => {
+    const state = { ...getState(), user: passenger, posts: [ride] };
+    const sent = addMemberInterest(state, ride.id, now);
+    const cancelled = removeMemberInterest(sent, ride.id);
+    expect(cancelled.posts[0]?.interests).toHaveLength(0);
+    expect(removeMemberInterest(cancelled, ride.id)).toBe(cancelled);
+    expect(removeMemberInterest(state, ride.id)).toBe(state);
   });
   it("gives drivers matching passenger requests without exposing unrelated cities", () => {
     const driver = { ...passenger, id: "driver", travelMode: "driver" as const };

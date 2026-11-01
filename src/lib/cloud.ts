@@ -255,6 +255,12 @@ async function writeDiff(prev: State, next: State) {
         if (i.id === me && !old?.interests.some((x) => x.id === me)) { const { id, phone: _ph, ...rest } = i; run(fs.setDoc(fs.doc(db, "posts", p.id, "interests", id), rest)); }
       }
     }
+    // A member who withdrew their interest also removes their server-side entry.
+    for (const p of prev.posts) {
+      const next = after.get(p.id);
+      if (!next) continue;
+      for (const i of p.interests) if (i.id === me && !next.interests.some((x) => x.id === i.id)) run(fs.deleteDoc(fs.doc(db, "posts", p.id, "interests", i.id)));
+    }
     for (const p of prev.posts) if (!after.has(p.id) && (p.ownerId === me || next.admin)) run(fs.deleteDoc(fs.doc(db, "posts", p.id)));
   }
 

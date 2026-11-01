@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Star, BadgeCheck, Car, Clock, AlertTriangle, Loader2, XCircle, Trash2 } from "lucide-react";
+import { Star, BadgeCheck, Car, Clock, AlertTriangle, Loader2, XCircle, Trash2, X } from "lucide-react";
+import { removeMemberInterest } from "@/lib/ride-alerts";
 import { AppShell } from "@/components/AppShell";
 import { Countdown } from "@/components/Countdown";
 import { ContactButton } from "@/components/ContactFlow";
@@ -81,6 +82,9 @@ function PostPage() {
         const me: Interest = { id: user.id, name: user.name, org: user.org, gender: user.gender, rating: user.rating, reviews: 0, verified: user.verified, car: user.car || undefined, at: Date.now() };
         setState((s) => ({ ...s, posts: s.posts.map((x) => x.id === target.id && !x.interests.some((i) => i.id === me.id) ? { ...x, interests: [...x.interests, me] } : x) }));
         setSent((v) => [...v, target.id]);
+      }} onRemove={(target) => {
+        setState((s) => removeMemberInterest(s, target.id));
+        setSent((v) => v.filter((x) => x !== target.id));
       }} />}
 
       <div className="mt-3 space-y-3">
@@ -103,7 +107,7 @@ function PostPage() {
   );
 }
 
-function MatchingOffers({ post, posts, sent, onInterest }: { post: Post; posts: Post[]; sent: string[]; onInterest: (p: Post) => void }) {
+function MatchingOffers({ post, posts, sent, onInterest, onRemove }: { post: Post; posts: Post[]; sent: string[]; onInterest: (p: Post) => void; onRemove: (p: Post) => void }) {
   const settings = useStore((s) => s.settings);
   const list = matchingPosts(post, posts, settings);
   return (
@@ -117,7 +121,14 @@ function MatchingOffers({ post, posts, sent, onInterest }: { post: Post; posts: 
               <div key={m.id} className="card-box p-4">
                 <p className="text-lg font-bold">{m.ownerName}</p>
                 <p className="text-sm text-muted-foreground">{m.from} → {m.to}{m.kind === "ride" && m.daily ? ` · ${formatPKR(m.daily)}/day` : ""}</p>
-                <Button className="mt-3 w-full" disabled={done} onClick={() => onInterest(m)}>{done ? "Interest sent" : "I'm interested"}</Button>
+                {done ? (
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <Button disabled>Interest sent</Button>
+                    <Button variant="outline" onClick={() => onRemove(m)}><X className="size-4" />Cancel interest</Button>
+                  </div>
+                ) : (
+                  <Button className="mt-3 w-full" onClick={() => onInterest(m)}>I'm interested</Button>
+                )}
               </div>
             );
           })}

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { PasswordInput } from "@/components/PasswordInput";
 import { AuthLogo } from "@/components/AppShell";
-import { getState, isAdminCreds } from "@/lib/store";
+import { getState } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({
   head: () => ({

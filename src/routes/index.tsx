@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Home as HomeIcon, Building2, ArrowRight, Clock, ChevronRight, Trash2 } from "lucide-react";
-import { AppShell, AuthLogo } from "@/components/AppShell";
+import { AppShell, AuthLogo, HandshakeEmblem } from "@/components/AppShell";
 import { useStore, setState, uid, isExpired, deleteOwnPost, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ function Intro() {
     return (
       <div className="grid min-h-screen place-items-center bg-hero text-center text-primary-foreground">
         <div className="animate-in zoom-in duration-1000">
-          <img src={logoAsset.url} alt="Travel Sync logo" width={112} height={112} className="handshake mx-auto h-28 w-28 rounded-full" />
+          <HandshakeEmblem className="mx-auto h-28 w-28" />
           <p className="mt-5 font-display text-5xl">TRAVEL SYNC</p>
           <p className="mt-2 font-slogan text-sm font-bold uppercase tracking-[0.22em] opacity-90">Find your route mates</p>
         </div>

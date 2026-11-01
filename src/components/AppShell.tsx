@@ -66,10 +66,24 @@ export function Logo({ size = "text-3xl", className = "" }: { size?: string; cla
   );
 }
 
-export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl" }: { imgSize?: string; textSize?: string }) {
+// Handshake emblem built from split layers: the ring stays still while the
+// two hands grip and pump once every second (login screen).
+export function HandshakeEmblem({ className = "" }: { className?: string }) {
+  return (
+    <span className={`relative inline-block align-middle ${className}`} role="img" aria-label="Travel Sync logo">
+      <img src={logoRing} alt="" className="block h-full w-full" />
+      <img src={logoHandOrange} alt="" className="hand-piece hand-piece-orange absolute inset-0 h-full w-full" />
+      <img src={logoHandBlue} alt="" className="hand-piece hand-piece-blue absolute inset-0 h-full w-full" />
+    </span>
+  );
+}
+
+export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl", animated = false }: { imgSize?: string; textSize?: string; animated?: boolean }) {
   return (
     <div className="flex flex-col items-center gap-3 text-center">
-      <img src={logoAsset.url} alt="Travel Sync logo" className={`${imgSize} rounded-full`} />
+      {animated
+        ? <HandshakeEmblem className={imgSize} />
+        : <img src={logoAsset.url} alt="Travel Sync logo" className={`${imgSize} rounded-full`} />}
       <span className={`whitespace-nowrap font-display ${textSize} leading-none`}>
         TRAVEL <span className="text-brand-orange">SYNC</span>
       </span>

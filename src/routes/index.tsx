@@ -105,6 +105,8 @@ function Home() {
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState<Post["genderPref"]>("any");
   const [seats, setSeats] = useState(3);
+  const [sending, setSending] = useState(false);
+  const [shareError, setShareError] = useState("");
 
   const city = settings.cities.find((c) => c.id === cityId);
   const locations = locationsForCity(settings.cities, cityId);

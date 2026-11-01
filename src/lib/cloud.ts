@@ -3,7 +3,7 @@
 import type { FirebaseApp } from "firebase/app";
 import type { Firestore, Unsubscribe } from "firebase/firestore";
 import type { Auth } from "firebase/auth";
-import { ADMIN_EMAIL, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
+import { ADMIN_EMAIL, ADMIN_PASS, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
 import { initFirebase } from "./firebase";
 
 type FS = typeof import("firebase/firestore");

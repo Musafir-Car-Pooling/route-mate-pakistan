@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Bell } from "lucide-react";
 import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
-import { nearbyOffers } from "@/lib/ride-alerts";
+import { onNearbySeenChange, unseenNearbyCount } from "@/lib/ride-alerts";
 import { Button } from "@/components/ui/button";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
 import logoRing from "@/assets/logo-ring.png";

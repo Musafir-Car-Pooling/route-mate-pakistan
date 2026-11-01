@@ -17,13 +17,11 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
   const settings = useStore((s) => s.settings);
   const user = useStore((s) => s.user);
   const unlock = useStore((s) => unlockFor(post.id, person.id, s));
-  const [demoPaid, setDemoPaid] = useState(false);
-  const storedPhone = useStore((s) => s.phones[person.id]);
-  const phone = person.demo ? person.phone : storedPhone;
+  const phone = useStore((s) => s.phones[person.id]);
   const currentPost = useStore((s) => s.posts.find((p) => p.id === post.id));
   if (!currentPost || !canContactPost(currentPost, settings, user?.id)) return null;
 
-  if (unlock?.status === "unlocked" || (person.demo && demoPaid)) {
+  if (unlock?.status === "unlocked") {
     if (!phone) return <div className="mt-3 flex items-center gap-2 rounded-xl bg-success/15 p-3 font-semibold text-success"><Clock className="h-5 w-5" />Unlocked · loading contact…</div>;
     const wa = "92" + phone.replace(/^0/, "");
     return (
@@ -33,7 +31,7 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
           <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="btn-big bg-success text-lg text-accent-foreground"><MessageCircle className="h-5 w-5" />WhatsApp</a>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">Call or WhatsApp to agree pickup point and timing. After talking, rate this member below.</p>
-        {!person.demo && <RateMember targetId={person.id} name={person.name} />}
+        <RateMember targetId={person.id} name={person.name} />
       </>
     );
   }
@@ -43,8 +41,6 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
 
   const pay = () => {
     if (!txn.trim()) return;
-    // Demo members exist only in admin settings: no payment record is stored for them.
-    if (person.demo) { setDemoPaid(true); setStep(0); return; }
     setState((s) => {
       const latest = s.posts.find((p) => p.id === post.id);
       if (!latest || !s.user || !canContactPost(latest, s.settings, s.user.id) || unlockFor(post.id, person.id, s)) return s;

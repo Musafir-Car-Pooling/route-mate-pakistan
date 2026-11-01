@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { PasswordInput } from "@/components/PasswordInput";
 import { AuthLogo } from "@/components/AppShell";
-import { getState, isAdminCreds } from "@/lib/store";
+import { getState } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -34,7 +34,7 @@ function Login() {
       if (s.admin) { nav({ to: "/admin" }); return; }
       if (!s.user) { setErr("Account not found or deactivated by admin"); return; }
       nav({ to: "/" });
-    } catch { setErr(isAdminCreds(email, pass) ? "Admin sign-in failed. Check Firebase Email/Password sign-in is enabled." : "Wrong email or password"); }
+    } catch { setErr("Wrong email or password"); }
     finally { setBusy(false); }
   };
   return (

@@ -28,7 +28,6 @@ export type Unlock = {
 };
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
 export type City = { id: string; name: string; locations: string[] };
-export type FakeMember = { id: string; name: string; phone: string; gender: Gender; org: string };
 export type Settings = {
   cities: City[];
   departments: string[];
@@ -36,8 +35,6 @@ export type Settings = {
   bankTitle: string; bankIban: string; easypaisa: string; jazzcash: string;
   socials: { whatsapp: string; facebook: string; linkedin: string; instagram: string };
   pages: Record<string, string>; slides: string[];
-  demoMode?: boolean;
-  fakeMembers?: FakeMember[];
   paymentIcons?: Partial<Record<"easypaisa" | "jazzcash" | "bank", string>>;
 };
 export type State = {
@@ -190,27 +187,3 @@ export async function compressImage(file: File, max = 800, q = 0.7): Promise<str
   return c.toDataURL("image/jpeg", q);
 }
 
-function seeded(seed: string) {
-  let h = 2166136261;
-  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
-}
-
-/** Interests shown to a post owner: real ones plus, in demo mode, a random few from the admin's demo contact list that join one by one. */
-export function displayInterests(post: Post, settings: Settings, userId: string | undefined, now = Date.now()): Interest[] {
-  if (!settings.demoMode || !userId || post.ownerId !== userId || !post.active || post.cancelledAt) return post.interests;
-  const rnd = seeded(post.id);
-  const pool = (settings.fakeMembers ?? []).filter((f) => post.genderPref === "any" || f.gender === post.genderPref)
-    .map((f) => ({ f, k: rnd() })).sort((a, b) => a.k - b.k).map((x) => x.f);
-  const count = Math.min(pool.length, 1 + Math.floor(rnd() * 3));
-  let at = post.createdAt;
-  const fakes: Interest[] = pool.slice(0, count).map((f) => {
-    at += 15_000 + Math.floor(rnd() * 75_000);
-    return {
-      id: "fake_" + f.id, name: f.name, org: f.org || "Verified member", gender: f.gender, rating: 4.8, reviews: 0,
-      verified: true, phone: f.phone, at, demo: true,
-      car: post.kind === "request" ? "Honda City" : undefined,
-    };
-  }).filter((i) => i.at <= now);
-  return [...post.interests, ...fakes];
-}

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Home as HomeIcon, Building2, ArrowRight, Clock, ChevronRight, Trash2 } from "lucide-react";
 import { AppShell, AuthLogo, HandshakeEmblem } from "@/components/AppShell";
-import { useStore, setState, uid, isExpired, deleteOwnPost, displayInterests, type Post } from "@/lib/store";
+import { useStore, setState, uid, isExpired, deleteOwnPost, type Post } from "@/lib/store";
 import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";
@@ -182,7 +182,7 @@ function Home() {
                     <div className="flex-1">
                       <p className="text-xs font-bold uppercase text-primary">{p.kind === "ride" ? "Shared Ride" : "Ride Request"}</p>
                       <p className="font-bold">{p.from} → {p.to}</p>
-                      <p className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="h-4 w-4" />{p.cancelledAt ? "Cancelled" : !p.active ? "Inactive" : exp ? "Expired" : <Countdown post={p} />} · {displayInterests(p, settings, user?.id).length} interested</p>
+                      <p className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="h-4 w-4" />{p.cancelledAt ? "Cancelled" : !p.active ? "Inactive" : exp ? "Expired" : <Countdown post={p} />} · {p.interests.length} interested</p>
                     </div>
                     <ChevronRight />
                   </Link>

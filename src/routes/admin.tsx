@@ -2,10 +2,9 @@ import { PasswordInput } from "@/components/PasswordInput";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { LogOut, Check, X, Upload, Trash2 } from "lucide-react";
-import { Logo } from "@/components/AppShell";
+import { Logo, AuthLogo } from "@/components/AppShell";
 import { AdminLocations } from "@/components/AdminLocations";
 import { AdminDepartments } from "@/components/AdminDepartments";
-import { AdminDemo } from "@/components/AdminDemo";
 import { Button } from "@/components/ui/button";
 import { MediaUpload } from "@/components/MediaUpload";
 import easypaisaIcon from "@/assets/easypaisa-compact.png.asset.json";
@@ -27,7 +26,7 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-const TABS = ["Settings", "Locations", "Payments", "CMS", "Users", "Rides", "Companies", "Departments", "Demo"] as const;
+const TABS = ["Settings", "Locations", "Payments", "CMS", "Users", "Rides", "Companies", "Departments"] as const;
 
 function Admin() {
   const admin = useStore((s) => s.admin);
@@ -50,7 +49,6 @@ function Admin() {
         {tab === "Rides" && <Rides />}
         {tab === "Companies" && <Companies />}
         {tab === "Departments" && <AdminDepartments />}
-        {tab === "Demo" && <AdminDemo />}
       </div>
     </div>
   );
@@ -59,11 +57,11 @@ function Admin() {
 function AdminLogin() {
   const [e, setE] = useState(""); const [p, setP] = useState(""); const [err, setErr] = useState("");
   return (
-    <form onSubmit={async (ev) => { ev.preventDefault(); if (!isAdminCreds(e, p)) return setErr("Invalid admin credentials"); try { const { signIn } = await import("@/lib/cloud"); await signIn(e, p); } catch { setErr("Could not sign in. Check that Email/Password sign-in is enabled in Firebase."); } }} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
-      <Logo size="text-5xl" /><p className="font-display text-2xl text-muted-foreground">Admin Login</p>
-      <input className="field" placeholder="Email" value={e} onChange={(x) => setE(x.target.value)} />
+    <form onSubmit={async (ev) => { ev.preventDefault(); if (!isAdminCreds(e, p)) return setErr("Wrong email or password"); try { const { signIn } = await import("@/lib/cloud"); await signIn(e, p); } catch { setErr("Could not sign in. Check that Email/Password sign-in is enabled in Firebase."); } }} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
+      <div className="pb-4"><AuthLogo imgSize="h-24 w-24" textSize="text-6xl" animated /></div>
+      <input className="field" type="email" placeholder="Official email" value={e} onChange={(x) => setE(x.target.value)} />
       <PasswordInput placeholder="Password" value={p} onChange={(x) => setP(x.target.value)} />
-      {err && <p className="text-destructive">{err}</p>}
+      {err && <p className="font-semibold text-destructive">{err}</p>}
       <button className="btn-big">Login</button>
     </form>
   );

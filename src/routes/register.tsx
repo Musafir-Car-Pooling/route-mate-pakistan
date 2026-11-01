@@ -2,7 +2,7 @@ import { PasswordInput } from "@/components/PasswordInput";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Briefcase, GraduationCap, BadgeCheck, Upload, Car, Users, Home, Building2 } from "lucide-react";
-import { AuthLogo } from "@/components/AppShell";
+import { AuthLogoRow } from "@/components/AppShell";
 import { getState, useStore, locationsForCity, validRegistrationCatalog, validPassword, validOfficialEmail, validOptionalVehicle, compressImage, type Role, type Gender, type TravelMode } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { LocationPicker } from "@/components/LocationPicker";
@@ -21,7 +21,6 @@ export const Route = createFileRoute("/register")({
   component: Register,
 });
 
-const PREFS = ["Smoking allowed", "No smoking", "AC", "Music", "Quiet ride"];
 
 function Register() {
   const nav = useNavigate();
@@ -31,7 +30,6 @@ function Register() {
   const [travelMode, setTravelMode] = useState<TravelMode>();
   const [role, setRole] = useState<Role>("jobian");
   const [f, setF] = useState({ name: "", gender: "male" as Gender, org: "", dept: "", email: "", phone: "", home: "", work: "", password: "", car: "", plate: "" });
-  const [prefs, setPrefs] = useState<string[]>(["No smoking", "AC"]);
   const [otpSent, setOtpSent] = useState<string>();
   const [otp, setOtp] = useState("");
   const [verified, setVerified] = useState(false);
@@ -70,7 +68,7 @@ function Register() {
     if (!validPassword(f.password)) return setErr("Password: minimum 6 letters/numbers only");
     if (travelMode === "driver" && !validOptionalVehicle(f)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
     const email = f.email.trim().toLowerCase();
-    const user = { ...f, city: city.name, email, role, travelMode, prefs, verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
+    const user = { ...f, city: city.name, email, role, travelMode, prefs: [], verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
     setBusy(true); setErr("");
     try {
       const { registerAccount } = await import("@/lib/cloud");
@@ -90,7 +88,7 @@ function Register() {
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-md space-y-3 px-5 py-8">
-      <AuthLogo imgSize="h-20 w-20" textSize="text-5xl" />
+      <AuthLogoRow imgSize="h-12 w-12" textSize="text-5xl" />
       <h1 className="font-display text-3xl text-muted-foreground">Create Account</h1>
       <div className="grid grid-cols-2 gap-2" role="group" aria-label="Travel choice">
         {([["driver", "I've a car", Car], ["passenger", "Need a ride", Users]] as const).map(([k, label, Icon]) => (
@@ -144,12 +142,6 @@ function Register() {
       {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities available yet.</p>}
       {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
       <PasswordInput placeholder="Password (min 6 letters/numbers)" value={f.password} onChange={up("password")} />
-      <p className="pt-2 font-display text-xl text-muted-foreground">Ride Preferences</p>
-      <div className="flex flex-wrap gap-2">
-        {PREFS.map((p) => (
-          <Button type="button" key={p} variant={prefs.includes(p) ? "default" : "secondary"} aria-pressed={prefs.includes(p)} onClick={() => setPrefs(prefs.includes(p) ? prefs.filter((x) => x !== p) : [...prefs, p])} className="h-auto px-4 py-2 font-semibold">{p}</Button>
-        ))}
-      </div>
       {travelMode === "driver" && <>
       <p className="pt-2 font-display text-xl">Vehicle information (optional)</p>
       <p className="text-sm text-muted-foreground">Car model, number plate and vehicle picture are all optional.</p>

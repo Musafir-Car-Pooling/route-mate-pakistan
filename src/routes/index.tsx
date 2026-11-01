@@ -7,6 +7,7 @@ import { Countdown } from "@/components/Countdown";
 import { Button } from "@/components/ui/button";
 import { locationsForCity, validRouteLocations } from "@/lib/store";
 import { LocationPicker } from "@/components/LocationPicker";
+import { SameAddressDialog } from "@/components/SameAddressDialog";
 import { FeatureSlider } from "@/components/FeatureSlider";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
 import securityIllustration from "@/assets/onboarding-security.jpg";
@@ -106,6 +107,7 @@ function Home() {
   const [seats, setSeats] = useState(3);
   const [sending, setSending] = useState(false);
   const [shareError, setShareError] = useState("");
+  const [same, setSame] = useState(false);
 
   const city = settings.cities.find((c) => c.id === cityId);
   const locations = locationsForCity(settings.cities, cityId);
@@ -144,8 +146,9 @@ function Home() {
           <option value="">Select city</option>
           {settings.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} icon={<HomeIcon className="h-5 w-5" />} onChange={setFrom} />
-        <LocationPicker label="To — Workplace / University" value={selectedTo} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={setTo} />
+        <LocationPicker label="From — Home address" value={selectedFrom} locations={locations} city={city?.name} icon={<HomeIcon className="h-5 w-5" />} onChange={(v) => (v === selectedTo ? setSame(true) : setFrom(v))} />
+        <LocationPicker label="To — Workplace / University" value={selectedTo} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={(v) => (v === selectedFrom ? setSame(true) : setTo(v))} />
+        <SameAddressDialog open={same} onClose={() => setSame(false)} />
         {!settings.cities.length && <p className="text-sm text-muted-foreground">No cities or locations available yet.</p>}
         {city && !locations.length && <p className="text-sm text-muted-foreground">No locations available in this city yet.</p>}
         <div>

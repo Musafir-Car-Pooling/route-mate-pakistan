@@ -5,6 +5,9 @@ import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
 import { nearbyOffers } from "@/lib/ride-alerts";
 import { Button } from "@/components/ui/button";
 import logoAsset from "@/assets/travelsync-logo.png.asset.json";
+import logoRing from "@/assets/logo-ring.png";
+import logoHandOrange from "@/assets/logo-hand-orange.png";
+import logoHandBlue from "@/assets/logo-hand-blue.png";
 
 export const SLOGAN = "Find your route mates";
 

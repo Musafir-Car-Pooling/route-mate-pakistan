@@ -125,6 +125,13 @@ select.field option { background: var(--color-popover); }
 .handshake { animation: handshake 1.8s ease-in-out infinite; transform-origin: 50% 70%; }
 @keyframes handshake { 0%,100% { transform: rotate(0) translateY(0); } 25% { transform: rotate(-2.5deg) translateY(-2px); } 50% { transform: rotate(0) translateY(1.5px); } 75% { transform: rotate(2.5deg) translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .handshake { animation: none; } }
+/* Login emblem: ring static, the two hands grip and pump once per second */
+.hand-piece { will-change: transform; }
+.hand-piece-orange { transform-origin: 19% 45%; animation: hand-orange 1s ease-in-out infinite; }
+.hand-piece-blue { transform-origin: 81% 45%; animation: hand-blue 1s ease-in-out infinite; }
+@keyframes hand-orange { 0%, 56%, 100% { transform: none; } 10% { transform: translate(3%, 2.5%) rotate(1.5deg); } 30% { transform: translate(2%, 1.5%) rotate(0.9deg); } 45% { transform: translate(3%, 2.5%) rotate(1.5deg); } }
+@keyframes hand-blue { 0%, 56%, 100% { transform: none; } 10% { transform: translate(-3%, 2.5%) rotate(-1.5deg); } 30% { transform: translate(-2%, 1.5%) rotate(-0.9deg); } 45% { transform: translate(-3%, 2.5%) rotate(-1.5deg); } }
+@media (prefers-reduced-motion: reduce) { .hand-piece-orange, .hand-piece-blue { animation: none; } }
 .bell-shake { animation: bell-shake 1.6s ease-in-out infinite; transform-origin: 50% 10%; }
 @keyframes bell-shake { 0%,50%,100% { transform: rotate(0); } 10% { transform: rotate(16deg); } 20% { transform: rotate(-14deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-6deg); } }
 @media (prefers-reduced-motion: reduce) { .bell-shake { animation: none; } }

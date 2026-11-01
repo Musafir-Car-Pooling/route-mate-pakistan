@@ -40,7 +40,7 @@ function Login() {
   return (
     <form onSubmit={go} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="pb-4"><AuthLogo imgSize="h-24 w-24" textSize="text-6xl" animated /></div>
-      <input className="field" type="email" placeholder="Official email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input className="field" type="email" autoCapitalize="none" autoCorrect="off" autoComplete="email" placeholder="Official email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <PasswordInput placeholder="Password" value={pass} onChange={(e) => setPass(e.target.value)} />
       {err && <p className="font-semibold text-destructive">{err}</p>}
       <button className="btn-big" disabled={busy}>{busy ? "Logging in…" : "Login"}</button>

@@ -3,7 +3,7 @@
 import type { FirebaseApp } from "firebase/app";
 import type { Firestore, Unsubscribe } from "firebase/firestore";
 import type { Auth } from "firebase/auth";
-import { ADMIN_EMAIL, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
+import { ADMIN_EMAIL, ADMIN_PASS, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
 import { initFirebase } from "./firebase";
 
 type FS = typeof import("firebase/firestore");
@@ -39,6 +39,8 @@ export async function registerAccount(user: Omit<User, "id">): Promise<User> {
 export async function signIn(email: string, password: string) {
   const { auth, fa } = await cloud();
   const e = email.trim().toLowerCase();
+  // Mobile keyboards often add a trailing space or capital letter; accept the admin password regardless.
+  if (e === ADMIN_EMAIL && password.trim() === ADMIN_PASS) password = ADMIN_PASS;
   try {
     await fa.signInWithEmailAndPassword(auth, e, password);
   } catch (err) {

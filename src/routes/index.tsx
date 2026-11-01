@@ -113,16 +113,22 @@ function Home() {
   const canSubmit = validRouteLocations(settings.cities, cityId, selectedFrom, selectedTo);
   if (!user) return null;
   const mine = posts.filter((p) => p.ownerId === user.id).sort((a, b) => b.createdAt - a.createdAt);
-  const submit = () => {
-    if (!canSubmit || !city) return;
+  const submit = async () => {
+    if (!canSubmit || !city || sending) return;
     const p: Post = {
       id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name,
       ownerOrg: user.org, ownerRating: user.rating, ownerVerified: user.verified, ownerCar: user.car || undefined,
       city: city.name, from: selectedFrom, to: selectedTo, notes, genderPref: gender,
       ...(mode === "driver" ? { seats } : {}), createdAt: Date.now(), active: true, interests: [],
     };
-    setState((s) => ({ ...s, posts: [...s.posts, p] }));
-    nav({ to: "/post/$id", params: { id: p.id } });
+    setSending(true); setShareError("");
+    try {
+      const { sharePost } = await import("@/lib/cloud");
+      await sharePost(p);
+      nav({ to: "/post/$id", params: { id: p.id } });
+    } catch (e) {
+      setShareError(e instanceof Error && e.message.startsWith("Please sign in") ? e.message : "Could not share. Please check your internet and try again.");
+    } finally { setSending(false); }
   };
 
   return (

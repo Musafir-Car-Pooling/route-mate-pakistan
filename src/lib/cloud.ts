@@ -69,6 +69,31 @@ export async function changePassword(current: string, next: string) {
 
 // ---------- Live sync ----------
 let started = false;
+let postDocs: Post[] = [];
+const unsentPosts = new Set<string>();
+let rebuildPosts = () => {};
+const markUnsent = () => setRemote((s) => ({ ...s, unsent: [...unsentPosts] }));
+
+/**
+ * Share a new ride/request and wait for the server to confirm it, because only confirmed
+ * posts reach other members. Resolves "queued" when there is no internet yet (Firestore
+ * keeps retrying), and throws when the server rejects it.
+ */
+export async function sharePost(p: Post): Promise<"sent" | "queued"> {
+  const { db, fs, auth } = await cloud();
+  if (!auth.currentUser || auth.currentUser.uid !== p.ownerId) throw new Error("Please sign in again before sharing.");
+  unsentPosts.add(p.id); markUnsent();
+  postDocs = [...postDocs.filter((x) => x.id !== p.id), { ...p, interests: [] }];
+  setRemote((s) => ({ ...s, posts: [...s.posts.filter((x) => x.id !== p.id), p] }));
+  const write = fs.setDoc(fs.doc(db, "posts", p.id), postDoc(p));
+  write.then(() => { unsentPosts.delete(p.id); markUnsent(); rebuildPosts(); }, (e) => {
+    log(e);
+    unsentPosts.delete(p.id); markUnsent();
+    postDocs = postDocs.filter((x) => x.id !== p.id);
+    setRemote((s) => ({ ...s, posts: s.posts.filter((x) => x.id !== p.id) }));
+  });
+  return Promise.race([write.then(() => "sent" as const), new Promise<"queued">((r) => setTimeout(() => r("queued"), 8000))]);
+}
 export async function startSync() {
   if (started || typeof window === "undefined") return;
   started = true;

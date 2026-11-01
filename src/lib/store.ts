@@ -190,13 +190,27 @@ export async function compressImage(file: File, max = 800, q = 0.7): Promise<str
   return c.toDataURL("image/jpeg", q);
 }
 
-/** Interests shown to a post owner: real ones plus admin-made fake members while demo mode is on. */
-export function displayInterests(post: Post, settings: Settings, userId: string | undefined): Interest[] {
+function seeded(seed: string) {
+  let h = 2166136261;
+  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
+}
+
+/** Interests shown to a post owner: real ones plus, in demo mode, a random few from the admin's demo contact list that join one by one. */
+export function displayInterests(post: Post, settings: Settings, userId: string | undefined, now = Date.now()): Interest[] {
   if (!settings.demoMode || !userId || post.ownerId !== userId || !post.active || post.cancelledAt) return post.interests;
-  const fakes: Interest[] = (settings.fakeMembers ?? []).map((f, i) => ({
-    id: "fake_" + f.id, name: f.name, org: f.org || "Verified member", gender: f.gender, rating: 4.8, reviews: 0,
-    verified: true, phone: f.phone, at: post.createdAt + (i + 1) * 60_000, demo: true,
-    car: post.kind === "request" ? "Honda City" : undefined,
-  }));
+  const rnd = seeded(post.id);
+  const pool = (settings.fakeMembers ?? []).filter((f) => post.genderPref === "any" || f.gender === post.genderPref)
+    .map((f) => ({ f, k: rnd() })).sort((a, b) => a.k - b.k).map((x) => x.f);
+  const count = Math.min(pool.length, 1 + Math.floor(rnd() * 3));
+  let at = post.createdAt;
+  const fakes: Interest[] = pool.slice(0, count).map((f) => {
+    at += 15_000 + Math.floor(rnd() * 75_000);
+    return {
+      id: "fake_" + f.id, name: f.name, org: f.org || "Verified member", gender: f.gender, rating: 4.8, reviews: 0,
+      verified: true, phone: f.phone, at, demo: true,
+      car: post.kind === "request" ? "Honda City" : undefined,
+    };
+  }).filter((i) => i.at <= now);
   return [...post.interests, ...fakes];
 }

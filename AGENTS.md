@@ -25,3 +25,4 @@
 - Admin media uploads use the shared MediaUpload and compressMedia pipeline with PNG logo and JPEG slide byte budgets; settings overrides feed payment icons and Home slides directly so uploaded media stays consistent across views.
 - PartnerMarquee uses a duplicated, reduced-motion-aware track; the member tray scrolls only its navigation and stops automatic movement upon user interaction to preserve control accessibility.
 - NearbyOffersNavigation opens dedicated nearby routes for new same-route offers from live store updates; session receipts prevent reopening acknowledged screens, and reviews/payment/profile flows are not interrupted.
+- Home-screen installation stays manifest-only with a shared InstallAppPrompt using the browser's deferred install event or mobile menu instructions; never add app-shell caching or alter the separate messaging worker for installability.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMemberInterest, memberAlerts, nearbyOffers, removeMemberInterest } from "./ride-alerts";
+import { addMemberInterest, markNearbySeen, memberAlerts, nearbyOffers, removeMemberInterest, unseenNearbyCount } from "./ride-alerts";
 import { getState, type Post, type User } from "./store";
 
 const now = 100000;
@@ -49,5 +49,15 @@ describe("interactive route alerts", () => {
     const driver = { ...passenger, id: "driver", travelMode: "driver" as const };
     const request = { ...ride, kind: "request" as const, ownerId: "passenger" };
     expect(nearbyOffers(driver, [request, { ...request, id: "other", city: "Karachi" }], settings, now).map((p) => p.id)).toEqual(["ride"]);
+  });
+  it("clears the bell count once offers are opened and counts only new ones", () => {
+    const member = { ...passenger, id: "bell-user" };
+    expect(unseenNearbyCount(member, [ride], settings, now)).toBe(1);
+    markNearbySeen(member, ["ride"]);
+    expect(unseenNearbyCount(member, [ride], settings, now)).toBe(0);
+    const fresh = { ...ride, id: "fresh", createdAt: now + 1 };
+    expect(unseenNearbyCount(member, [ride, fresh], settings, now)).toBe(1);
+    const joined = addMemberInterest({ ...getState(), user: member, posts: [fresh] }, "fresh", now);
+    expect(unseenNearbyCount(member, [ride, joined.posts[0] as Post], settings, now)).toBe(0);
   });
 });

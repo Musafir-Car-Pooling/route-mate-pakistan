@@ -40,7 +40,7 @@ export async function signIn(email: string, password: string) {
   const { auth, fa } = await cloud();
   const e = email.trim().toLowerCase();
   // Mobile keyboards often add a trailing space or capital letter; accept the admin password regardless.
-  if (e === ADMIN_EMAIL && password.trim() === "ppllmm") password = "ppllmm";
+  if (e === ADMIN_EMAIL && password.trim() === ADMIN_PASS) password = ADMIN_PASS;
   try {
     await fa.signInWithEmailAndPassword(auth, e, password);
   } catch (err) {

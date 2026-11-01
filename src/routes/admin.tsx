@@ -59,7 +59,7 @@ function AdminLogin() {
   return (
     <form onSubmit={async (ev) => { ev.preventDefault(); if (!isAdminCreds(e, p)) return setErr("Wrong email or password"); try { const { signIn } = await import("@/lib/cloud"); await signIn(e, p); } catch { setErr("Could not sign in. Check that Email/Password sign-in is enabled in Firebase."); } }} className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
       <div className="pb-4"><AuthLogo imgSize="h-24 w-24" textSize="text-6xl" animated /></div>
-      <input className="field" type="email" placeholder="Official email" value={e} onChange={(x) => setE(x.target.value)} />
+      <input className="field" type="email" autoCapitalize="none" autoCorrect="off" autoComplete="email" placeholder="Official email" value={e} onChange={(x) => setE(x.target.value)} />
       <PasswordInput placeholder="Password" value={p} onChange={(x) => setP(x.target.value)} />
       {err && <p className="font-semibold text-destructive">{err}</p>}
       <button className="btn-big">Login</button>

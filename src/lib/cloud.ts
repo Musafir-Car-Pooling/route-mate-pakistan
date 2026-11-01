@@ -90,7 +90,26 @@ export async function startSync() {
   const interests: Record<string, Interest[]> = {};
   const rebuildPosts = () => setRemote((s) => ({ ...s, posts: postDocs.map((p) => ({ ...p, interests: interests[p.id] ?? [] })) }));
 
+  let session = 0;
+  // Live listener that never dies: Firestore permanently closes a listener after an error
+  // (e.g. a permission check racing a fresh sign-in), so re-open it while the session lasts.
+  const keep = (label: string, open: (onError: (e: unknown) => void) => Unsubscribe) => {
+    const mine = session;
+    let current: Unsubscribe | null = null; let stopped = false; let delay = 1000;
+    const start = () => {
+      if (stopped || mine !== session) return;
+      current = open((e) => {
+        console.warn(`[firebase] ${label}`, e);
+        current?.(); current = null;
+        setTimeout(start, delay); delay = Math.min(delay * 2, 15000);
+      });
+    };
+    start();
+    subs.push(() => { stopped = true; current?.(); });
+  };
+
   fa.onAuthStateChanged(auth, async (fu) => {
+    session++;
     subs.forEach((u) => u()); subs = [];
     interestSubs.forEach((u) => u()); interestSubs.clear();
     postDocs = [];
@@ -99,17 +118,17 @@ export async function startSync() {
     const uid = fu.uid;
     if (admin) {
       setRemote((s) => ({ ...s, admin: true, user: null, authReady: true }));
-      subs.push(fs.onSnapshot(fs.collection(db, "users"), (snap) => setRemote((s) => ({ ...s, users: snap.docs.map((d) => ({ ...(d.data() as User), id: d.id, password: "" })) })), log));
-      subs.push(fs.onSnapshot(fs.collection(db, "unlocks"), (snap) => setRemote((s) => ({ ...s, unlocks: snap.docs.map((d) => ({ ...(d.data() as Unlock), id: d.id })) })), log));
+      keep("users", (err) => fs.onSnapshot(fs.collection(db, "users"), (snap) => setRemote((s) => ({ ...s, users: snap.docs.map((d) => ({ ...(d.data() as User), id: d.id, password: "" })) })), err));
+      keep("unlocks", (err) => fs.onSnapshot(fs.collection(db, "unlocks"), (snap) => setRemote((s) => ({ ...s, unlocks: snap.docs.map((d) => ({ ...(d.data() as Unlock), id: d.id })) })), err));
     } else {
-      subs.push(fs.onSnapshot(fs.doc(db, "users", uid), async (snap) => {
+      keep("profile", (err) => fs.onSnapshot(fs.doc(db, "users", uid), async (snap) => {
         if (!snap.exists()) return;
         const priv = await fs.getDoc(fs.doc(db, "private", uid)).catch(() => null);
         const u: User = { ...(snap.data() as User), id: uid, password: "", phone: (priv?.data()?.["phone"] as string) ?? "" };
         if (!u.active) { await fa.signOut(auth); return; }
         setRemote((s) => ({ ...s, user: u, users: [u], seenIntro: true, authReady: true }));
-      }, log));
-      subs.push(fs.onSnapshot(fs.query(fs.collection(db, "unlocks"), fs.where("userId", "==", uid)), (snap) => {
+      }, err));
+      keep("my unlocks", (err) => fs.onSnapshot(fs.query(fs.collection(db, "unlocks"), fs.where("userId", "==", uid)), (snap) => {
         const unlocks = snap.docs.map((d) => ({ ...(d.data() as Unlock), id: d.id }));
         setRemote((s) => ({ ...s, unlocks }));
         unlocks.filter((u) => u.status === "unlocked" && !getState().phones[u.interestId]).forEach((u) => {
@@ -118,9 +137,9 @@ export async function startSync() {
             if (phone) setRemote((s) => ({ ...s, phones: { ...s.phones, [u.interestId]: phone } }));
           }).catch(log);
         });
-      }, log));
+      }, err));
     }
-    subs.push(fs.onSnapshot(fs.collection(db, "reviews"), (snap) => setRemote((s) => ({ ...s, memberReviews: snap.docs.map((d) => ({ ...(d.data() as StoredReview), id: d.id })) })), log));
+    keep("reviews", (err) => fs.onSnapshot(fs.collection(db, "reviews"), (snap) => setRemote((s) => ({ ...s, memberReviews: snap.docs.map((d) => ({ ...(d.data() as StoredReview), id: d.id })) })), err));
     // Live interest listeners for own posts. Wait until the post exists on the server
     // (rules read the post), and re-subscribe after any error so updates never stall.
     const watchInterests = (pid: string) => {
@@ -128,19 +147,19 @@ export async function startSync() {
         interests[pid] = is.docs.map((d) => ({ ...(d.data() as Interest), id: d.id })).sort((a, b) => a.at - b.at);
         rebuildPosts();
       }, (e) => {
-        log(e);
+        console.warn(`[firebase] interests ${pid}`, e);
         interestSubs.get(pid)?.(); interestSubs.delete(pid);
         setTimeout(() => { if (!interestSubs.has(pid) && postDocs.some((p) => p.id === pid)) watchInterests(pid); }, 1500);
       }));
     };
-    subs.push(fs.onSnapshot(fs.collection(db, "posts"), { includeMetadataChanges: true }, (snap) => {
+    keep("posts", (err) => fs.onSnapshot(fs.collection(db, "posts"), { includeMetadataChanges: true }, (snap) => {
       postDocs = snap.docs.map((d) => ({ ...(d.data() as Post), id: d.id, interests: interests[d.id] ?? [] }));
       for (const d of snap.docs) {
         const p = d.data() as Post;
         if ((admin || p.ownerId === uid) && !d.metadata.hasPendingWrites && !interestSubs.has(d.id)) watchInterests(d.id);
       }
       rebuildPosts();
-    }, log));
+    }, err));
   });
 }
 

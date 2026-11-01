@@ -3,9 +3,11 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, uid, type Gender } from "@/lib/store";
 
+const NO_FAKES: never[] = [];
+
 export function AdminDemo() {
   const demo = useStore((s) => !!s.settings.demoMode);
-  const fakes = useStore((s) => s.settings.fakeMembers ?? []);
+  const fakes = useStore((s) => s.settings.fakeMembers ?? NO_FAKES);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [org, setOrg] = useState("");

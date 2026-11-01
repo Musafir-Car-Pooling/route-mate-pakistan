@@ -16,11 +16,11 @@ export function Logo({ size = "text-3xl", className = "" }: { size?: string; cla
   return (
     <span className={`flex min-w-0 items-center gap-4 ${className}`}>
       <img src={logoAsset.url} alt="Travel Sync logo" width={36} height={36} className="h-9 w-9 shrink-0 rounded-full" />
-      <span className="min-w-0">
+      <span className="min-w-0 overflow-hidden">
         <span className={`whitespace-nowrap font-display ${size} leading-none`}>
           TRAVEL <span className="text-primary">SYNC</span>
         </span>
-        <Slogan className="mt-1 whitespace-nowrap text-[10px] leading-tight tracking-[0.06em]" />
+        <Slogan className="mt-0.5 block max-w-full truncate whitespace-nowrap text-[10px] leading-none tracking-[0.06em]" />
       </span>
     </span>
   );

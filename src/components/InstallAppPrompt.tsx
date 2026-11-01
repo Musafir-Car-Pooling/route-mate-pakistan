@@ -39,9 +39,10 @@ export function InstallAppPrompt() {
       setOpen(false);
       setMode(null);
     };
+    const onDisplayChange = () => { if (installed()) onInstalled(); };
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
-    display.addEventListener("change", onInstalled);
+    display.addEventListener("change", onDisplayChange);
     const ua = navigator.userAgent;
     const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     if (ios) offer("ios");
@@ -50,7 +51,7 @@ export function InstallAppPrompt() {
       if (timer) clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", onPrompt);
       window.removeEventListener("appinstalled", onInstalled);
-      display.removeEventListener("change", onInstalled);
+      display.removeEventListener("change", onDisplayChange);
     };
   }, []);
 

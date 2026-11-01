@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Star } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { PasswordInput } from "@/components/PasswordInput";
 import { ProfileSelections } from "@/components/ProfileSelections";
-import { useStore, setState, validPassword } from "@/lib/store";
+import { useStore, setState, validPassword, reviewsFor } from "@/lib/store";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/account")({
 
 function Account() {
   const user = useStore((s) => s.user);
+  const allReviews = useStore((s) => s.memberReviews);
   const [cur, setCur] = useState(""); const [np, setNp] = useState(""); const [msg, setMsg] = useState("");
   if (!user) return <AppShell back title="Account"><Link to="/login" className="btn-big mt-10">Login</Link></AppShell>;
   const update = (patch: Partial<typeof user>) => setState((s) => {
@@ -40,6 +41,7 @@ function Account() {
         <p className="text-sm">{user.home} → {user.work}</p>
         {user.car && <p className="text-sm">{user.car} · {user.plate}</p>}
       </section>
+      <MyReviews list={user ? reviewsFor(user.id, allReviews) : []} />
       <ProfileSelections key={user.id} user={user} />
       <section className="mt-4 card-box space-y-3 p-5">
         <h2 className="font-display text-2xl text-primary">Security</h2>
@@ -59,5 +61,28 @@ function Account() {
         </button>
       </section>
     </AppShell>
+  );
+}
+
+function MyReviews({ list }: { list: { id: string; author: string; rating: number; text: string; at: number }[] }) {
+  const avg = list.length ? list.reduce((a, r) => a + r.rating, 0) / list.length : null;
+  const sorted = [...list].sort((a, b) => b.at - a.at);
+  return (
+    <section className="mt-4 card-box p-5">
+      <h2 className="font-display text-2xl text-primary">My ratings & reviews</h2>
+      <div className="mt-2 flex items-center gap-3">
+        <p className="font-display text-5xl leading-none">{avg === null ? "—" : avg.toFixed(1)}</p>
+        <div><div className="flex gap-0.5">{[1, 2, 3, 4, 5].map((n) => <Star key={n} className={`size-4 ${avg !== null && n <= Math.round(avg) ? "fill-warning text-warning" : "text-muted-foreground"}`} />)}</div>
+          <p className="text-sm text-muted-foreground">{list.length} {list.length === 1 ? "review" : "reviews"}</p></div>
+      </div>
+      {!list.length && <p className="mt-3 text-sm text-muted-foreground">No reviews yet. Members can rate you after unlocking your contact.</p>}
+      <ul className="mt-3 divide-y divide-border">
+        {sorted.map((r) => <li key={r.id} className="py-3">
+          <div className="flex items-center justify-between"><p className="font-semibold">{r.author}</p><p className="flex items-center gap-1 text-sm"><Star className="size-4 fill-warning text-warning" />{r.rating}</p></div>
+          {r.text && <p className="text-sm text-muted-foreground">{r.text}</p>}
+          <p className="text-xs text-muted-foreground">{new Date(r.at).toLocaleDateString("en-PK")}</p>
+        </li>)}
+      </ul>
+    </section>
   );
 }

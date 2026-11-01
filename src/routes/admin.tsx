@@ -5,6 +5,7 @@ import { LogOut, Check, X, Upload, Trash2 } from "lucide-react";
 import { Logo } from "@/components/AppShell";
 import { AdminLocations } from "@/components/AdminLocations";
 import { AdminDepartments } from "@/components/AdminDepartments";
+import { AdminDemo } from "@/components/AdminDemo";
 import { Button } from "@/components/ui/button";
 import { MediaUpload } from "@/components/MediaUpload";
 import easypaisaIcon from "@/assets/easypaisa-compact.png.asset.json";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-const TABS = ["Settings", "Locations", "Payments", "CMS", "Users", "Rides", "Companies", "Departments"] as const;
+const TABS = ["Settings", "Locations", "Payments", "CMS", "Users", "Rides", "Companies", "Departments", "Demo"] as const;
 
 function Admin() {
   const admin = useStore((s) => s.admin);
@@ -49,6 +50,7 @@ function Admin() {
         {tab === "Rides" && <Rides />}
         {tab === "Companies" && <Companies />}
         {tab === "Departments" && <AdminDepartments />}
+        {tab === "Demo" && <AdminDemo />}
       </div>
     </div>
   );

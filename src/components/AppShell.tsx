@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Bell } from "lucide-react";
 import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
 import { nearbyOffers } from "@/lib/ride-alerts";

@@ -120,10 +120,12 @@ import { displayInterests as di } from "./store";
 describe("demo interests", () => {
   const base = { id: "p1", kind: "ride", ownerId: "u1", ownerName: "A", from: "a", to: "b", notes: "", genderPref: "any", createdAt: 1, active: true, interests: [] } as never;
   const settings = (demoMode: boolean) => ({ demoMode, fakeMembers: [{ id: "f1", name: "Fake Ali", phone: "03001112222", gender: "male", org: "" }] }) as never;
-  it("adds admin fake members to the owner's post in demo mode", () => {
-    const list = di(base, settings(true), "u1");
+  it("shows a demo contact as interested after a short delay in demo mode", () => {
+    expect(di(base, settings(true), "u1", 1)).toEqual([]);
+    const list = di(base, settings(true), "u1", 1 + 120_000);
     expect(list.map((i) => i.name)).toEqual(["Fake Ali"]);
     expect(list[0]?.phone).toBe("03001112222");
   });
-  it("shows no fake members in real mode", () => { expect(di(base, settings(false), "u1")).toEqual([]); });
+  it("shows no fake members in real mode", () => { expect(di(base, settings(false), "u1", 1e12)).toEqual([]); });
+  it("never shows demo contacts to other members", () => { expect(di(base, settings(true), "u2", 1e12)).toEqual([]); });
 });

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useStore, setState, uid, type Gender } from "@/lib/store";
 
 const NO_FAKES: never[] = [];
@@ -16,12 +17,11 @@ export function AdminDemo() {
   const setMode = (on: boolean) => setState((s) => ({ ...s, settings: { ...s.settings, demoMode: on } }));
   return (
     <section className="space-y-4">
-      <h2 className="font-display text-3xl">Demo interests</h2>
-      <div className="grid grid-cols-2 gap-2">
-        <Button variant={demo ? "default" : "outline"} aria-pressed={demo} onClick={() => setMode(true)}>Demo mode</Button>
-        <Button variant={!demo ? "default" : "outline"} aria-pressed={!demo} onClick={() => setMode(false)}>Real mode</Button>
-      </div>
-      <p className="text-sm text-muted-foreground">{demo ? "Every member's active ride or request shows the fake members below as interested." : "Members only see real interests."}</p>
+      <h2 className="font-display text-3xl">Demo contacts</h2>
+      <label className="card-box flex items-center justify-between gap-3 p-4">
+        <span><span className="block text-lg font-bold">{demo ? "Demo mode" : "Real mode"}</span><span className="text-sm text-muted-foreground">{demo ? "Random demo contacts become interested in members' rides and requests." : "Members only see real interests."}</span></span>
+        <Switch checked={demo} onCheckedChange={setMode} aria-label="Demo mode" />
+      </label>
       <form className="card-box space-y-2 p-4" onSubmit={(e) => {
         e.preventDefault();
         const n = name.trim(); const p = phone.replace(/[\s-]/g, "");

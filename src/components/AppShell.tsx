@@ -52,7 +52,7 @@ export function Logo({ size = "text-3xl", className = "" }: { size?: string; cla
   }, [wmWidth, fontsReady, size]);
   return (
     <span className={`flex min-w-0 items-center gap-4 ${className}`}>
-      <img src={logoAsset.url} alt="Travel Sync logo" width={36} height={36} className="h-9 w-9 shrink-0 rounded-full" />
+      <img src={logoAsset} alt="Travel Sync logo" width={36} height={36} className="h-9 w-9 shrink-0 rounded-full" />
       <span className="min-w-0 overflow-hidden" style={wmWidth ? { width: wmWidth } : undefined}>
         <span ref={wm} className={`block whitespace-nowrap font-display ${size} leading-none`}>
           TRAVEL <span className="text-primary">SYNC</span>
@@ -84,7 +84,7 @@ export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl", animate
     <div className="flex flex-col items-center gap-3 text-center">
       {animated
         ? <HandshakeEmblem className={imgSize} />
-        : <img src={logoAsset.url} alt="Travel Sync logo" className={`${imgSize} rounded-full`} />}
+        : <img src={logoAsset} alt="Travel Sync logo" className={`${imgSize} rounded-full`} />}
       <span className={`whitespace-nowrap font-display ${textSize} leading-none`}>
         TRAVEL <span className="text-brand-orange">SYNC</span>
       </span>
@@ -99,7 +99,7 @@ export function AuthLogo({ imgSize = "h-28 w-28", textSize = "text-7xl", animate
 export function AuthLogoRow({ imgSize = "h-12 w-12", textSize = "text-5xl" }: { imgSize?: string; textSize?: string }) {
   return (
     <div className="flex items-center gap-3">
-      <img src={logoAsset.url} alt="Travel Sync logo" className={`${imgSize} shrink-0 rounded-full`} />
+      <img src={logoAsset} alt="Travel Sync logo" className={`${imgSize} shrink-0 rounded-full`} />
       <span className="min-w-0">
         <span className={`block whitespace-nowrap font-display ${textSize} leading-none`}>
           TRAVEL <span className="text-brand-orange">SYNC</span>

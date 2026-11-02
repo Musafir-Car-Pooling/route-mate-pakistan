@@ -98,7 +98,7 @@ function SettingsTab() {
         <h2 className="font-display text-2xl">Payment method icons</h2>
         <div className="grid grid-cols-3 gap-2">
           {(["easypaisa", "jazzcash", "bank"] as const).map((method) => <div key={method} className="space-y-2">
-            {(s.paymentIcons?.[method] || method !== "bank") && <div className="flex h-16 items-center justify-center rounded-lg bg-brand-surface p-2"><img src={s.paymentIcons?.[method] || (method === "easypaisa" ? easypaisaIcon.url : jazzcashIcon.url)} alt={method} className="h-full w-full object-contain" /></div>}
+            {(s.paymentIcons?.[method] || method !== "bank") && <div className="flex h-16 items-center justify-center rounded-lg bg-brand-surface p-2"><img src={s.paymentIcons?.[method] || (method === "easypaisa" ? easypaisaIcon : jazzcashIcon)} alt={method} className="h-full w-full object-contain" /></div>}
             <MediaUpload label={`Upload ${method} icon`} kind="logo" onUpload={(image) => setState((state) => ({ ...state, settings: { ...state.settings, paymentIcons: { ...state.settings.paymentIcons, [method]: image } } }))} />
             {s.paymentIcons?.[method] && <Button variant="ghost" className="w-full" onClick={() => setSettings({ paymentIcons: { ...s.paymentIcons, [method]: "" } })}>Reset</Button>}
           </div>)}

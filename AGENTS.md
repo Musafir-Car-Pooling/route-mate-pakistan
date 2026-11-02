@@ -27,3 +27,4 @@
 - NearbyOffersNavigation opens dedicated nearby routes for new same-route offers from live store updates; session receipts prevent reopening acknowledged screens, and reviews/payment/profile flows are not interrupted.
 - Home-screen installation stays manifest-only with a shared InstallAppPrompt using the browser's deferred install event or mobile menu instructions; never add app-shell caching or alter the separate messaging worker for installability.
 - Demo members are kept in settings.demoUsers (no phones) with phones in private/demo_{id}; the poster's client writes demo_ interest docs after the post is confirmed, so the existing unlock rule protects demo phones too.
+- App-served images must be real files under src/assets (Vite-bundled) or public/, never Lovable CDN pointer imports, because the app is also deployed off Lovable where that CDN path is not served.

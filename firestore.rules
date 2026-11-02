@@ -58,7 +58,13 @@ service cloud.firestore {
     // Payment proofs. Id is "<payerUid>_<memberUid>".
     match /unlocks/{id} {
       allow read: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
-      allow create: if signedIn()
+      allow create: if payProof(id);
+      // A payer may resubmit after the admin rejected an earlier proof.
+      allow update: if isAdmin() || (resource.data.status == 'rejected' && payProof(id));
+      allow delete: if isAdmin();
+    }
+    function payProof(id) {
+      return signedIn()
         && request.resource.data.userId == request.auth.uid
         && id == request.auth.uid + '_' + request.resource.data.interestId
         && post(request.resource.data.postId).ownerId == request.auth.uid
@@ -66,7 +72,6 @@ service cloud.firestore {
         && (request.resource.data.status == 'pending'
           || (request.resource.data.status == 'unlocked'
             && get(/databases/$(db)/documents/settings/app).data.instantUnlock == true));
-      allow update, delete: if isAdmin();
     }
   }
 }

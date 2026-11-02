@@ -133,7 +133,7 @@ export function cancelOwnPost(s: State, postId: string, now = Date.now()): State
 export function deleteOwnPost(s: State, postId: string): State {
   const post = s.posts.find((p) => p.id === postId);
   if (!post || !s.user || post.ownerId !== s.user.id || !post.cancelledAt) return s;
-  return { ...s, posts: s.posts.filter((p) => p.id !== postId), unlocks: s.unlocks.filter((u) => u.postId !== postId) };
+  return { ...s, posts: s.posts.filter((p) => p.id !== postId) };
 }
 export const locationsForCity = (cities: City[], cityId: string) => cities.find((c) => c.id === cityId)?.locations ?? [];
 export const validRouteLocations = (cities: City[], cityId: string, from: string, to: string) => {
@@ -167,7 +167,9 @@ export function pickDemoInterests(post: Post, settings: Settings, now = Date.now
 export const visibleInterests = (post: Post, now = Date.now()) => post.interests.filter((i) => i.at <= now);
 
 export function unlockFor(postId: string, interestId: string, s: State = state) {
-  return s.unlocks.find((u) => u.postId === postId && u.interestId === interestId && u.status !== "rejected");
+  // One payment unlocks a member for good (doc id is payer_member), so match any post of this pair.
+  return s.unlocks.find((u) => u.interestId === interestId && (!s.user || u.userId === s.user.id) && u.status !== "rejected")
+    ?? s.unlocks.find((u) => u.postId === postId && u.interestId === interestId && u.status !== "rejected");
 }
 
 const names = {

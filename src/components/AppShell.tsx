@@ -5,7 +5,7 @@ import { shareText, appUrl } from "@/lib/share";
 import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
 import { onNearbySeenChange, unseenNearbyCount } from "@/lib/ride-alerts";
 import { Button } from "@/components/ui/button";
-import logoAsset from "@/assets/travelsync-logo.png.asset.json";
+import logoAsset from "@/assets/travelsync-logo.png";
 import logoRing from "@/assets/logo-ring.png";
 import logoHandOrange from "@/assets/logo-hand-orange.png";
 import logoHandBlue from "@/assets/logo-hand-blue.png";

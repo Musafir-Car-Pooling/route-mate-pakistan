@@ -4,8 +4,6 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useStore, setState, formatPKR, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";
 import { RateMember } from "@/components/RateMember";
-import easypaisaLogo from "@/assets/easypaisa-compact.png.asset.json";
-import jazzcashLogo from "@/assets/jazzcash-compact.png.asset.json";
 
 export function ContactButton({ post, person }: { post: Post; person: Interest }) {
   const [step, setStep] = useState<0 | 1 | 2>(0);

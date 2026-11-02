@@ -8,8 +8,8 @@ import { AdminDemoUsers } from "@/components/AdminDemoUsers";
 import { AdminDepartments } from "@/components/AdminDepartments";
 import { Button } from "@/components/ui/button";
 import { MediaUpload } from "@/components/MediaUpload";
-import easypaisaIcon from "@/assets/easypaisa-compact.png.asset.json";
-import jazzcashIcon from "@/assets/jazzcash-compact.png.asset.json";
+import easypaisaIcon from "@/assets/easypaisa-compact.png";
+import jazzcashIcon from "@/assets/jazzcash-compact.png";
 import { useStore, setState, isAdminCreds, formatPKR, compressImage, uid, type Settings } from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({

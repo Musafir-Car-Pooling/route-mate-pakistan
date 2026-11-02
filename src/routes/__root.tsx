@@ -6,6 +6,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { hydrateStore } from "../lib/store";
 import { NearbyOffersNavigation } from "@/components/NearbyOffersNavigation";
 import { InstallAppPrompt } from "@/components/InstallAppPrompt";
+import { ShareSheet } from "@/components/ShareSheet";
 
 function NotFoundComponent() {
   return (
@@ -76,6 +77,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <NearbyOffersNavigation />
       <InstallAppPrompt />
+      <ShareSheet />
       <Outlet />
     </QueryClientProvider>
   );

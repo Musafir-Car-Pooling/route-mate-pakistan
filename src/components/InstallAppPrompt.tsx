@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, Share, PlusSquare, LoaderCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Share, PlusSquare, LoaderCircle, X } from "lucide-react";
 
 interface InstallEvent extends Event {
   prompt: () => Promise<void>;
@@ -76,18 +74,21 @@ export function InstallAppPrompt() {
     } finally { setBusy(false); }
   };
 
+  if (!open) return null;
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (!next) dismiss(); }}>
-      <DialogContent className="max-w-[calc(100%-2rem)] rounded-lg sm:max-w-sm">
-        <img src="/icon-192.png" width={80} height={80} alt="Travel Sync app icon" className="mx-auto h-20 w-20 rounded-lg" />
-        <DialogTitle className="text-center font-display text-3xl">Install Travel Sync</DialogTitle>
-        <DialogDescription className="text-center">Find your route mates</DialogDescription>
-        {mode === "ios" && <p className="text-center text-sm leading-relaxed text-muted-foreground">In Safari, tap <Share className="inline h-4 w-4 text-primary" /> Share, then <PlusSquare className="inline h-4 w-4 text-primary" /> Add to Home Screen and Add. In other browsers, open this page in Safari first.</p>}
-        {mode === "android" && <p className="text-center text-sm leading-relaxed text-muted-foreground">Open your browser menu ⋮ and choose Install app or Add to Home Screen, then confirm.</p>}
-        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-        {mode === "native" && <Button size="contact" disabled={busy} onClick={() => void install()}>{busy ? <LoaderCircle className="animate-spin" /> : <Download />} {busy ? "Opening…" : "Install app"}</Button>}
-        <Button variant="ghost" onClick={dismiss}>Not now</Button>
-      </DialogContent>
-    </Dialog>
+    <div role="dialog" aria-label="Install Travel Sync" className="fixed inset-x-3 top-3 z-[60] mx-auto max-w-md rounded-2xl bg-popover p-4 shadow-2xl animate-in slide-in-from-top fade-in">
+      <div className="flex items-center gap-3">
+        <img src="/icon-192.png" width={56} height={56} alt="Travel Sync app icon" className="h-14 w-14 shrink-0 rounded-xl" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-lg font-semibold">Install Travel Sync</p>
+          <p className="truncate text-sm text-muted-foreground">travelsync1.netlify.app</p>
+        </div>
+        {mode === "native" && <button aria-label="Install app" disabled={busy} onClick={() => void install()} className="px-2 text-lg font-semibold text-primary">{busy ? <LoaderCircle className="animate-spin" /> : "Install"}</button>}
+        <button aria-label="Not now" onClick={dismiss} className="text-muted-foreground"><X className="h-5 w-5" /></button>
+      </div>
+      {mode === "ios" && <p className="mt-2 text-sm text-muted-foreground">Tap <Share className="inline h-4 w-4 text-primary" /> Share, then <PlusSquare className="inline h-4 w-4 text-primary" /> Add to Home Screen.</p>}
+      {mode === "android" && <p className="mt-2 text-sm text-muted-foreground">Open browser menu ⋮ → Install app / Add to Home Screen.</p>}
+      {error && <p role="alert" className="mt-2 text-sm text-destructive">{error}</p>}
+    </div>
   );
 }

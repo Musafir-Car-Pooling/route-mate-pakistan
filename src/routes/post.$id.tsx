@@ -30,7 +30,7 @@ function PostPage() {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const nav = useNavigate();
   const [now, setNow] = useState(() => Date.now());
-  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 3000); return () => clearInterval(t); }, []);
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
   const expired = post ? isExpired(post, settings) : false;
 
   const unsent = useStore((s) => s.unsent?.includes(id) ?? false);

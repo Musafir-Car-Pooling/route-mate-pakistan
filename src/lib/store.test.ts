@@ -139,4 +139,8 @@ describe("demo interests", () => {
   it("gives none in real mode", () => {
     expect(pickDemo(base, { demoMode: false, demoUsers: users } as never, 0)).toHaveLength(0);
   });
+  it("arrives 2s, then 4s later, then 3s later", () => {
+    const r = pickDemo(base, { demoMode: true, demoUsers: users } as never, 1000, () => 0);
+    expect(r.map((i) => i.at)).toEqual([3000, 7000, 10000, 13000, 16000]);
+  });
 });

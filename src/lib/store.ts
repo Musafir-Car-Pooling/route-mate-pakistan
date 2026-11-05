@@ -152,16 +152,22 @@ export const matchingPosts = (post: Post, posts: Post[], s: Settings, now = Date
 
 export const DEMO_PREFIX = "demo_";
 export const DEMO_PER_POST = 5;
-/** Up to 5 random demo members matching the post's gender rule, arriving one by one over ~2 minutes. */
+/** Seconds each demo member waits after the previous one: 1st at 2s, 2nd 4s later, 3rd 3s later, then 3s each. */
+export const DEMO_GAP_MS = [2000, 4000, 3000, 3000, 3000];
+/** Up to 5 random demo members matching the post's gender rule, arriving one by one within ~14 seconds. */
 export function pickDemoInterests(post: Post, settings: Settings, now = Date.now(), rand = Math.random): Interest[] {
   if (!settings.demoMode) return [];
   const pool = (settings.demoUsers ?? []).filter((d) => post.genderPref === "any" || d.gender === post.genderPref);
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j]!, pool[i]!]; }
-  return pool.slice(0, DEMO_PER_POST).map((d, i) => ({
-    id: DEMO_PREFIX + d.id, name: d.name, org: d.org, gender: d.gender, rating: d.rating, reviews: d.reviews.length,
-    verified: true, car: post.kind === "request" ? d.car || undefined : undefined, reviewEntries: d.reviews,
-    at: now + 8000 + i * 22000 + Math.floor(rand() * 8000),
-  }));
+  let wait = 0;
+  return pool.slice(0, DEMO_PER_POST).map((d, i) => {
+    wait += DEMO_GAP_MS[i] ?? 3000;
+    return {
+      id: DEMO_PREFIX + d.id, name: d.name, org: d.org, gender: d.gender, rating: d.rating, reviews: d.reviews.length,
+      verified: true, car: post.kind === "request" ? d.car || undefined : undefined, reviewEntries: d.reviews,
+      at: now + wait,
+    };
+  });
 }
 /** Interests whose arrival time has come (demo members arrive gradually). */
 export const visibleInterests = (post: Post, now = Date.now()) => post.interests.filter((i) => i.at <= now);

@@ -22,7 +22,9 @@ service cloud.firestore {
     // Phone numbers: owner, admin, or someone whose payment for this member is unlocked.
     match /private/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin()
-        || get(/databases/$(db)/documents/unlocks/$(request.auth.uid + '_' + uid)).data.status == 'unlocked');
+        || (get(/databases/$(db)/documents/unlocks/$(request.auth.uid + '_' + uid)).data.status == 'unlocked'
+          && !(exists(/databases/$(db)/documents/users/$(uid))
+            && get(/databases/$(db)/documents/users/$(uid)).data.get('hidePhone', false) == true)));
       allow write: if request.auth.uid == uid || isAdmin();
     }
 
@@ -55,9 +57,22 @@ service cloud.firestore {
       allow delete: if isAdmin() || (signedIn() && resource.data.reviewerId == request.auth.uid);
     }
 
+    // In-app chat for hidden numbers. Thread id = unlock id "<payer>_<member>"; open once that chat unlock is approved.
+    function chatMember(cid) {
+      let u = get(/databases/$(db)/documents/unlocks/$(cid)).data;
+      return signedIn() && u.status == 'unlocked' && u.get('kind', 'phone') == 'chat'
+        && (u.userId == request.auth.uid || u.interestId == request.auth.uid);
+    }
+    match /chats/{cid}/messages/{mid} {
+      allow read: if chatMember(cid);
+      allow create: if chatMember(cid) && request.resource.data.from == request.auth.uid
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000;
+    }
+
     // Payment proofs. Id is "<payerUid>_<memberUid>".
     match /unlocks/{id} {
-      allow read: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow read: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid
+        || (resource.data.get('kind', 'phone') == 'chat' && resource.data.interestId == request.auth.uid));
       allow create: if payProof(id);
       // A payer may resubmit after the admin rejected an earlier proof.
       allow update: if isAdmin() || (resource.data.status == 'rejected' && payProof(id));

@@ -55,9 +55,9 @@ function Account() {
         {msg && <p className="font-semibold">{msg}</p>}
       </section>
       <section className="mt-4 card-box flex items-center justify-between p-5">
-        <div><h2 className="font-display text-2xl text-primary">Privacy</h2><p className="text-sm text-muted-foreground">Phone number {user.phonePublic ? "public" : "private"}</p></div>
-        <button aria-label="Toggle phone visibility" onClick={() => update({ phonePublic: !user.phonePublic })} className={`h-8 w-14 rounded-full p-1 ${user.phonePublic ? "bg-primary" : "bg-muted"}`}>
-          <span className={`block h-6 w-6 rounded-full bg-foreground transition ${user.phonePublic ? "translate-x-6" : ""}`} />
+        <div><h2 className="font-display text-2xl text-primary">Privacy</h2><p className="text-sm text-muted-foreground">{user.hidePhone ? "Number hidden — members can only chat with you in the app" : "Number shown to members after they pay"}</p></div>
+        <button aria-label="Hide my number" aria-pressed={!!user.hidePhone} onClick={() => update({ hidePhone: !user.hidePhone })} className={`h-8 w-14 shrink-0 rounded-full p-1 ${user.hidePhone ? "bg-primary" : "bg-muted"}`}>
+          <span className={`block h-6 w-6 rounded-full bg-foreground transition ${user.hidePhone ? "translate-x-6" : ""}`} />
         </button>
       </section>
     </AppShell>

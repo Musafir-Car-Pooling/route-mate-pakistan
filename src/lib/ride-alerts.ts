@@ -36,7 +36,7 @@ export function addMemberInterest(state: import("./store").State, postId: string
   const user = state.user;
   const post = state.posts.find((p) => p.id === postId);
   if (!user || !post || !nearbyOffers(user, state.posts, state.settings, now).some((p) => p.id === postId) || post.interests.some((i) => i.id === user.id)) return state;
-  const person: Interest = { id: user.id, name: user.name, org: user.org, gender: user.gender, rating: user.rating, reviews: 0, verified: user.verified, car: user.car || undefined, at: now };
+  const person: Interest = { id: user.id, name: user.name, org: user.org, gender: user.gender, rating: user.rating, reviews: 0, verified: user.verified, car: user.car || undefined, hidePhone: user.hidePhone || undefined, at: now };
   return { ...state, posts: state.posts.map((p) => p.id === postId ? { ...p, interests: [...p.interests, person] } : p) };
 }
 

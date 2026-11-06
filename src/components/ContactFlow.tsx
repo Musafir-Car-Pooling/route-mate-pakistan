@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { X, Phone, MessageCircle, Clock, Upload, CheckCircle2, Copy, Check, Star } from "lucide-react";
+import { X, Phone, MessageCircle, Lock, Clock, Upload, CheckCircle2, Copy, Check, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { useStore, setState, formatPKR, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";
+import { useStore, setState, formatPKR, feeFor, compressImage, unlockFor, canContactPost, type Interest, type Post } from "@/lib/store";
 import { RateMember } from "@/components/RateMember";
 
 export function ContactButton({ post, person }: { post: Post; person: Interest }) {
@@ -19,6 +19,17 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
   const currentPost = useStore((s) => s.posts.find((p) => p.id === post.id));
   if (!currentPost || !canContactPost(currentPost, settings, user?.id)) return null;
 
+  const chat = !!person.hidePhone;
+  const fee = feeFor(person, settings);
+  if (unlock?.status === "unlocked" && (chat || unlock.kind === "chat")) {
+    return (
+      <>
+        <Button asChild size="contact" className="mt-3 bg-success text-accent-foreground"><Link to="/chat/$id" params={{ id: unlock.id }}><MessageCircle className="h-5 w-5" />Open chat</Link></Button>
+        <p className="mt-2 text-xs text-muted-foreground">This member keeps their number hidden. Agree pickup point and timing in chat. After talking, rate this member below.</p>
+        <RateMember targetId={person.id} name={person.name} />
+      </>
+    );
+  }
   if (unlock?.status === "unlocked") {
     if (!phone) return <div className="mt-3 flex items-center gap-2 rounded-xl bg-success/15 p-3 font-semibold text-success"><Clock className="h-5 w-5" />Unlocked · loading contact…</div>;
     const wa = "92" + phone.replace(/^0/, "");
@@ -42,7 +53,7 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
     setState((s) => {
       const latest = s.posts.find((p) => p.id === post.id);
       if (!latest || !s.user || !canContactPost(latest, s.settings, s.user.id) || unlockFor(post.id, person.id, s)) return s;
-      return { ...s, unlocks: [...s.unlocks, { id: `${s.user.id}_${person.id}`, postId: post.id, interestId: person.id, userId: s.user.id, method, txn, screenshot: shot, amount: s.settings.fee, status: s.settings.instantUnlock ? "unlocked" : "pending", at: Date.now() }] };
+      return { ...s, unlocks: [...s.unlocks, { id: `${s.user.id}_${person.id}`, postId: post.id, interestId: person.id, userId: s.user.id, method, txn, screenshot: shot, amount: fee, kind: chat ? "chat" : "phone", payerName: s.user.name, memberName: person.name, status: s.settings.instantUnlock ? "unlocked" : "pending", at: Date.now() }] };
     });
     setStep(0);
   };
@@ -63,20 +74,27 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
 
   return (
     <>
-      <Button size="contact" onClick={() => setStep(1)} className="mt-3"><Phone className="h-5 w-5" />Contact</Button>
+      <Button size="contact" onClick={() => setStep(1)} className="mt-3">{chat ? <MessageCircle className="h-5 w-5" /> : <Phone className="h-5 w-5" />}Contact</Button>
       {step > 0 && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/80">
           <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-popover p-5 animate-in slide-in-from-bottom">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-3xl">{step === 1 ? "Unlock Contact" : "Payment"}</h2>
+              <h2 className="font-display text-3xl">{step === 1 ? (chat ? "Unlock Chat" : "Unlock Contact") : "Payment"}</h2>
               <Button variant="ghost" size="icon" aria-label="Close" onClick={() => setStep(0)}><X /></Button>
             </div>
             {step === 1 ? (
               <>
+                {chat && (
+                  <div role="note" className="mb-4 space-y-2 rounded-2xl border border-primary/40 bg-primary/10 p-4 text-sm">
+                    <p className="flex items-center gap-2 font-bold text-primary"><Lock className="size-4" />Number hidden</p>
+                    <p>{person.name} has kept their number hidden. You can only contact them through in-app chat. Pay {formatPKR(fee)} to turn on chat.</p>
+                    <p dir="rtl" lang="ur" className="text-base leading-loose">اس ممبر نے اپنا نمبر چھپا رکھا ہے۔ ان سے رابطے کے لیے آپ صرف ایپ میں چیٹ کر سکتے ہیں۔ چیٹ آن کرنے کے لیے {formatPKR(fee)} ادا کریں۔</p>
+                  </div>
+                )}
                 <div className="rounded-2xl bg-hero p-5 text-center text-primary-foreground">
                   <p className="text-sm font-semibold uppercase opacity-80">Connection fee</p>
-                  <p className="font-display text-6xl">{formatPKR(settings.fee)}</p>
-                  <p className="text-sm">to unlock {person.name}'s contact</p>
+                  <p className="font-display text-6xl">{formatPKR(fee)}</p>
+                  <p className="text-sm">{chat ? `to chat with ${person.name}` : `to unlock ${person.name}'s contact`}</p>
                 </div>
                 <div className="mt-4 space-y-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm">
                   <p className="font-bold text-warning">Disclaimer</p>
@@ -101,7 +119,7 @@ export function ContactButton({ post, person }: { post: Post; person: Interest }
                   ))}
                 </div>
                 <div className="mt-4 card-box space-y-1 p-4">
-                  <p className="text-sm text-muted-foreground">Send {formatPKR(settings.fee)} to</p>
+                  <p className="text-sm text-muted-foreground">Send {formatPKR(fee)} to</p>
                   {method === "bank" && <p className="font-semibold">Account Title: {settings.bankTitle}</p>}
                   <div className="flex items-center gap-2"><p className="min-w-0 flex-1 break-all font-display text-2xl">{account}</p><Button variant="ghost" size="icon" disabled={!account} aria-label={copied ? "Account number copied" : "Copy account number"} title={copied ? "Copied" : "Copy account number"} onClick={copyAccount} className="shrink-0 text-primary">{copied ? <Check /> : <Copy />}</Button></div>
                   <p role="status" className="min-h-5 text-xs text-muted-foreground">{copyError ? "Couldn't copy. Please select and copy the number." : copied ? "Account number copied" : ""}</p>

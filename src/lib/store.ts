@@ -7,12 +7,12 @@ export type User = {
   id: string; name: string; email: string; password: string; phone: string;
   role: Role; org: string; dept: string; gender: Gender; city: string;
   home: string; work: string; prefs: string[]; verified: boolean; active: boolean;
-  phonePublic: boolean; travelMode?: TravelMode; profilePhoto?: string | undefined; car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined; rating: number;
+  phonePublic: boolean; hidePhone?: boolean; travelMode?: TravelMode; profilePhoto?: string | undefined; car?: string | undefined; plate?: string | undefined; carPhoto?: string | undefined; rating: number;
 };
 export type MemberReview = { id: string; author: string; rating: number; text: string; at: number };
 export type Interest = {
   id: string; name: string; org: string; gender: Gender; rating: number; reviews: number;
-  verified: boolean; car?: string | undefined; phone?: string; at: number; reviewEntries?: MemberReview[]; demo?: boolean;
+  verified: boolean; car?: string | undefined; phone?: string; at: number; reviewEntries?: MemberReview[]; demo?: boolean; hidePhone?: boolean | undefined;
 };
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;
@@ -25,6 +25,8 @@ export type Post = {
 export type Unlock = {
   id: string; postId: string; interestId: string; userId: string; method: string;
   txn: string; screenshot?: string | undefined; amount: number; status: "pending" | "unlocked" | "rejected"; at: number;
+  /** "chat" when the member hides their number: payment opens in-app chat instead. */
+  kind?: "phone" | "chat"; payerName?: string; memberName?: string;
 };
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
 export type City = { id: string; name: string; locations: string[] };
@@ -34,7 +36,7 @@ export type Settings = {
   demoMode?: boolean; demoUsers?: DemoUser[];
   cities: City[];
   departments: string[];
-  fee: number; autoCancel: boolean; hours: number; instantUnlock: boolean;
+  fee: number; chatFee?: number; autoCancel: boolean; hours: number; instantUnlock: boolean;
   bankTitle: string; bankIban: string; easypaisa: string; jazzcash: string;
   socials: { whatsapp: string; facebook: string; linkedin: string; instagram: string };
   pages: Record<string, string>; slides: string[];
@@ -59,7 +61,7 @@ const defaults: State = {
   settings: {
     cities: [],
     departments: [],
-    fee: 150, autoCancel: true, hours: 24, instantUnlock: false,
+    fee: 150, chatFee: 150, autoCancel: true, hours: 24, instantUnlock: false,
     bankTitle: "Travel Sync Pvt Ltd", bankIban: "PK36MEZN0001234567890123", easypaisa: "0300-1234567", jazzcash: "0301-7654321",
     socials: { whatsapp: "https://wa.me/923001234567", facebook: "https://facebook.com", linkedin: "https://linkedin.com", instagram: "https://instagram.com" },
     pages: {
@@ -155,6 +157,10 @@ export const DEMO_PER_POST = 5;
 /** Seconds each demo member waits after the previous one: 1st at 2s, 2nd 4s later, 3rd 3s later, then 3s each. */
 export const DEMO_GAP_MS = [2000, 4000, 3000, 3000, 3000];
 /** Up to 5 random demo members matching the post's gender rule, arriving one by one within ~14 seconds. */
+/** Fee for a member: chat fee when their number is hidden, else the normal contact fee. */
+export const feeFor = (person: Pick<Interest, "hidePhone">, settings: Settings) => person.hidePhone ? settings.chatFee ?? 150 : settings.fee;
+export type ChatMessage = { id: string; from: string; text: string; at: number };
+
 export function pickDemoInterests(post: Post, settings: Settings, now = Date.now(), rand = Math.random): Interest[] {
   if (!settings.demoMode) return [];
   const pool = (settings.demoUsers ?? []).filter((d) => post.genderPref === "any" || d.gender === post.genderPref);

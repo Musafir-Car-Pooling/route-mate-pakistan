@@ -102,7 +102,13 @@ function Home() {
   const [cityId, setCityId] = useState(() => settings.cities.find((c) => c.name === user?.city)?.id ?? "");
   const [from, setFrom] = useState(user?.home ?? "");
   const [to, setTo] = useState(user?.work ?? "");
-  const [notes, setNotes] = useState("");
+  const [tick, setTick] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setTick(Date.now()), 1000); return () => clearInterval(t); }, []);
+  useEffect(() => {
+    if (!user) return;
+    const gone = posts.filter((p) => p.ownerId === user.id && isExpired(p, settings, tick));
+    if (gone.length) setState((s) => gone.reduce((acc, p) => deleteOwnPost(acc, p.id), s));
+  }, [posts, settings, user, tick]);
   const [gender, setGender] = useState<Post["genderPref"]>("any");
   const [seats, setSeats] = useState(3);
   const [sending, setSending] = useState(false);
@@ -115,13 +121,13 @@ function Home() {
   const selectedTo = locations.includes(to) ? to : "";
   const canSubmit = validRouteLocations(settings.cities, cityId, selectedFrom, selectedTo);
   if (!user) return null;
-  const mine = posts.filter((p) => p.ownerId === user.id).sort((a, b) => b.createdAt - a.createdAt);
+  const mine = posts.filter((p) => p.ownerId === user.id && !isExpired(p, settings, tick)).sort((a, b) => b.createdAt - a.createdAt);
   const submit = async () => {
     if (!canSubmit || !city || sending) return;
     const p: Post = {
       id: uid(), kind: mode === "driver" ? "ride" : "request", ownerId: user.id, ownerName: user.name,
       ownerOrg: user.org, ownerRating: user.rating, ownerVerified: user.verified, ownerCar: user.car || undefined,
-      city: city.name, from: selectedFrom, to: selectedTo, notes, genderPref: gender,
+      city: city.name, from: selectedFrom, to: selectedTo, notes: "", genderPref: gender,
       ...(mode === "driver" ? { seats } : {}), createdAt: Date.now(), active: true, interests: [],
     };
     setSending(true); setShareError("");
@@ -163,7 +169,6 @@ function Home() {
               <span className="block text-xs font-normal">How many passengers can you take (1–6)?</span><input type="number" min={1} max={6} className="field mt-1" value={seats} onChange={(e) => setSeats(+e.target.value)} /></label>
           </>
         )}
-        <textarea className="field min-h-24" placeholder="Instructions (e.g. pick me from main gate, no smoking, AC preferred)" value={notes} onChange={(e) => setNotes(e.target.value)} />
         <Button onClick={() => void submit()} disabled={!canSubmit || sending} className="btn-big h-auto text-3xl transition-transform hover:scale-[1.01] animate-in fade-in zoom-in-95 duration-500">{sending ? "Sharing…" : mode === "driver" ? "Share Ride" : "Send Request"}</Button>
         {shareError && <p role="alert" className="text-center text-sm font-semibold text-destructive">{shareError}</p>}
       </div>

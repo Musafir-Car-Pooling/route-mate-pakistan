@@ -37,6 +37,7 @@ function PostPage() {
 
   if (!post) return <AppShell back title="Not found"><Link to="/" className="btn-big mt-10">Go home</Link></AppShell>;
   if (!user || post.ownerId !== user.id) return <AppShell back title="Offer unavailable"><p className="py-8">This offer is not available.</p></AppShell>;
+  if (expired) return <AppShell back title="Expired"><p className="py-8">This post has expired.</p><Link to="/" className="btn-big">Go home</Link></AppShell>;
   const isRide = post.kind === "ride";
   const available = canContactPost(post, settings, user.id);
   const shown = visibleInterests(post, now);

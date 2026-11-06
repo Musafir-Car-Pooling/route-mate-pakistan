@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Star, BadgeCheck, Car, MessageSquare, ArrowLeft } from "lucide-react";
+import { Star, MessageSquare, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { ContactButton } from "@/components/ContactFlow";
@@ -35,11 +35,7 @@ function MemberReviews() {
   const sorted = [...entries].sort((a, b) => sort === "recent" ? b.at - a.at : sort === "highest" ? b.rating - a.rating : a.rating - b.rating);
   const contactable = canContactPost(post, settings, user.id);
   return (
-    <AppShell back title="Ratings & reviews">
-      <section className="flex items-center gap-4 py-5">
-        <div className="grid size-20 shrink-0 place-items-center rounded-full bg-primary/15 font-display text-3xl text-primary">{person.name.split(" ").map((n) => n[0]).join("")}</div>
-        <div className="min-w-0"><h2 className="text-2xl font-bold break-words">{person.name}</h2><p className="text-muted-foreground">{person.org}</p><p className="mt-1 flex items-center gap-1 text-sm text-success">{person.verified && <><BadgeCheck className="size-4" />Verified member</>}</p>{person.car && <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><Car className="size-4" />{person.car}</p>}</div>
-      </section>
+    <AppShell back title={`Reviews of ${person.name}`}>
       {person.demo && <p className="mb-4 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">Demo member · sample ratings and reviews</p>}
       <section className="grid grid-cols-[100px_1fr] gap-5 border-y py-5">
         <div><p className="font-display text-6xl leading-none">{average === null ? "—" : average.toFixed(1)}</p><div className="mt-2 flex gap-0.5" aria-label={average === null ? "Not rated" : `${average.toFixed(1)} out of 5 stars`}>{[1, 2, 3, 4, 5].map((n) => <Star key={n} className={`size-4 ${average !== null && n <= Math.round(average) ? "fill-warning text-warning" : "text-muted-foreground"}`} />)}</div><p className="mt-2 text-sm text-muted-foreground">{entries.length} {entries.length === 1 ? "review" : "reviews"}</p></div>

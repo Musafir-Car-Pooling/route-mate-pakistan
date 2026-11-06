@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Star, BadgeCheck, Car, MessageSquare, ArrowLeft } from "lucide-react";
+import { Star, MessageSquare, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { ContactButton } from "@/components/ContactFlow";

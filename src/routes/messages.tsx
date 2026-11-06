@@ -26,7 +26,7 @@ function Messages() {
       {!threads.length && <p className="py-8 text-center text-muted-foreground">No chats yet. Chats open after a contact payment with a member who hides their number.</p>}
       <div className="space-y-2">
         {threads.map((u) => {
-          const last = msgs[u.id]?.[msgs[u.id].length - 1];
+          const last = msgs[u.id]?.at(-1);
           const n = unread[u.id] ?? 0;
           return (
             <Link key={u.id} to="/chat/$id" params={{ id: u.id }} className="card-box flex items-center gap-3 p-4">

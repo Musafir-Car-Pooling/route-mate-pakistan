@@ -26,7 +26,7 @@ export type Unlock = {
   id: string; postId: string; interestId: string; userId: string; method: string;
   txn: string; screenshot?: string | undefined; amount: number; status: "pending" | "unlocked" | "rejected"; at: number;
   /** "chat" when the member hides their number: payment opens in-app chat instead. */
-  kind?: "phone" | "chat";
+  kind?: "phone" | "chat"; payerName?: string; memberName?: string;
 };
 export type Company = { id: string; name: string; logo?: string; approved: boolean };
 export type City = { id: string; name: string; locations: string[] };

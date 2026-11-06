@@ -11,3 +11,12 @@ describe("chat unread", () => {
   it("counts only the other person's messages", () => expect(unreadCount("b", msgs)).toBe(2));
   it("drops to 0 after reading the latest message", () => expect(unreadCount("b", msgs, 300)).toBe(0));
 });
+
+import { tickState } from "./chat-unread";
+describe("tickState", () => {
+  it("sent → delivered → read", () => {
+    expect(tickState({})).toBe("sent");
+    expect(tickState({ deliveredAt: 1 })).toBe("delivered");
+    expect(tickState({ deliveredAt: 1, readAt: 2 })).toBe("read");
+  });
+});

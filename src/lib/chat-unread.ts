@@ -64,6 +64,7 @@ export function useChatInbox() {
       for (const id of ids.split(",")) {
         stops.push(c.watchChat(id, (m) => {
           setMsgs((s) => ({ ...s, [id]: m }));
+          void c.markChatSeen(id, m, "deliveredAt");
           const last = m[m.length - 1];
           const prev = seen.get(id);
           seen.set(id, m.length);
@@ -83,4 +84,9 @@ export function useChatInbox() {
   let total = 0;
   if (uid) for (const t of threads) { const n = unreadCount(uid, msgs[t.id] ?? [], reads[t.id]); unread[t.id] = n; total += n; }
   return { threads: [...threads].sort((a, b) => b.at - a.at), unread, total, msgs };
+}
+
+export type Tick = "sent" | "delivered" | "read";
+export function tickState(m: Pick<ChatMessage, "deliveredAt" | "readAt">): Tick {
+  return m.readAt ? "read" : m.deliveredAt ? "delivered" : "sent";
 }

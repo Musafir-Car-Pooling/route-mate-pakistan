@@ -13,9 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as NearbyRequestsRouteImport } from './routes/nearby-requests'
 import { Route as NearbyRidesRouteImport } from './routes/nearby-rides'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as InfoSlugRouteImport } from './routes/info.$slug'
 import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as ReviewsPostIdInterestIdRouteImport } from './routes/reviews.$postId.$interestId'
@@ -40,6 +42,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NearbyRequestsRoute = NearbyRequestsRouteImport.update({
   id: '/nearby-requests',
   path: '/nearby-requests',
@@ -53,6 +60,11 @@ const NearbyRidesRoute = NearbyRidesRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIdRoute = ChatIdRouteImport.update({
+  id: '/chat/$id',
+  path: '/chat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InfoSlugRoute = InfoSlugRouteImport.update({
@@ -76,9 +88,11 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/nearby-requests': typeof NearbyRequestsRoute
   '/nearby-rides': typeof NearbyRidesRoute
   '/register': typeof RegisterRoute
+  '/chat/$id': typeof ChatIdRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
   '/reviews/$postId/$interestId': typeof ReviewsPostIdInterestIdRoute
@@ -88,9 +102,11 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/nearby-requests': typeof NearbyRequestsRoute
   '/nearby-rides': typeof NearbyRidesRoute
   '/register': typeof RegisterRoute
+  '/chat/$id': typeof ChatIdRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
   '/reviews/$postId/$interestId': typeof ReviewsPostIdInterestIdRoute
@@ -101,9 +117,11 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/nearby-requests': typeof NearbyRequestsRoute
   '/nearby-rides': typeof NearbyRidesRoute
   '/register': typeof RegisterRoute
+  '/chat/$id': typeof ChatIdRoute
   '/info/$slug': typeof InfoSlugRoute
   '/post/$id': typeof PostIdRoute
   '/reviews/$postId/$interestId': typeof ReviewsPostIdInterestIdRoute
@@ -115,9 +133,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/login'
+    | '/messages'
     | '/nearby-requests'
     | '/nearby-rides'
     | '/register'
+    | '/chat/$id'
     | '/info/$slug'
     | '/post/$id'
     | '/reviews/$postId/$interestId'
@@ -127,9 +147,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/login'
+    | '/messages'
     | '/nearby-requests'
     | '/nearby-rides'
     | '/register'
+    | '/chat/$id'
     | '/info/$slug'
     | '/post/$id'
     | '/reviews/$postId/$interestId'
@@ -139,9 +161,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/login'
+    | '/messages'
     | '/nearby-requests'
     | '/nearby-rides'
     | '/register'
+    | '/chat/$id'
     | '/info/$slug'
     | '/post/$id'
     | '/reviews/$postId/$interestId'
@@ -152,9 +176,11 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
   LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
   NearbyRequestsRoute: typeof NearbyRequestsRoute
   NearbyRidesRoute: typeof NearbyRidesRoute
   RegisterRoute: typeof RegisterRoute
+  ChatIdRoute: typeof ChatIdRoute
   InfoSlugRoute: typeof InfoSlugRoute
   PostIdRoute: typeof PostIdRoute
   ReviewsPostIdInterestIdRoute: typeof ReviewsPostIdInterestIdRoute
@@ -190,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/nearby-requests': {
       id: '/nearby-requests'
       path: '/nearby-requests'
@@ -209,6 +242,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$id': {
+      id: '/chat/$id'
+      path: '/chat/$id'
+      fullPath: '/chat/$id'
+      preLoaderRoute: typeof ChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/info/$slug': {
@@ -240,9 +280,11 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
   LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
   NearbyRequestsRoute: NearbyRequestsRoute,
   NearbyRidesRoute: NearbyRidesRoute,
   RegisterRoute: RegisterRoute,
+  ChatIdRoute: ChatIdRoute,
   InfoSlugRoute: InfoSlugRoute,
   PostIdRoute: PostIdRoute,
   ReviewsPostIdInterestIdRoute: ReviewsPostIdInterestIdRoute,

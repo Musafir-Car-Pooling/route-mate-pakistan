@@ -83,6 +83,7 @@ function SettingsTab() {
   return (
     <div className="space-y-3">
       <label className="block card-box p-4 font-semibold">Contact Unlock Fee (PKR)<input type="number" className="field mt-2 font-display text-3xl" value={s.fee} onChange={(e) => setSettings({ fee: Math.max(0, +e.target.value) })} /></label>
+      <label className="block card-box p-4 font-semibold">Chat Unlock Fee (PKR) — for members who hide their number<input type="number" className="field mt-2 font-display text-3xl" value={s.chatFee ?? 150} onChange={(e) => setSettings({ chatFee: Math.max(0, +e.target.value) })} /></label>
       <Toggle label="Auto-cancel leads" on={s.autoCancel} onClick={() => setSettings({ autoCancel: !s.autoCancel })} />
       <label className="block card-box p-4 font-semibold">Auto-cancel duration (hours)<input type="number" min={1} className="field mt-2" value={s.hours} onChange={(e) => setSettings({ hours: Math.max(1, +e.target.value) })} /></label>
       <Toggle label={s.demoMode ? "Demo mode ON — new posts get 5 demo interests" : "Real mode — only real members"} on={!!s.demoMode} onClick={() => setSettings({ demoMode: !s.demoMode })} />
@@ -125,7 +126,7 @@ function Payments() {
       {unlocks.length === 0 && <p className="text-muted-foreground">No transactions yet.</p>}
       {[...unlocks].reverse().map((u) => (
         <div key={u.id} className="card-box p-4">
-          <div className="flex justify-between"><p className="font-bold">{formatPKR(u.amount)} · {u.method}</p><span className={`font-bold ${u.status === "unlocked" ? "text-success" : u.status === "pending" ? "text-warning" : "text-destructive"}`}>{u.status}</span></div>
+          <div className="flex justify-between"><p className="font-bold">{formatPKR(u.amount)} · {u.method} · {u.kind === "chat" ? "Chat" : "Contact"}</p><span className={`font-bold ${u.status === "unlocked" ? "text-success" : u.status === "pending" ? "text-warning" : "text-destructive"}`}>{u.status}</span></div>
           <p className="text-sm text-muted-foreground">TXN: {u.txn} · {new Date(u.at).toLocaleString()}</p>
           {u.screenshot && <img src={u.screenshot} alt="Payment proof" className="mt-2 h-32 rounded-lg object-cover" />}
           {u.status === "pending" && (

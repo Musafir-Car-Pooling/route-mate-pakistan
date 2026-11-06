@@ -37,6 +37,7 @@ function Register() {
   const [phoneOtpSent, setPhoneOtpSent] = useState<string>();
   const [phoneOtp, setPhoneOtp] = useState("");
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const [hidePhone, setHidePhone] = useState(false);
   const [carPhoto, setCarPhoto] = useState<string>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [err, setErr] = useState("");
@@ -71,7 +72,7 @@ function Register() {
     if (!validPassword(f.password)) return setErr("Password: minimum 6 letters/numbers only");
     if (travelMode === "driver" && !validOptionalVehicle(f)) return setErr("Number plate format looks invalid (e.g. LEA-1234)");
     const email = f.email.trim().toLowerCase();
-    const user = { ...f, city: city.name, email, role, travelMode, prefs: [], verified: true, active: true, phonePublic: false, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
+    const user = { ...f, city: city.name, email, role, travelMode, prefs: [], verified: true, active: true, phonePublic: false, hidePhone, profilePhoto, car: travelMode === "driver" ? f.car : "", plate: travelMode === "driver" ? f.plate : "", carPhoto: travelMode === "driver" ? carPhoto : undefined, rating: 5 };
     setBusy(true); setErr("");
     try {
       const { registerAccount } = await import("@/lib/cloud");
@@ -140,6 +141,18 @@ function Register() {
         </div>
       )}
       {phoneVerified && <p className="flex items-center gap-2 font-semibold text-success"><BadgeCheck />Verified Mobile Number</p>}
+      <fieldset className="card-box space-y-2 p-4">
+        <legend className="sr-only">Number privacy</legend>
+        <p className="font-display text-xl">Keep your number hidden?</p>
+        <p dir="rtl" lang="ur" className="text-base">کیا آپ اپنا نمبر چھپا کر رکھنا چاہتے ہیں؟</p>
+        <div className="grid grid-cols-2 gap-2">
+          {([[false, "Show after payment"], [true, "Hide my number"]] as const).map(([v, l]) => (
+            <Button type="button" key={l} variant="secondary" aria-pressed={hidePhone === v} onClick={() => setHidePhone(v)} className={`h-auto whitespace-normal border-2 p-3 font-bold ${hidePhone === v ? "border-primary bg-primary/15" : "border-border"}`}>{l}</Button>
+          ))}
+        </div>
+        <p className="text-sm text-muted-foreground">If you hide your number, drivers and passengers will never see it, even after payment. They can only contact you through in-app chat. You can change this later in My Account.</p>
+        <p dir="rtl" lang="ur" className="text-sm leading-loose text-muted-foreground">اگر آپ نمبر چھپائیں گے تو ڈرائیور یا مسافر کو آپ کا نمبر نظر نہیں آئے گا، وہ صرف ایپ میں چیٹ کے ذریعے آپ سے رابطہ کر سکیں گے۔ آپ بعد میں My Account سے یہ تبدیل کر سکتے ہیں۔</p>
+      </fieldset>
       <LocationPicker label="Home address" value={home} locations={locations} city={city?.name} icon={<Home className="h-5 w-5" />} onChange={(value) => (value === work ? setSame(true) : setF({ ...f, home: value }))} />
       <LocationPicker label={role === "jobian" ? "Workplace address" : "Campus address"} value={work} locations={locations} city={city?.name} icon={<Building2 className="h-5 w-5" />} onChange={(value) => (value === home ? setSame(true) : setF({ ...f, work: value }))} />
       <SameAddressDialog open={same} onClose={() => setSame(false)} />

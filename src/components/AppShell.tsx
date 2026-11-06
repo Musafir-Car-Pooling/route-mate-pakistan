@@ -167,6 +167,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
   };
   const items = [
     { to: user?.travelMode === "driver" ? "/nearby-requests" : "/nearby-rides", label: user?.travelMode === "driver" ? "Ride requests near you" : "Ride shared near you", icon: Car },
+    { to: "/messages", label: "Messages", icon: MessageCircle },
     { to: "/account", label: "Profile", icon: User },
     { to: "/account", label: "Security", icon: Shield },
     { to: "/account", label: "Privacy", icon: Lock },

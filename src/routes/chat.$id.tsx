@@ -41,7 +41,11 @@ function ChatPage() {
     void import("@/lib/cloud").then((c) => { stop = c.watchChat(id, (m) => { setMsgs(m); setErr(""); }, () => setErr("Chat is not available yet.")); });
     return () => stop();
   }, [user, id]);
-  useEffect(() => { end.current?.scrollIntoView({ block: "end" }); }, [msgs.length]);
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: "end" });
+    const last = msgs[msgs.length - 1];
+    if (user && last) void import("@/lib/chat-unread").then((c) => c.markChatRead(user.id, id, last.at));
+  }, [msgs.length, user, id]);
 
   const thread = mine ?? incoming;
   const other = !thread ? "Chat" : thread.userId === user?.id ? thread.memberName ?? "Member" : thread.payerName ?? "Member";

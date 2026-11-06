@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { useStore, type Unlock } from "@/lib/store";
+import { useStore } from "@/lib/store";
+import { useChatInbox } from "@/lib/chat-unread";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
@@ -20,25 +20,25 @@ export const Route = createFileRoute("/messages")({
 
 function Messages() {
   const user = useStore((s) => s.user);
-  const mine = useStore((s) => s.unlocks.filter((u) => u.kind === "chat" && u.status === "unlocked"));
-  const [incoming, setIncoming] = useState<Unlock[]>([]);
-  useEffect(() => {
-    if (!user) return;
-    let stop = () => {};
-    void import("@/lib/cloud").then((c) => { stop = c.watchIncomingChats(user.id, setIncoming); });
-    return () => stop();
-  }, [user]);
-  const list = [...mine, ...incoming].sort((a, b) => b.at - a.at);
+  const { threads, unread, msgs } = useChatInbox();
   return (
     <AppShell back title="Messages">
-      {!list.length && <p className="py-8 text-center text-muted-foreground">No chats yet. Chats open after a contact payment with a member who hides their number.</p>}
+      {!threads.length && <p className="py-8 text-center text-muted-foreground">No chats yet. Chats open after a contact payment with a member who hides their number.</p>}
       <div className="space-y-2">
-        {list.map((u) => (
-          <Link key={u.id} to="/chat/$id" params={{ id: u.id }} className="card-box flex items-center gap-3 p-4">
-            <MessageCircle className="text-primary" />
-            <span className="text-lg font-bold">{u.userId === user?.id ? u.memberName ?? "Member" : u.payerName ?? "Member"}</span>
-          </Link>
-        ))}
+        {threads.map((u) => {
+          const last = msgs[u.id]?.at(-1);
+          const n = unread[u.id] ?? 0;
+          return (
+            <Link key={u.id} to="/chat/$id" params={{ id: u.id }} className="card-box flex items-center gap-3 p-4">
+              <MessageCircle className="shrink-0 text-primary" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-lg font-bold">{u.userId === user?.id ? u.memberName ?? "Member" : u.payerName ?? "Member"}</span>
+                {last && <span className={`block truncate text-sm ${n ? "font-semibold" : "text-muted-foreground"}`}>{last.text}</span>}
+              </span>
+              {n > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-destructive px-1 text-xs font-bold text-destructive-foreground">{n}</span>}
+            </Link>
+          );
+        })}
       </div>
     </AppShell>
   );

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Bell, Share2 } from "lucide-react";
+import { Menu, X, User, Shield, Lock, HelpCircle, FileText, Info, Phone, LogOut, MessageCircle, Facebook, Linkedin, Instagram, ArrowLeft, Car, ArrowLeftRight, Users, Share2 } from "lucide-react";
 import { shareText, appUrl } from "@/lib/share";
 import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
 import { onNearbySeenChange, unseenNearbyCount } from "@/lib/ride-alerts";

@@ -79,7 +79,7 @@ export function IncomingOffers() {
                 ) : (
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <Button onClick={() => interested(p)}><Check className="size-4" />Interested</Button>
-                    <Button variant="outline" onClick={() => save(p.id, "no")}><X className="size-4" />Not interested</Button>
+                    <Button variant="outline" onClick={() => { if (p.interests.some((i) => i.id === user.id)) setState((s) => removeMemberInterest(s, p.id)); save(p.id, "no"); }}><X className="size-4" />Not interested</Button>
                   </div>
                 )}
               </div>

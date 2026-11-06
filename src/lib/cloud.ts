@@ -3,7 +3,7 @@
 import type { FirebaseApp } from "firebase/app";
 import type { Firestore, Unsubscribe } from "firebase/firestore";
 import type { Auth } from "firebase/auth";
-import { pickDemoInterests, ADMIN_EMAIL, ADMIN_PASS, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type Unlock, type User } from "./store";
+import { pickDemoInterests, ADMIN_EMAIL, ADMIN_PASS, getState, setRemote, setWriteHook, type Company, type Interest, type Post, type Settings, type State, type StoredReview, type ChatMessage, type Unlock, type User } from "./store";
 import { initFirebase } from "./firebase";
 
 type FS = typeof import("firebase/firestore");
@@ -194,7 +194,7 @@ export async function startSync() {
       keep("my unlocks", (err) => fs.onSnapshot(fs.query(fs.collection(db, "unlocks"), fs.where("userId", "==", uid)), (snap) => {
         const unlocks = snap.docs.map((d) => ({ ...(d.data() as Unlock), id: d.id }));
         setRemote((s) => ({ ...s, unlocks }));
-        unlocks.filter((u) => u.status === "unlocked" && !getState().phones[u.interestId]).forEach((u) => {
+        unlocks.filter((u) => u.status === "unlocked" && u.kind !== "chat" && !getState().phones[u.interestId]).forEach((u) => {
           fs.getDoc(fs.doc(db, "private", u.interestId)).then((d) => {
             const phone = d.data()?.["phone"] as string | undefined;
             if (phone) setRemote((s) => ({ ...s, phones: { ...s.phones, [u.interestId]: phone } }));
@@ -316,4 +316,30 @@ export async function loadDemoPhone(id: string) {
 export async function deleteDemoPhone(id: string) {
   const { db, fs } = await cloud();
   await fs.deleteDoc(fs.doc(db, "private", "demo_" + id));
+}
+
+// ---------- In-app chat (members who hide their number) ----------
+// Thread id = unlock id "<payer>_<member>"; only those two can read/write once the chat unlock is approved.
+export async function sendChat(chatId: string, text: string) {
+  const { db, fs, auth } = await cloud();
+  const from = auth.currentUser?.uid;
+  if (!from) throw new Error("Not signed in");
+  await fs.addDoc(fs.collection(db, "chats", chatId, "messages"), { from, text: text.trim().slice(0, 1000), at: Date.now() });
+}
+export function watchChat(chatId: string, cb: (m: ChatMessage[]) => void, onError: (e: unknown) => void): () => void {
+  let stop: Unsubscribe | null = null; let dead = false;
+  void cloud().then(({ db, fs }) => {
+    if (dead) return;
+    stop = fs.onSnapshot(fs.query(fs.collection(db, "chats", chatId, "messages"), fs.orderBy("at")), (snap) => cb(snap.docs.map((d) => ({ ...(d.data() as ChatMessage), id: d.id }))), onError);
+  });
+  return () => { dead = true; stop?.(); };
+}
+/** Chats other members opened with me (I hid my number). */
+export function watchIncomingChats(uid: string, cb: (u: Unlock[]) => void): () => void {
+  let stop: Unsubscribe | null = null; let dead = false;
+  void cloud().then(({ db, fs }) => {
+    if (dead) return;
+    stop = fs.onSnapshot(fs.query(fs.collection(db, "unlocks"), fs.where("interestId", "==", uid), fs.where("kind", "==", "chat")), (snap) => cb(snap.docs.map((d) => ({ ...(d.data() as Unlock), id: d.id })).filter((u) => u.status === "unlocked")), log);
+  });
+  return () => { dead = true; stop?.(); };
 }

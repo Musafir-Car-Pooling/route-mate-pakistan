@@ -159,7 +159,7 @@ export const DEMO_GAP_MS = [2000, 4000, 3000, 3000, 3000];
 /** Up to 5 random demo members matching the post's gender rule, arriving one by one within ~14 seconds. */
 /** Fee for a member: chat fee when their number is hidden, else the normal contact fee. */
 export const feeFor = (person: Pick<Interest, "hidePhone">, settings: Settings) => person.hidePhone ? settings.chatFee ?? 150 : settings.fee;
-export type ChatMessage = { id: string; from: string; text: string; at: number };
+export type ChatMessage = { id: string; from: string; text: string; at: number; deliveredAt?: number; readAt?: number };
 
 export function pickDemoInterests(post: Post, settings: Settings, now = Date.now(), rand = Math.random): Interest[] {
   if (!settings.demoMode) return [];

@@ -67,6 +67,8 @@ service cloud.firestore {
       allow read: if chatMember(cid);
       allow create: if chatMember(cid) && request.resource.data.from == request.auth.uid
         && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000;
+      allow update: if chatMember(cid) && resource.data.from != request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["deliveredAt", "readAt"]);
     }
 
     // Payment proofs. Id is "<payerUid>_<memberUid>".

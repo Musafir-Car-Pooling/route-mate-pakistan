@@ -343,3 +343,14 @@ export function watchIncomingChats(uid: string, cb: (u: Unlock[]) => void): () =
   });
   return () => { dead = true; stop?.(); };
 }
+/** Mark the other person's messages delivered/read (WhatsApp-style ticks). */
+export async function markChatSeen(chatId: string, msgs: ChatMessage[], field: "deliveredAt" | "readAt") {
+  const { db, fs, auth } = await cloud();
+  const me = auth.currentUser?.uid;
+  if (!me) return;
+  const todo = msgs.filter((m) => m.from !== me && !m[field]);
+  if (!todo.length) return;
+  const b = fs.writeBatch(db); const now = Date.now();
+  for (const m of todo) b.update(fs.doc(db, "chats", chatId, "messages", m.id), field === "readAt" ? { readAt: now, deliveredAt: m.deliveredAt ?? now } : { deliveredAt: now });
+  await b.commit().catch(log);
+}

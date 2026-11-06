@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Send, Lock } from "lucide-react";
+import { Send, Lock, Check, CheckCheck, Clock } from "lucide-react";
+import { tickState } from "@/lib/chat-unread";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useStore, type ChatMessage, type Unlock } from "@/lib/store";
@@ -26,6 +27,7 @@ function ChatPage() {
   const [incoming, setIncoming] = useState<Unlock>();
   const [msgs, setMsgs] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
+  const [pending, setPending] = useState<string[]>([]);
   const [err, setErr] = useState("");
   const end = useRef<HTMLDivElement>(null);
 
@@ -38,7 +40,7 @@ function ChatPage() {
   useEffect(() => {
     if (!user) return;
     let stop = () => {};
-    void import("@/lib/cloud").then((c) => { stop = c.watchChat(id, (m) => { setMsgs(m); setErr(""); }, () => setErr("Chat is not available yet.")); });
+    void import("@/lib/cloud").then((c) => { stop = c.watchChat(id, (m) => { setMsgs(m); setErr(""); void c.markChatSeen(id, m, "readAt"); }, () => setErr("Chat is not available yet.")); });
     return () => stop();
   }, [user, id]);
   useEffect(() => {
@@ -53,8 +55,10 @@ function ChatPage() {
     const t = text.trim();
     if (!t) return;
     setText("");
+    setPending((p) => [...p, t]);
     try { const { sendChat } = await import("@/lib/cloud"); await sendChat(id, t); }
     catch { setErr("Message not sent. Try again."); setText(t); }
+    finally { setPending((p) => { const i = p.indexOf(t); return i < 0 ? p : [...p.slice(0, i), ...p.slice(i + 1)]; }); }
   };
 
   return (
@@ -66,8 +70,13 @@ function ChatPage() {
           <div key={m.id} className={`flex ${m.from === user?.id ? "justify-end" : "justify-start"}`}>
             <p className={`max-w-[80%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2 ${m.from === user?.id ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
               {m.text}
-              <span className="mt-1 block text-[10px] opacity-70">{new Date(m.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+              <span className="mt-1 flex items-center justify-end gap-1 text-[10px]"><span className="opacity-70">{new Date(m.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>{m.from === user?.id && <Ticks t={tickState(m)} />}</span>
             </p>
+          </div>
+        ))}
+        {pending.map((t, i) => (
+          <div key={"p" + i} className="flex justify-end">
+            <p className="max-w-[80%] whitespace-pre-wrap break-words rounded-2xl bg-primary px-4 py-2 text-primary-foreground opacity-80">{t}<span className="mt-1 flex justify-end"><Clock className="size-3" aria-label="Sending" /></span></p>
           </div>
         ))}
         <div ref={end} />
@@ -79,4 +88,9 @@ function ChatPage() {
       </form>
     </AppShell>
   );
+}
+
+function Ticks({ t }: { t: "sent" | "delivered" | "read" }) {
+  if (t === "sent") return <Check className="size-3.5 opacity-70" aria-label="Sent" />;
+  return <CheckCheck className={`size-3.5 ${t === "read" ? "text-sky-300" : "opacity-70"}`} aria-label={t === "read" ? "Read" : "Delivered"} />;
 }

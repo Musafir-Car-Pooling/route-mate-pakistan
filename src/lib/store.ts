@@ -12,7 +12,7 @@ export type User = {
 export type MemberReview = { id: string; author: string; rating: number; text: string; at: number };
 export type Interest = {
   id: string; name: string; org: string; gender: Gender; rating: number; reviews: number;
-  verified: boolean; car?: string | undefined; phone?: string; at: number; reviewEntries?: MemberReview[]; demo?: boolean; hidePhone?: boolean;
+  verified: boolean; car?: string | undefined; phone?: string; at: number; reviewEntries?: MemberReview[]; demo?: boolean; hidePhone?: boolean | undefined;
 };
 export type Post = {
   id: string; kind: "request" | "ride"; ownerId: string; ownerName: string;

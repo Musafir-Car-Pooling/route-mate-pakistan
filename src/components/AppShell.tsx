@@ -5,6 +5,7 @@ import { shareText, appUrl } from "@/lib/share";
 import { useStore, setState, switchTravelMode, validPlate } from "@/lib/store";
 import { onNearbySeenChange, unseenNearbyCount } from "@/lib/ride-alerts";
 import { Button } from "@/components/ui/button";
+import { useChatInbox } from "@/lib/chat-unread";
 import logoAsset from "@/assets/travelsync-logo.png";
 import logoRing from "@/assets/logo-ring.png";
 import logoHandOrange from "@/assets/logo-hand-orange.png";
@@ -139,6 +140,7 @@ export function AppShell({ children, title, back }: { children: ReactNode; title
   const alertCount = user ? unseenNearbyCount(user, posts, settings) : 0;
   void seenTick;
   const nav = useNavigate();
+  const chatUnread = useChatInbox().total;
   const lastCount = useRef(alertCount);
   useEffect(() => {
     if (alertCount > lastCount.current && "vibrate" in navigator) { try { navigator.vibrate([200, 100, 200]); } catch { /* unsupported */ } }

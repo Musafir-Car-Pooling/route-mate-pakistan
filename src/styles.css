@@ -5,6 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-chat-out: var(--chat-out);
+  --color-chat-out-foreground: var(--chat-out-foreground);
+  --color-chat-in: var(--chat-in);
+  --color-chat-tick-read: var(--chat-tick-read);
   --font-display: "Bebas Neue", sans-serif;
   --font-slogan: "Sora", sans-serif;
   --font-sans: "Barlow", system-ui, sans-serif;
@@ -41,6 +45,10 @@
 }
 
 :root {
+  --chat-out: #005c4b;
+  --chat-out-foreground: #e9edef;
+  --chat-in: #202c33;
+  --chat-tick-read: #53bdeb;
   --radius: 1rem;
   --feature-shade: oklch(0.12 0.02 255 / 66%);
   --brand-surface: oklch(1 0 0);

@@ -68,7 +68,7 @@ function ChatPage() {
         {!msgs.length && !err && <p className="py-8 text-center text-sm text-muted-foreground">Say hello and agree pickup point and timing.</p>}
         {msgs.map((m) => (
           <div key={m.id} className={`flex ${m.from === user?.id ? "justify-end" : "justify-start"}`}>
-            <p className={`max-w-[80%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2 ${m.from === user?.id ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
+            <p className={`max-w-[80%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2 ${m.from === user?.id ? "bg-chat-out text-chat-out-foreground" : "bg-chat-in text-chat-out-foreground"}`}>
               {m.text}
               <span className="mt-1 flex items-center justify-end gap-1 text-[10px]"><span className="opacity-70">{new Date(m.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>{m.from === user?.id && <Ticks t={tickState(m)} />}</span>
             </p>
@@ -76,7 +76,7 @@ function ChatPage() {
         ))}
         {pending.map((t, i) => (
           <div key={"p" + i} className="flex justify-end">
-            <p className="max-w-[80%] whitespace-pre-wrap break-words rounded-2xl bg-primary px-4 py-2 text-primary-foreground opacity-80">{t}<span className="mt-1 flex justify-end"><Clock className="size-3" aria-label="Sending" /></span></p>
+            <p className="max-w-[80%] whitespace-pre-wrap break-words rounded-2xl bg-chat-out px-4 py-2 text-chat-out-foreground opacity-80">{t}<span className="mt-1 flex justify-end"><Clock className="size-3" aria-label="Sending" /></span></p>
           </div>
         ))}
         <div ref={end} />
@@ -92,5 +92,5 @@ function ChatPage() {
 
 function Ticks({ t }: { t: "sent" | "delivered" | "read" }) {
   if (t === "sent") return <Check className="size-3.5 opacity-70" aria-label="Sent" />;
-  return <CheckCheck className={`size-3.5 ${t === "read" ? "text-sky-300" : "opacity-70"}`} aria-label={t === "read" ? "Read" : "Delivered"} />;
+  return <CheckCheck className={`size-3.5 ${t === "read" ? "text-chat-tick-read" : "opacity-70"}`} aria-label={t === "read" ? "Read" : "Delivered"} />;
 }

@@ -144,3 +144,13 @@ describe("demo interests", () => {
     expect(r.map((i) => i.at)).toEqual([3000, 7000, 10000, 13000, 16000]);
   });
 });
+
+import { feeFor as _feeFor, getState as _gs } from "./store";
+describe("number privacy chat fee", () => {
+  it("charges the chat fee (PKR 150 by default) for members who hide their number", () => {
+    expect(_feeFor({ hidePhone: true }, _gs().settings)).toBe(150);
+  });
+  it("uses the normal contact fee for members who show their number", () => {
+    expect(_feeFor({ hidePhone: false }, { ..._gs().settings, fee: 200 })).toBe(200);
+  });
+});

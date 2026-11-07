@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useStore } from "@/lib/store";
 
@@ -20,10 +21,21 @@ export const Route = createFileRoute("/info/$slug")({
 
 function Info() {
   const { slug } = Route.useParams();
+  const router = useRouter();
+  const navigate = useNavigate();
   const text = useStore((s) => s.settings.pages[slug] ?? "Page not found.");
   return (
     <AppShell back title={titles[slug] ?? "Info"}>
       <div className="card-box whitespace-pre-line p-5 text-lg leading-relaxed">{text}</div>
+      <div className="h-20" />
+      <button
+        type="button"
+        aria-label="Go back"
+        onClick={() => (window.history.length > 1 ? router.history.back() : navigate({ to: "/" }))}
+        className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95"
+      >
+        <ArrowLeft className="h-7 w-7" />
+      </button>
     </AppShell>
   );
 }

@@ -70,12 +70,23 @@ export function Logo({ size = "text-3xl", className = "" }: { size?: string; cla
 
 // Handshake emblem built from split layers: the ring stays still while the
 // two hands grip and pump once every second (login screen).
+if (typeof window !== "undefined") {
+  for (const src of [logoRing, logoHandOrange, logoHandBlue]) { const i = new Image(); i.src = src; }
+}
+
 export function HandshakeEmblem({ className = "" }: { className?: string }) {
+  const [loaded, setLoaded] = useState(0);
+  const root = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const imgs = Array.from(root.current?.querySelectorAll("img") ?? []);
+    setLoaded(imgs.filter((i) => i.complete && i.naturalWidth > 0).length);
+  }, []);
+  const onLoad = () => setLoaded((n) => n + 1);
   return (
-    <span className={`relative inline-block align-middle ${className}`} role="img" aria-label="Travel Sync logo">
-      <img src={logoRing} alt="" className="block h-full w-full" />
-      <img src={logoHandOrange} alt="" className="hand-piece hand-piece-orange absolute inset-0 h-full w-full" />
-      <img src={logoHandBlue} alt="" className="hand-piece hand-piece-blue absolute inset-0 h-full w-full" />
+    <span ref={root} className={`relative inline-block align-middle transition-opacity duration-300 ${loaded >= 3 ? "opacity-100" : "opacity-0"} ${className}`} role="img" aria-label="Travel Sync logo">
+      <img src={logoRing} alt="" decoding="async" fetchPriority="high" onLoad={onLoad} className="block h-full w-full" />
+      <img src={logoHandOrange} alt="" decoding="async" fetchPriority="high" onLoad={onLoad} className="hand-piece hand-piece-orange absolute inset-0 h-full w-full" />
+      <img src={logoHandBlue} alt="" decoding="async" fetchPriority="high" onLoad={onLoad} className="hand-piece hand-piece-blue absolute inset-0 h-full w-full" />
     </span>
   );
 }

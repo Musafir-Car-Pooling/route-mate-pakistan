@@ -82,7 +82,7 @@ function Index() {
   if (!user)
     return (
       <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col px-6 pb-6">
-        <div className="grid flex-1 place-items-center px-6 animate-in zoom-in-90 fade-in duration-700"><AuthLogo imgSize="h-28 w-28" textSize="text-6xl" /></div>
+        <div className="grid flex-1 place-items-center px-6 animate-in zoom-in-90 fade-in duration-700"><AuthLogo animated imgSize="h-[88px] w-[88px]" textSize="text-6xl" /></div>
         <div className="mb-[12vh] animate-in fade-in slide-in-from-bottom-6 duration-700">
           <p className="mb-6 mt-2 text-center text-lg font-semibold text-muted-foreground">Verified carpooling for Jobians & students.</p>
           <Link to="/register" className="btn-big">Create Account</Link>
